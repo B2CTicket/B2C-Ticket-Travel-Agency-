@@ -48,14 +48,17 @@ const App: React.FC = () => {
   });
 
   useEffect(() => {
+    let lastWidth = window.innerWidth;
     const handleResize = () => {
-      const mobile = window.innerWidth < 1024;
-      setIsMobile(mobile);
-      if (mobile) {
-        setSidebarOpen(false);
-      } else {
-        setSidebarOpen(true);
+      const width = window.innerWidth;
+      const isNowMobile = width < 1024;
+      const wasMobile = lastWidth < 1024;
+      
+      if (isNowMobile !== wasMobile) {
+        setIsMobile(isNowMobile);
+        setSidebarOpen(!isNowMobile);
       }
+      lastWidth = width;
     };
 
     window.addEventListener('resize', handleResize);
@@ -177,14 +180,17 @@ const App: React.FC = () => {
 
       {/* Unique Sidebar with Gradient & Blur */}
       <aside className={`
-        ${isMobile ? 'fixed inset-y-0 left-0 z-[70] translate-x-0' : 'relative translate-x-0'}
-        ${isSidebarOpen ? isMobile ? 'w-80' : 'w-72' : isMobile ? '-translate-x-full' : 'w-24'}
+        ${isMobile ? 'fixed inset-y-0 left-0 z-[70]' : 'relative'}
+        ${isMobile 
+          ? isSidebarOpen ? 'w-80 translate-x-0 shadow-2xl' : 'w-80 -translate-x-full'
+          : isSidebarOpen ? 'w-72 translate-x-0' : 'w-24'
+        }
         ${isDarkMode ? 'bg-slate-900/40 border-slate-800' : 'bg-white border-slate-100'} 
         border-r transition-all duration-500 flex flex-col group
       `}>
-        <div className="p-8 flex items-center justify-between gap-4 shrink-0">
+        <div className={`flex items-center shrink-0 transition-all duration-500 ${!isSidebarOpen && !isMobile ? 'p-6 justify-center' : 'p-8 justify-between gap-4'}`}>
           <div className="flex items-center gap-4">
-            <div className="vibrant-gradient p-2.5 rounded-2xl vibrant-glow shrink-0">
+            <div className={`vibrant-gradient rounded-2xl vibrant-glow shrink-0 transition-all duration-500 ${!isSidebarOpen && !isMobile ? 'p-3' : 'p-2.5'}`}>
               <Plane className="text-white w-6 h-6 rotate-45" />
             </div>
             {(isSidebarOpen || isMobile) && (
@@ -223,15 +229,21 @@ const App: React.FC = () => {
           ))}
         </nav>
 
-        <div className={`p-6 border-t ${isDarkMode ? 'border-slate-800' : 'border-slate-50'} shrink-0`}>
+        <div className={`p-6 border-t ${isDarkMode ? 'border-slate-800' : 'border-slate-50'} shrink-0 space-y-4`}>
            {deferredPrompt && (
-             <button onClick={handleInstallClick} className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all mb-4 bg-indigo-600 text-white hover:vibrant-gradient shadow-lg">
+             <button 
+              onClick={handleInstallClick} 
+              className={`w-full flex items-center bg-indigo-600 text-white hover:vibrant-gradient shadow-lg transition-all rounded-2xl ${!isSidebarOpen && !isMobile ? 'justify-center p-3' : 'gap-3 px-4 py-3'}`}
+            >
               <DownloadCloud size={20} />
               {(isSidebarOpen || isMobile) && <span className="font-bold text-sm">Install App</span>}
             </button>
            )}
-           <div className={`flex items-center gap-3 px-4 py-3 rounded-2xl ${isDarkMode ? 'bg-slate-800/50' : 'bg-slate-50'}`}>
-             <button onClick={() => setIsDarkMode(!isDarkMode)} className={`p-2 rounded-xl transition-all ${isDarkMode ? 'bg-amber-500/20 text-amber-500' : 'bg-violet-600 text-white shadow-md'}`}>
+           <div className={`flex items-center rounded-2xl transition-all duration-500 ${isDarkMode ? 'bg-slate-800/50' : 'bg-slate-50'} ${!isSidebarOpen && !isMobile ? 'justify-center p-2' : 'gap-3 px-4 py-3'}`}>
+             <button 
+              onClick={() => setIsDarkMode(!isDarkMode)} 
+              className={`p-2 rounded-xl transition-all ${isDarkMode ? 'bg-amber-500/20 text-amber-500' : 'bg-violet-600 text-white shadow-md'}`}
+            >
                {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
              </button>
              {(isSidebarOpen || isMobile) && <span className="text-xs font-bold uppercase tracking-widest text-slate-400">{isDarkMode ? 'Light Mode' : 'Dark Mode'}</span>}
@@ -296,10 +308,25 @@ const App: React.FC = () => {
 };
 
 const NavItem = ({ icon, label, active, onClick, collapsed, isDarkMode }: any) => (
-  <button onClick={onClick} className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all duration-300 group relative ${active ? 'vibrant-gradient text-white shadow-xl shadow-violet-500/20' : isDarkMode ? 'text-slate-500 hover:bg-slate-800/50 hover:text-slate-200' : 'text-slate-500 hover:bg-violet-50 hover:text-violet-700'}`}>
-    <span className={`${active ? 'text-white' : isDarkMode ? 'text-slate-500 group-hover:text-violet-400' : 'text-slate-400 group-hover:text-violet-600'} transition-colors`}>
-      {React.cloneElement(icon, { size: 22 })}
-    </span>
+  <button 
+    onClick={onClick} 
+    className={`
+      w-full flex items-center rounded-2xl transition-all duration-300 group relative
+      ${collapsed ? 'justify-center p-3.5' : 'gap-4 px-4 py-3.5'}
+      ${active 
+        ? 'vibrant-gradient text-white shadow-xl shadow-violet-500/20' 
+        : isDarkMode 
+          ? 'text-slate-500 hover:bg-slate-800/50 hover:text-slate-200' 
+          : 'text-slate-500 hover:bg-violet-50 hover:text-violet-700'
+      }
+    `}
+  >
+    <div className={`
+      flex items-center justify-center transition-colors
+      ${active ? 'text-white' : isDarkMode ? 'text-slate-500 group-hover:text-violet-400' : 'text-slate-400 group-hover:text-violet-600'}
+    `}>
+      {React.cloneElement(icon, { size: collapsed ? 24 : 22 })}
+    </div>
     {!collapsed && <span className="font-bold text-xs uppercase tracking-widest truncate">{label}</span>}
     {active && collapsed && <div className="absolute right-0 w-1.5 h-6 bg-white rounded-l-full"></div>}
   </button>
