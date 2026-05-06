@@ -61,9 +61,28 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, isDarkMode }) 
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isSynchronizing, setIsSynchronizing] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSynchronizing(true);
+    
+    // Simulate synchronization delay
+    await new Promise(resolve => setTimeout(resolve, 1200));
+    
     onAdd(formData);
+    setIsSynchronizing(false);
+    setShowModal(false);
+    setFormData({
+      clientId: '', clientName: '', clientPhone: '', type: 'Air Ticket',
+      date: new Date().toISOString().split('T')[0], issueDate: new Date().toISOString().split('T')[0],
+      flyingDate: '', from: '', to: '', checkIn: '', checkOut: '', hotelName: '',
+      amount: 0, cost: 0,
+      status: BookingStatus.PENDING, description: '', pax: 1, pnr: '', bookingSource: ''
+    });
+  };
+
+  const handleAbort = () => {
     setShowModal(false);
     setFormData({
       clientId: '', clientName: '', clientPhone: '', type: 'Air Ticket',
@@ -434,21 +453,30 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, isDarkMode }) 
 
       {/* Data Entry Console (Modal) */}
       {showModal && (
-        <div className="fixed inset-0 z-[150] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-950/90 backdrop-blur-md animate-in slide-in-from-bottom-20 duration-500">
-          <div className={`rounded-t-[48px] sm:rounded-[48px] w-full max-w-3xl shadow-2xl max-h-[92vh] overflow-hidden flex flex-col ${
-            isDarkMode ? 'bg-[#0b1120] text-white border border-slate-800' : 'bg-white'
-          }`}>
-            <div className={`px-10 py-10 border-b-2 flex items-center justify-between sticky top-0 z-20 ${isDarkMode ? 'bg-[#0b1120]/90 border-slate-800' : 'bg-white/90 border-slate-100'} backdrop-blur-md`}>
+        <div className="fixed inset-0 z-[150] flex items-end sm:items-center justify-center bg-slate-950/90 backdrop-blur-md animate-in slide-in-from-bottom-20 duration-500">
+          <form 
+            onSubmit={handleSubmit}
+            className={`rounded-t-[48px] sm:rounded-[48px] w-full max-w-3xl shadow-2xl h-[95vh] sm:h-auto max-h-[92vh] overflow-hidden flex flex-col ${
+              isDarkMode ? 'bg-[#0b1120] text-white border border-slate-800' : 'bg-white border-slate-200'
+            }`}
+          >
+            {/* Fixed Header */}
+            <div className={`px-8 py-8 border-b-2 flex items-center justify-between shrink-0 ${isDarkMode ? 'border-slate-800 bg-[#0b1120]' : 'bg-white border-slate-100'}`}>
               <div>
                 <h3 className="text-3xl font-black uppercase tracking-tighter">Mission <span className="text-indigo-600">Console</span></h3>
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] mt-2">Initialize Operational Record</p>
               </div>
-              <button onClick={() => setShowModal(false)} className={`p-4 rounded-3xl transition-all ${isDarkMode ? 'bg-slate-800 hover:bg-rose-500 text-white' : 'bg-slate-100 hover:bg-rose-50 text-rose-500'}`}>
+              <button 
+                type="button"
+                onClick={handleAbort} 
+                className={`p-4 rounded-3xl transition-all ${isDarkMode ? 'bg-slate-800 hover:bg-rose-500 text-white' : 'bg-slate-100 hover:bg-rose-50 text-rose-500'}`}
+              >
                 <X size={28} />
               </button>
             </div>
-
-            <form onSubmit={handleSubmit} className="p-10 space-y-12 overflow-y-auto no-scrollbar flex-1 pb-24 sm:pb-10">
+            
+            {/* Scrollable Body */}
+            <div className="flex-1 overflow-y-auto p-8 sm:p-10 space-y-12 no-scrollbar">
                {/* 1. Service Sector */}
                <section className="space-y-6">
                   <label className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.3em] block">01 / Service Intelligence</label>
@@ -596,13 +624,38 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, isDarkMode }) 
                      </div>
                   </div>
                </section>
+            </div>
 
-               <div className="flex flex-col sm:flex-row gap-6 pt-10 border-t-2 border-dashed border-slate-200 dark:border-slate-800 sticky bottom-0 z-30">
-                 <button type="button" onClick={() => setShowModal(false)} className={`flex-1 py-6 text-xs font-black uppercase tracking-[0.3em] rounded-[28px] transition-all ${isDarkMode ? 'bg-slate-800 text-slate-400' : 'bg-slate-100 text-slate-500'}`}>Abort Entry</button>
-                 <button type="submit" className="flex-1 py-6 vibrant-gradient text-white text-xs font-black uppercase tracking-[0.3em] rounded-[28px] shadow-2xl shadow-indigo-500/40 active:scale-95 transition-all">Synchronize Records</button>
+            {/* Fixed Footer */}
+            <div className={`p-8 sm:p-10 border-t-2 shrink-0 ${isDarkMode ? 'bg-[#0b1120] border-slate-800' : 'bg-white border-slate-50'}`}>
+               <div className="flex flex-col sm:flex-row gap-5">
+                 <button 
+                  type="button" 
+                  onClick={handleAbort} 
+                  disabled={isSynchronizing}
+                  className={`flex-1 py-5 rounded-[28px] text-[10px] font-black uppercase tracking-[0.3em] transition-all ${isDarkMode ? 'bg-slate-800 text-slate-400 hover:text-white disabled:opacity-50' : 'bg-slate-100 text-slate-500 hover:bg-slate-200 disabled:opacity-50'}`}>
+                    Abort Entry
+                  </button>
+                 <button 
+                  type="submit" 
+                  disabled={isSynchronizing}
+                  className="flex-1 py-5 vibrant-gradient text-white text-[10px] font-black uppercase tracking-[0.3em] rounded-[28px] shadow-2xl shadow-indigo-500/40 active:scale-95 disabled:scale-100 transition-all flex items-center justify-center gap-3"
+                >
+                    {isSynchronizing ? (
+                      <>
+                        <Zap size={18} className="animate-pulse" />
+                        <span>Synchronizing...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Zap size={18} className="fill-current" />
+                        <span>Synchronize Records</span>
+                      </>
+                    )}
+                 </button>
                </div>
-            </form>
-          </div>
+            </div>
+          </form>
         </div>
       )}
     </div>
