@@ -35,15 +35,39 @@ import StatementView from './components/StatementView';
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'bookings' | 'accounts' | 'ai' | 'clients' | 'forecast' | 'invoices' | 'statements'>('dashboard');
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
-  const [isSidebarOpen, setSidebarOpen] = useState(true);
+  const [isSidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 1024);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isDarkMode, setIsDarkMode] = useState(() => {
-    const saved = localStorage.getItem('darkMode');
-    return saved ? JSON.parse(saved) : false;
+    try {
+      const saved = localStorage.getItem('darkMode');
+      return saved ? JSON.parse(saved) : false;
+    } catch {
+      return false;
+    }
   });
 
   useEffect(() => {
-    localStorage.setItem('darkMode', JSON.stringify(isDarkMode));
+    const handleResize = () => {
+      const mobile = window.innerWidth < 1024;
+      setIsMobile(mobile);
+      if (mobile) {
+        setSidebarOpen(false);
+      } else {
+        setSidebarOpen(true);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('darkMode', JSON.stringify(isDarkMode));
+    } catch (e) {
+      console.warn("Storage blocked", e);
+    }
     if (isDarkMode) {
       document.documentElement.classList.add('dark');
       document.body.style.backgroundColor = '#020617';
@@ -126,50 +150,91 @@ const App: React.FC = () => {
   const navigateToStatement = (clientId: string) => {
     setSelectedClientId(clientId);
     setActiveTab('statements');
+    if (isMobile) setSidebarOpen(false);
   };
+
+  const menuItems = [
+    { id: 'dashboard', icon: <LayoutDashboard />, label: "Dashboard" },
+    { id: 'clients', icon: <Users />, label: "Client Base" },
+    { id: 'bookings', icon: <Ticket />, label: "Active Bookings" },
+    { id: 'invoices', icon: <FileText />, label: "Invoices" },
+    { id: 'statements', icon: <History />, label: "Statements" },
+    { id: 'forecast', icon: <BarChart3 />, label: "AI Forecast" },
+    { id: 'accounts', icon: <CreditCard />, label: "Financials" },
+    { id: 'ai', icon: <MessageSquareText />, label: "Gemini AI" },
+  ];
 
   return (
     <div className={`flex h-screen overflow-hidden font-sans transition-all duration-500 ${isDarkMode ? 'bg-slate-950 text-slate-100' : 'bg-[#f8faff] text-slate-900'}`}>
       
+      {/* Sidebar Overlay for Mobile */}
+      {isMobile && isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] transition-all animate-in fade-in duration-300"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Unique Sidebar with Gradient & Blur */}
-      <aside className={`${isSidebarOpen ? 'w-72' : 'w-24'} ${isDarkMode ? 'bg-slate-900/40 border-slate-800' : 'bg-white border-slate-100'} border-r transition-all duration-500 flex flex-col z-50 relative group`}>
-        <div className="p-8 flex items-center gap-4">
-          <div className="vibrant-gradient p-2.5 rounded-2xl vibrant-glow shrink-0">
-            <Plane className="text-white w-6 h-6 rotate-45" />
-          </div>
-          {isSidebarOpen && (
-            <div className="animate-in fade-in slide-in-from-left-2 duration-300">
-              <h1 className={`font-black text-lg tracking-tighter transition-colors ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>
-                B2C <span className="text-violet-600">TRAVEL</span>
-              </h1>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest -mt-1">ERP Systems</p>
+      <aside className={`
+        ${isMobile ? 'fixed inset-y-0 left-0 z-[70] translate-x-0' : 'relative translate-x-0'}
+        ${isSidebarOpen ? isMobile ? 'w-80' : 'w-72' : isMobile ? '-translate-x-full' : 'w-24'}
+        ${isDarkMode ? 'bg-slate-900/40 border-slate-800' : 'bg-white border-slate-100'} 
+        border-r transition-all duration-500 flex flex-col group
+      `}>
+        <div className="p-8 flex items-center justify-between gap-4 shrink-0">
+          <div className="flex items-center gap-4">
+            <div className="vibrant-gradient p-2.5 rounded-2xl vibrant-glow shrink-0">
+              <Plane className="text-white w-6 h-6 rotate-45" />
             </div>
+            {(isSidebarOpen || isMobile) && (
+              <div className="animate-in fade-in slide-in-from-left-2 duration-300">
+                <h1 className={`font-black text-lg tracking-tighter transition-colors ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>
+                  B2C <span className="text-violet-600">TRAVEL</span>
+                </h1>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest -mt-1">ERP Systems</p>
+              </div>
+            )}
+          </div>
+          {isMobile && isSidebarOpen && (
+            <button 
+              onClick={() => setSidebarOpen(false)}
+              className={`p-2 rounded-xl border ${isDarkMode ? 'border-slate-800 text-slate-400' : 'border-slate-100 text-slate-500'}`}
+            >
+              <X size={18} />
+            </button>
           )}
         </div>
 
-        <nav className="flex-1 px-4 space-y-2 mt-4">
-          <NavItem icon={<LayoutDashboard />} label="Dashboard" active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} collapsed={!isSidebarOpen} isDarkMode={isDarkMode} />
-          <NavItem icon={<Users />} label="Client Base" active={activeTab === 'clients'} onClick={() => setActiveTab('clients')} collapsed={!isSidebarOpen} isDarkMode={isDarkMode} />
-          <NavItem icon={<Ticket />} label="Active Bookings" active={activeTab === 'bookings'} onClick={() => setActiveTab('bookings')} collapsed={!isSidebarOpen} isDarkMode={isDarkMode} />
-          <NavItem icon={<FileText />} label="Invoices" active={activeTab === 'invoices'} onClick={() => setActiveTab('invoices')} collapsed={!isSidebarOpen} isDarkMode={isDarkMode} />
-          <NavItem icon={<History />} label="Statements" active={activeTab === 'statements'} onClick={() => setActiveTab('statements')} collapsed={!isSidebarOpen} isDarkMode={isDarkMode} />
-          <NavItem icon={<BarChart3 />} label="AI Forecast" active={activeTab === 'forecast'} onClick={() => setActiveTab('forecast')} collapsed={!isSidebarOpen} isDarkMode={isDarkMode} />
-          <NavItem icon={<CreditCard />} label="Financials" active={activeTab === 'accounts'} onClick={() => setActiveTab('accounts')} collapsed={!isSidebarOpen} isDarkMode={isDarkMode} />
-          <NavItem icon={<MessageSquareText />} label="Gemini AI" active={activeTab === 'ai'} onClick={() => setActiveTab('ai')} collapsed={!isSidebarOpen} isDarkMode={isDarkMode} />
+        <nav className="flex-1 px-4 space-y-2 mt-4 overflow-y-auto no-scrollbar">
+          {menuItems.map(item => (
+            <NavItem 
+              key={item.id}
+              icon={item.icon} 
+              label={item.label} 
+              active={activeTab === item.id} 
+              onClick={() => {
+                setActiveTab(item.id as any);
+                if (isMobile) setSidebarOpen(false);
+              }} 
+              collapsed={!isSidebarOpen && !isMobile} 
+              isDarkMode={isDarkMode} 
+            />
+          ))}
         </nav>
 
-        <div className={`p-6 border-t ${isDarkMode ? 'border-slate-800' : 'border-slate-50'}`}>
+        <div className={`p-6 border-t ${isDarkMode ? 'border-slate-800' : 'border-slate-50'} shrink-0`}>
            {deferredPrompt && (
              <button onClick={handleInstallClick} className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all mb-4 bg-indigo-600 text-white hover:vibrant-gradient shadow-lg">
               <DownloadCloud size={20} />
-              {isSidebarOpen && <span className="font-bold text-sm">Install App</span>}
+              {(isSidebarOpen || isMobile) && <span className="font-bold text-sm">Install App</span>}
             </button>
            )}
            <div className={`flex items-center gap-3 px-4 py-3 rounded-2xl ${isDarkMode ? 'bg-slate-800/50' : 'bg-slate-50'}`}>
              <button onClick={() => setIsDarkMode(!isDarkMode)} className={`p-2 rounded-xl transition-all ${isDarkMode ? 'bg-amber-500/20 text-amber-500' : 'bg-violet-600 text-white shadow-md'}`}>
                {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
              </button>
-             {isSidebarOpen && <span className="text-xs font-bold uppercase tracking-widest text-slate-400">{isDarkMode ? 'Light Mode' : 'Dark Mode'}</span>}
+             {(isSidebarOpen || isMobile) && <span className="text-xs font-bold uppercase tracking-widest text-slate-400">{isDarkMode ? 'Light Mode' : 'Dark Mode'}</span>}
            </div>
         </div>
       </aside>
@@ -178,29 +243,33 @@ const App: React.FC = () => {
         {/* Subtle Background Accent */}
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-violet-600/5 blur-[120px] rounded-full pointer-events-none"></div>
         
-        <header className={`h-20 ${isDarkMode ? 'bg-slate-950/50 border-slate-800' : 'bg-white/80 border-slate-100'} backdrop-blur-md border-b flex items-center justify-between px-10 shrink-0 z-40 transition-colors`}>
+        <header className={`h-20 ${isDarkMode ? 'bg-slate-950/50 border-slate-800' : 'bg-white/80 border-slate-100'} backdrop-blur-md border-b flex items-center justify-between px-6 md:px-10 shrink-0 z-40 transition-colors`}>
           <div className="flex items-center gap-4">
              <button onClick={() => setSidebarOpen(!isSidebarOpen)} className={`p-2 rounded-xl transition-colors ${isDarkMode ? 'text-slate-400 hover:bg-slate-800' : 'text-slate-500 hover:bg-slate-50'}`}>
                <Menu size={22} />
              </button>
-             <div className="relative w-80 hidden md:block">
+             <div className="relative w-80 hidden lg:block">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
               <input type="text" placeholder="Search itinerary, PNR..." className={`w-full pl-12 pr-4 py-2.5 ${isDarkMode ? 'bg-slate-900 text-slate-100 border-slate-800' : 'bg-slate-100/50 text-slate-900 border-transparent'} rounded-2xl text-xs font-medium outline-none focus:ring-2 focus:ring-violet-500/20 transition-all`} />
             </div>
           </div>
           
-          <div className="flex items-center gap-6">
-            <button onClick={() => setActiveTab('bookings')} className="vibrant-gradient text-white px-6 py-2.5 rounded-2xl flex items-center gap-2 hover:scale-[1.02] active:scale-95 transition-all text-xs font-bold shadow-lg shadow-violet-500/20">
-              <Plus size={18} />
-              NEW RESERVATION
+          <div className="flex items-center gap-3 md:gap-6">
+            <button onClick={() => {
+              setActiveTab('bookings');
+              if (isMobile) setSidebarOpen(false);
+            }} className="vibrant-gradient text-white px-4 md:px-6 py-2.5 rounded-2xl flex items-center gap-2 hover:scale-[1.02] active:scale-95 transition-all text-[10px] md:text-xs font-bold shadow-lg shadow-violet-500/20">
+              <Plus size={18} className="shrink-0" />
+              <span className="hidden xs:block">NEW RESERVATION</span>
+              <span className="xs:hidden">NEW</span>
             </button>
-            <div className="h-10 w-[1px] bg-slate-200 dark:bg-slate-800 hidden md:block"></div>
+            <div className="h-10 w-[1px] bg-slate-200 dark:bg-slate-800 hidden sm:block"></div>
             <div className="flex items-center gap-3">
               <div className="text-right hidden sm:block">
                 <p className={`text-xs font-black ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>Admin Panel</p>
                 <p className="text-[10px] text-violet-500 font-bold uppercase tracking-widest">B2C Ticket</p>
               </div>
-              <div className="w-11 h-11 rounded-2xl vibrant-gradient p-[2px] shadow-lg">
+              <div className="w-9 h-9 md:w-11 md:h-11 rounded-2xl vibrant-gradient p-[2px] shadow-lg">
                 <div className={`w-full h-full rounded-[14px] overflow-hidden border-2 ${isDarkMode ? 'border-slate-900' : 'border-white'}`}>
                   <img src="https://picsum.photos/80/80?random=1" alt="Avatar" className="w-full h-full object-cover" />
                 </div>
@@ -209,7 +278,7 @@ const App: React.FC = () => {
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto p-6 md:p-10 no-scrollbar z-10">
+        <div className="flex-1 overflow-y-auto p-4 md:p-10 no-scrollbar z-10">
           <div className="max-w-7xl mx-auto">
             {activeTab === 'dashboard' && <Dashboard stats={stats} bookings={bookings} isDarkMode={isDarkMode} />}
             {activeTab === 'clients' && <ClientList clients={clients} bookings={bookings} onAdd={addClient} onUpdate={updateClient} onNavigateToStatement={navigateToStatement} isDarkMode={isDarkMode} />}

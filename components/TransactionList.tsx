@@ -171,7 +171,7 @@ const TransactionList: React.FC<Props> = ({ transactions, stats, onAddTransactio
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-left-4 duration-500">
-      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div>
           <h2 className={`text-3xl font-black tracking-tighter ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
             FINANCIAL <span className="text-violet-600">ACCOUNTS</span>
@@ -179,28 +179,28 @@ const TransactionList: React.FC<Props> = ({ transactions, stats, onAddTransactio
           <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Real-time Ledger & Audit Management</p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3 bg-white/40 dark:bg-slate-900/40 p-3 rounded-[32px] border-2 border-slate-100 dark:border-slate-800 backdrop-blur-md">
+        <div className="flex flex-col md:flex-row md:items-center gap-3 bg-white/40 dark:bg-slate-900/40 p-3 rounded-[32px] border-2 border-slate-100 dark:border-slate-800 backdrop-blur-md">
           {/* Date Filter */}
-          <div className="flex items-center gap-2">
-            <div className="relative">
+          <div className="flex flex-col sm:flex-row items-center gap-2">
+            <div className="relative w-full sm:w-auto">
               <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
               <input 
                 type="date"
                 value={startDate}
                 onChange={e => setStartDate(e.target.value)}
-                className={`pl-10 pr-3 py-2.5 rounded-2xl border-2 outline-none font-bold text-[11px] transition-all ${
+                className={`w-full sm:w-auto pl-10 pr-3 py-2.5 rounded-2xl border-2 outline-none font-bold text-[11px] transition-all ${
                   isDarkMode ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-50 text-slate-700 shadow-sm'
                 }`}
               />
             </div>
             <span className="text-slate-400 text-xs font-black uppercase tracking-widest">to</span>
-            <div className="relative">
+            <div className="relative w-full sm:w-auto">
               <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
               <input 
                 type="date"
                 value={endDate}
                 onChange={e => setEndDate(e.target.value)}
-                className={`pl-10 pr-3 py-2.5 rounded-2xl border-2 outline-none font-bold text-[11px] transition-all ${
+                className={`w-full sm:w-auto pl-10 pr-3 py-2.5 rounded-2xl border-2 outline-none font-bold text-[11px] transition-all ${
                   isDarkMode ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-50 text-slate-700 shadow-sm'
                 }`}
               />
@@ -212,21 +212,21 @@ const TransactionList: React.FC<Props> = ({ transactions, stats, onAddTransactio
           <div className="flex items-center gap-2">
             <button 
               onClick={() => handlePrintLedger()}
-              className={`p-2.5 rounded-2xl transition-all ${isDarkMode ? 'bg-slate-800 text-slate-400 hover:text-white' : 'bg-slate-50 text-slate-400 hover:text-violet-600 shadow-sm'}`}
+              className={`flex-1 md:flex-initial p-2.5 flex justify-center rounded-2xl transition-all ${isDarkMode ? 'bg-slate-800 text-slate-400 hover:text-white' : 'bg-slate-50 text-slate-400 hover:text-violet-600 shadow-sm'}`}
               title="Print Financial Report"
             >
               <Printer size={18} />
             </button>
             <button 
               onClick={resetFilters}
-              className={`p-2.5 rounded-2xl transition-all ${isDarkMode ? 'bg-slate-800 text-slate-400 hover:text-white' : 'bg-slate-50 text-slate-400 hover:text-violet-600 shadow-sm'}`}
+              className={`flex-1 md:flex-initial p-2.5 flex justify-center rounded-2xl transition-all ${isDarkMode ? 'bg-slate-800 text-slate-400 hover:text-white' : 'bg-slate-50 text-slate-400 hover:text-violet-600 shadow-sm'}`}
               title="Reset Filters"
             >
               <RefreshCw size={18} />
             </button>
             <button 
               onClick={() => setShowModal(true)}
-              className="px-6 py-2.5 vibrant-gradient text-white text-[11px] font-black uppercase tracking-widest rounded-2xl shadow-lg shadow-violet-500/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
+              className="flex-[2] md:flex-initial px-6 py-2.5 vibrant-gradient text-white text-[11px] font-black uppercase tracking-widest rounded-2xl shadow-lg shadow-violet-500/20 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 whitespace-nowrap"
             >
               <Plus size={16} />
               Manual Entry
@@ -263,14 +263,14 @@ const TransactionList: React.FC<Props> = ({ transactions, stats, onAddTransactio
       <div className={`rounded-[40px] border-2 overflow-hidden shadow-2xl transition-all ${
         isDarkMode ? 'bg-[#0f172a] border-slate-800' : 'bg-white border-slate-50 shadow-xl shadow-slate-200/50'
       }`}>
-        <div className={`px-10 py-5 flex items-center justify-between border-b-2 ${isDarkMode ? 'bg-slate-900/50 border-slate-800' : 'bg-slate-50/50 border-slate-100'}`}>
+        <div className={`px-6 md:px-10 py-5 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b-2 ${isDarkMode ? 'bg-slate-900/50 border-slate-800' : 'bg-slate-50/50 border-slate-100'}`}>
            <div className="flex items-center gap-4">
               <div className="p-3 rounded-2xl bg-indigo-600/10 text-indigo-500">
                 <BookOpen size={20} />
               </div>
               <div>
                 <h3 className={`text-sm font-black uppercase tracking-tight ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>Transaction Ledger</h3>
-                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Showing {filteredTransactions.length} items for selected period</p>
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Showing {filteredTransactions.length} items</p>
               </div>
            </div>
            
@@ -282,7 +282,8 @@ const TransactionList: React.FC<Props> = ({ transactions, stats, onAddTransactio
         </div>
 
         <div className="overflow-x-auto no-scrollbar">
-          <table className="w-full text-left">
+          {/* Desktop Table */}
+          <table className="w-full text-left hidden md:table">
             <thead>
               <tr className={`${isDarkMode ? 'border-slate-800' : 'border-slate-100'}`}>
                 <th className="px-10 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Date</th>
@@ -292,7 +293,7 @@ const TransactionList: React.FC<Props> = ({ transactions, stats, onAddTransactio
               </tr>
             </thead>
             <tbody className={`divide-y-2 ${isDarkMode ? 'divide-slate-800/50' : 'divide-slate-50'}`}>
-              {filteredTransactions.length > 0 ? filteredTransactions.map((t) => (
+              {filteredTransactions.map((t) => (
                 <tr key={t.id} className={`group transition-all ${isDarkMode ? 'hover:bg-violet-600/5' : 'hover:bg-violet-50/50'}`}>
                   <td className="px-10 py-6">
                     <span className={`text-[10px] font-black uppercase ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>{t.date}</span>
@@ -320,18 +321,46 @@ const TransactionList: React.FC<Props> = ({ transactions, stats, onAddTransactio
                     {t.type === TransactionType.INCOME ? '+' : '-'}৳{t.amount.toLocaleString()}
                   </td>
                 </tr>
-              )) : (
-                <tr>
-                  <td colSpan={4} className="px-10 py-24 text-center">
-                    <div className="flex flex-col items-center opacity-30">
-                      <CreditCard size={48} className="mb-4" />
-                      <p className="text-[10px] font-black uppercase tracking-[0.2em]">No Ledger Activity for this range</p>
-                    </div>
-                  </td>
-                </tr>
-              )}
+              ))}
             </tbody>
           </table>
+
+          {/* Mobile Card View */}
+          <div className="md:hidden divide-y-2 divide-slate-50 dark:divide-slate-800/50">
+            {filteredTransactions.map((t) => (
+              <div key={t.id} className="p-6 flex items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                    t.type === TransactionType.INCOME 
+                      ? 'bg-emerald-500/10 text-emerald-500' 
+                      : 'bg-rose-500/10 text-rose-500'
+                  }`}>
+                    {t.type === TransactionType.INCOME ? <ArrowUpCircle size={18} /> : <ArrowDownCircle size={18} />}
+                  </div>
+                  <div>
+                    <p className={`text-sm font-black tracking-tight ${isDarkMode ? 'text-slate-200' : 'text-slate-800'}`}>{t.category}</p>
+                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{t.date} • {t.reference || 'NO REF'}</p>
+                  </div>
+                </div>
+                <p className={`font-black text-sm tracking-tighter shrink-0 ${
+                  t.type === TransactionType.INCOME 
+                    ? isDarkMode ? 'text-emerald-400' : 'text-emerald-600' 
+                    : isDarkMode ? 'text-rose-400' : 'text-rose-600'
+                }`}>
+                  {t.type === TransactionType.INCOME ? '+' : '-'}৳{t.amount.toLocaleString()}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {filteredTransactions.length === 0 && (
+            <div className="px-10 py-24 text-center">
+              <div className="flex flex-col items-center opacity-30">
+                <CreditCard size={48} className="mb-4" />
+                <p className="text-[10px] font-black uppercase tracking-[0.2em]">No Ledger Activity</p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

@@ -202,9 +202,9 @@ const StatementView: React.FC<Props> = ({ clients, bookings, transactions, defau
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
+    <div className="space-y-8 animate-in fade-in slide-in-from-right-4">
       {/* Header with Date Filters */}
-      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div>
           <h2 className={`text-3xl font-black tracking-tighter ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
             ACCOUNT <span className="text-violet-600">STATEMENTS</span>
@@ -212,84 +212,86 @@ const StatementView: React.FC<Props> = ({ clients, bookings, transactions, defau
           <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Date-Wise Ledger & Period Audit</p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-4 bg-white/40 dark:bg-slate-900/40 p-3 rounded-[32px] border-2 border-slate-100 dark:border-slate-800 backdrop-blur-md">
-          {/* Client Selector */}
-          <div className="relative">
-            <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-            <select 
-              value={selectedClientId}
-              onChange={(e) => setSelectedClientId(e.target.value)}
-              className={`pl-10 pr-10 py-2.5 rounded-2xl border-2 outline-none font-black text-[11px] uppercase tracking-wider appearance-none transition-all w-48 ${
-                isDarkMode ? 'bg-slate-800 border-slate-700 text-white focus:border-violet-500/50' : 'bg-white border-slate-50 text-slate-700 shadow-sm'
-              }`}
+        <div className="flex flex-col md:flex-row md:items-center gap-4 bg-white/40 dark:bg-slate-900/40 p-3 rounded-[32px] border-2 border-slate-100 dark:border-slate-800 backdrop-blur-md w-full lg:w-auto">
+          <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
+            {/* Client Selector */}
+            <div className="relative w-full sm:w-auto">
+              <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+              <select 
+                value={selectedClientId}
+                onChange={(e) => setSelectedClientId(e.target.value)}
+                className={`w-full sm:w-48 pl-10 pr-10 py-2.5 rounded-2xl border-2 outline-none font-black text-[11px] uppercase tracking-wider appearance-none transition-all ${
+                  isDarkMode ? 'bg-slate-800 border-slate-700 text-white focus:border-violet-500/50' : 'bg-white border-slate-50 text-slate-700 shadow-sm'
+                }`}
+              >
+                <option value="">Select Client</option>
+                {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </select>
+              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} />
+            </div>
+
+            {/* Date Pickers */}
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <div className="relative flex-1 sm:flex-initial">
+                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+                <input 
+                  type="date"
+                  value={startDate}
+                  onChange={e => setStartDate(e.target.value)}
+                  className={`w-full pl-10 pr-3 py-2.5 rounded-2xl border-2 outline-none font-bold text-[11px] transition-all ${
+                    isDarkMode ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-50 text-slate-700'
+                  }`}
+                />
+              </div>
+              <span className="text-slate-400 text-xs font-bold shrink-0">to</span>
+              <div className="relative flex-1 sm:flex-initial">
+                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+                <input 
+                  type="date"
+                  value={endDate}
+                  onChange={e => setEndDate(e.target.value)}
+                  className={`w-full pl-10 pr-3 py-2.5 rounded-2xl border-2 outline-none font-bold text-[11px] transition-all ${
+                    isDarkMode ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-50 text-slate-700'
+                  }`}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            <button 
+              onClick={resetDates}
+              className={`flex-1 md:flex-initial p-2.5 flex justify-center rounded-2xl transition-all ${isDarkMode ? 'bg-slate-800 text-slate-400 hover:text-white' : 'bg-slate-50 text-slate-400 hover:text-violet-600'}`}
+              title="Reset to current month"
             >
-              <option value="">Select Client</option>
-              {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-            </select>
-            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} />
+              <RefreshCw size={18} />
+            </button>
+
+            <button 
+              disabled={!selectedClientId}
+              onClick={handlePrint}
+              className="flex-[3] md:flex-initial px-6 py-2.5 rounded-2xl vibrant-gradient text-white text-[11px] font-black uppercase tracking-widest shadow-lg shadow-violet-500/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-30 disabled:grayscale flex items-center justify-center gap-2 whitespace-nowrap"
+            >
+              <Printer size={16} />
+              Print Report
+            </button>
           </div>
-
-          {/* Date Pickers */}
-          <div className="flex items-center gap-2">
-            <div className="relative">
-              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
-              <input 
-                type="date"
-                value={startDate}
-                onChange={e => setStartDate(e.target.value)}
-                className={`pl-10 pr-3 py-2.5 rounded-2xl border-2 outline-none font-bold text-[11px] transition-all ${
-                  isDarkMode ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-50 text-slate-700'
-                }`}
-              />
-            </div>
-            <span className="text-slate-400 text-xs font-bold">to</span>
-            <div className="relative">
-              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
-              <input 
-                type="date"
-                value={endDate}
-                onChange={e => setEndDate(e.target.value)}
-                className={`pl-10 pr-3 py-2.5 rounded-2xl border-2 outline-none font-bold text-[11px] transition-all ${
-                  isDarkMode ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-50 text-slate-700'
-                }`}
-              />
-            </div>
-          </div>
-
-          <div className="h-8 w-[2px] bg-slate-200 dark:bg-slate-700 mx-2 hidden md:block"></div>
-
-          <button 
-            onClick={resetDates}
-            className={`p-2.5 rounded-2xl transition-all ${isDarkMode ? 'bg-slate-800 text-slate-400 hover:text-white' : 'bg-slate-50 text-slate-400 hover:text-violet-600'}`}
-            title="Reset to current month"
-          >
-            <RefreshCw size={18} />
-          </button>
-
-          <button 
-            disabled={!selectedClientId}
-            onClick={handlePrint}
-            className="px-6 py-2.5 rounded-2xl vibrant-gradient text-white text-[11px] font-black uppercase tracking-widest shadow-lg shadow-violet-500/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-30 disabled:grayscale flex items-center gap-2"
-          >
-            <Printer size={16} />
-            Print Report
-          </button>
         </div>
       </div>
 
       {!selectedClientId ? (
-        <div className={`p-24 text-center rounded-[48px] border-2 border-dashed animate-in fade-in duration-700 ${isDarkMode ? 'bg-slate-900/40 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
+        <div className={`p-12 md:p-24 text-center rounded-[48px] border-2 border-dashed animate-in fade-in duration-700 ${isDarkMode ? 'bg-slate-900/40 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
           <div className="relative inline-block mb-6">
             <div className="absolute inset-0 bg-violet-500 blur-2xl opacity-20 animate-pulse"></div>
-            <History className="text-violet-500 relative z-10" size={80} />
+            <History className="text-violet-500 relative z-10" size={60} />
           </div>
-          <h3 className={`text-xl font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-300' : 'text-slate-800'}`}>Initialize Ledger Inquiry</h3>
+          <h3 className={`text-lg md:text-xl font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-300' : 'text-slate-800'}`}>Initialize Ledger Inquiry</h3>
           <p className="text-xs text-slate-500 mt-2 font-medium max-w-sm mx-auto">Please select a passenger from the terminal menu above to generate their date-wise financial statement.</p>
         </div>
       ) : (
         <>
           {/* Summary Dashboard for the Selected Period */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 animate-in slide-in-from-bottom-4 duration-500">
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 animate-in slide-in-from-bottom-4 duration-500">
             <StatCard 
               label="Opening Bal" 
               value={`৳${openingBalance.toLocaleString()}`} 
@@ -321,7 +323,8 @@ const StatementView: React.FC<Props> = ({ clients, bookings, transactions, defau
             isDarkMode ? 'bg-[#0f172a] border-slate-800' : 'bg-white border-slate-50 shadow-xl shadow-slate-200/50'
           }`}>
             <div className="overflow-x-auto no-scrollbar">
-              <table className="w-full text-left">
+              {/* Desktop Table */}
+              <table className="w-full text-left hidden md:table">
                 <thead>
                   <tr className={`border-b-2 ${isDarkMode ? 'bg-slate-900/50 border-slate-800' : 'bg-slate-50/50 border-slate-100'}`}>
                     <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Transaction Date</th>
@@ -378,20 +381,60 @@ const StatementView: React.FC<Props> = ({ clients, bookings, transactions, defau
                       </td>
                     </tr>
                   ))}
-
-                  {filteredData.length === 0 && (
-                    <tr>
-                      <td colSpan={5} className="px-8 py-12 text-center">
-                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest italic">No transactions recorded for this specific period.</p>
-                      </td>
-                    </tr>
-                  )}
                 </tbody>
               </table>
+
+              {/* Mobile List View */}
+              <div className="md:hidden divide-y-2 divide-slate-50 dark:divide-slate-800/50">
+                {/* Opening Balance Card */}
+                <div className="p-6 bg-violet-50/30 dark:bg-violet-900/5">
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-[10px] font-black text-violet-500 uppercase tracking-widest">{startDate}</span>
+                    <span className={`text-sm font-black tracking-tighter ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>৳{openingBalance.toLocaleString()}</span>
+                  </div>
+                  <p className={`text-[10px] font-black uppercase tracking-tight ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>Opening Balance Forward</p>
+                </div>
+
+                {filteredData.map((row, idx) => (
+                  <div key={idx} className="p-6 space-y-3">
+                    <div className="flex justify-between items-start">
+                      <div className="space-y-1 pr-4">
+                        <p className={`text-sm font-black leading-tight tracking-tight ${isDarkMode ? 'text-slate-100' : 'text-slate-800'}`}>{row.description}</p>
+                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{row.date} • {row.ref}</p>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <p className={`text-sm font-black tracking-tighter ${isDarkMode ? 'text-violet-400' : 'text-violet-700'}`}>৳{row.balance.toLocaleString()}</p>
+                        <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em]">Balance</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-4 pt-2 border-t border-slate-50 dark:border-slate-800/50">
+                      {row.debit > 0 && (
+                        <div className="flex-1">
+                          <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Debit (+)</p>
+                          <p className="text-xs font-black text-rose-500">৳{row.debit.toLocaleString()}</p>
+                        </div>
+                      )}
+                      {row.credit > 0 && (
+                        <div className="flex-1">
+                          <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Credit (-)</p>
+                          <p className="text-xs font-black text-emerald-500">৳{row.credit.toLocaleString()}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {(filteredData.length === 0 && openingBalance === 0) && (
+                <div className="px-8 py-24 text-center">
+                  <p className="text-xs font-bold text-slate-400 uppercase tracking-widest italic">No transactions recorded.</p>
+                </div>
+              )}
             </div>
             
             {/* Detailed Summary Footer */}
-            <div className={`p-10 border-t-2 ${isDarkMode ? 'bg-slate-900/50 border-slate-800' : 'bg-slate-50/50 border-slate-100'} flex flex-col md:flex-row justify-between items-center gap-8`}>
+            <div className={`p-6 md:p-10 border-t-2 ${isDarkMode ? 'bg-slate-900/50 border-slate-800' : 'bg-slate-50/50 border-slate-100'} flex flex-col xl:flex-row justify-between items-center gap-8`}>
               <div className="flex items-center gap-4">
                  <div className="p-4 rounded-2xl bg-violet-600/10 border border-violet-500/20 text-violet-500">
                     <Filter size={24} />
@@ -415,7 +458,7 @@ const StatementView: React.FC<Props> = ({ clients, bookings, transactions, defau
                 </div>
                 <div className="pt-3 border-t-2 border-slate-200 dark:border-slate-800 flex justify-between items-center">
                   <span className="text-xs font-black uppercase tracking-tight text-slate-800 dark:text-white">Closing Balance</span>
-                  <span className={`text-2xl font-black tracking-tighter ${ (openingBalance + periodTotals.debit - periodTotals.credit) > 0 ? 'text-rose-500' : 'text-emerald-500'}`}>
+                  <span className={`text-xl md:text-2xl font-black tracking-tighter ${ (openingBalance + periodTotals.debit - periodTotals.credit) > 0 ? 'text-rose-500' : 'text-emerald-500'}`}>
                     ৳{(openingBalance + periodTotals.debit - periodTotals.credit).toLocaleString()}
                   </span>
                 </div>

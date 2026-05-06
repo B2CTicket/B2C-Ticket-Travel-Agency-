@@ -86,7 +86,8 @@ const ClientList: React.FC<Props> = ({ clients, bookings, onAdd, onUpdate, onNav
         isDarkMode ? 'bg-[#0f172a] border-slate-800' : 'bg-white border-slate-100 shadow-xl shadow-slate-200/50'
       }`}>
         <div className="overflow-x-auto no-scrollbar">
-          <table className="w-full text-left border-collapse">
+          {/* Desktop Table */}
+          <table className="w-full text-left border-collapse hidden md:table">
             <thead>
               <tr className={`${isDarkMode ? 'bg-slate-900/50 border-slate-800' : 'bg-slate-50/50 border-slate-100'} border-b-2`}>
                 <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Client Profile</th>
@@ -166,16 +167,72 @@ const ClientList: React.FC<Props> = ({ clients, bookings, onAdd, onUpdate, onNav
                   </td>
                 </tr>
               ))}
-              {clients.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="px-8 py-20 text-center opacity-40">
-                    <User size={48} className="mx-auto mb-4 text-slate-300" />
-                    <p className="text-xs font-black uppercase tracking-[0.2em]">No Clients Registered</p>
-                  </td>
-                </tr>
-              )}
             </tbody>
           </table>
+
+          {/* Mobile Cards */}
+          <div className="md:hidden divide-y divide-slate-100 dark:divide-slate-800">
+            {clients.map((client) => (
+              <div key={client.id} className="p-6 space-y-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black ${
+                      isDarkMode ? 'bg-slate-800 text-violet-400' : 'bg-violet-50 text-violet-600'
+                    }`}>
+                      {client.name.charAt(0)}
+                    </div>
+                    <div>
+                      <p className={`font-black text-sm tracking-tight ${isDarkMode ? 'text-slate-100' : 'text-slate-900'}`}>{client.name}</p>
+                      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{client.phone}</p>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={() => openEditModal(client)}
+                    className={`p-2.5 rounded-xl ${isDarkMode ? 'bg-slate-800 text-slate-400' : 'bg-slate-100 text-slate-500'}`}
+                  >
+                    <Edit2 size={16} />
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className={`p-4 rounded-2xl ${isDarkMode ? 'bg-slate-800/50' : 'bg-slate-50'}`}>
+                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Passport</p>
+                    <p className={`text-xs font-black ${isDarkMode ? 'text-slate-200' : 'text-slate-700'}`}>{client.passportNumber || 'N/A'}</p>
+                  </div>
+                  <div className={`p-4 rounded-2xl ${isDarkMode ? 'bg-slate-800/50' : 'bg-slate-50'}`}>
+                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Sales</p>
+                    <p className={`text-xs font-black text-violet-600`}>৳{getClientTotalBilled(client.id).toLocaleString()}</p>
+                  </div>
+                </div>
+
+                <div className="flex gap-3">
+                  <button 
+                    onClick={() => handleSendEmail(client.email)}
+                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border ${
+                      isDarkMode ? 'bg-slate-800 border-slate-700 text-slate-300' : 'bg-slate-50 border-slate-100 text-slate-700'
+                    }`}
+                  >
+                    <Mail size={14} />
+                    Email
+                  </button>
+                  <button 
+                    onClick={() => onNavigateToStatement?.(client.id)}
+                    className="flex-1 flex items-center justify-center gap-2 py-3 vibrant-gradient text-white text-[10px] font-black uppercase tracking-widest rounded-2xl shadow-lg shadow-violet-500/20"
+                  >
+                    <History size={14} />
+                    Statement
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {clients.length === 0 && (
+            <div className="px-8 py-20 text-center opacity-40">
+              <User size={48} className="mx-auto mb-4 text-slate-300" />
+              <p className="text-xs font-black uppercase tracking-[0.2em]">No Clients Registered</p>
+            </div>
+          )}
         </div>
       </div>
 

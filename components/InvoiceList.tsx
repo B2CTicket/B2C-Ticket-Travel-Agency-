@@ -162,7 +162,7 @@ const InvoiceList: React.FC<Props> = ({ bookings, clients, isDarkMode }) => {
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
-      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div>
           <h2 className={`text-3xl font-black tracking-tighter ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
             BILLING & <span className="text-violet-600">INVOICES</span>
@@ -175,53 +175,55 @@ const InvoiceList: React.FC<Props> = ({ bookings, clients, isDarkMode }) => {
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-col md:flex-row md:items-center gap-3 w-full lg:w-auto">
           {/* Search Input */}
-          <div className="relative group">
+          <div className="relative group flex-1 md:w-64">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-violet-500 transition-colors" size={16} />
             <input 
               type="text" 
               placeholder="Search Client, Hotel, or INV#..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className={`pl-12 pr-6 py-3.5 rounded-2xl border-2 outline-none transition-all text-sm font-bold w-full md:w-64 ${
+              className={`pl-12 pr-6 py-3.5 rounded-2xl border-2 outline-none transition-all text-sm font-bold w-full ${
                 isDarkMode ? 'bg-slate-900 border-slate-800 text-white focus:border-violet-500/50' : 'bg-white border-slate-100 focus:border-violet-500/50 shadow-sm'
               }`}
             />
           </div>
           
-          {/* Status Filter Dropdown */}
-          <div className="relative group">
-            <Filter className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
-            <select 
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              className={`pl-10 pr-8 py-3.5 rounded-2xl border-2 outline-none text-[10px] font-black uppercase tracking-widest transition-all appearance-none cursor-pointer ${
-                isDarkMode ? 'bg-slate-900 border-slate-800 text-slate-300 focus:border-violet-500/50' : 'bg-white border-slate-100 text-slate-600 shadow-sm focus:border-violet-500/50'
-              }`}
-            >
-              <option value="ALL">Status: All Records</option>
-              <option value={BookingStatus.CONFIRMED}>Confirmed Only</option>
-              <option value={BookingStatus.PENDING}>Unpaid/Pending</option>
-              <option value={BookingStatus.CANCELLED}>Cancelled</option>
-            </select>
-          </div>
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+            {/* Status Filter Dropdown */}
+            <div className="relative group w-full sm:w-auto">
+              <Filter className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+              <select 
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className={`w-full sm:w-auto pl-10 pr-8 py-3.5 rounded-2xl border-2 outline-none text-[10px] font-black uppercase tracking-widest transition-all appearance-none cursor-pointer ${
+                  isDarkMode ? 'bg-slate-900 border-slate-800 text-slate-300 focus:border-violet-500/50' : 'bg-white border-slate-100 text-slate-600 shadow-sm focus:border-violet-500/50'
+                }`}
+              >
+                <option value="ALL">Status: All Records</option>
+                <option value={BookingStatus.CONFIRMED}>Confirmed Only</option>
+                <option value={BookingStatus.PENDING}>Unpaid/Pending</option>
+                <option value={BookingStatus.CANCELLED}>Cancelled</option>
+              </select>
+            </div>
 
-          {/* Sort Dropdown */}
-          <div className="relative group">
-            <ArrowUpDown className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
-            <select 
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as SortOption)}
-              className={`pl-10 pr-8 py-3.5 rounded-2xl border-2 outline-none text-[10px] font-black uppercase tracking-widest transition-all appearance-none cursor-pointer ${
-                isDarkMode ? 'bg-slate-900 border-slate-800 text-slate-300 focus:border-violet-500/50' : 'bg-white border-slate-100 text-slate-600 shadow-sm focus:border-violet-500/50'
-              }`}
-            >
-              <option value="date-desc">Sort: Newest First</option>
-              <option value="date-asc">Sort: Oldest First</option>
-              <option value="amount-desc">Amount: High to Low</option>
-              <option value="amount-asc">Amount: Low to High</option>
-            </select>
+            {/* Sort Dropdown */}
+            <div className="relative group w-full sm:w-auto">
+              <ArrowUpDown className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+              <select 
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as SortOption)}
+                className={`w-full sm:w-auto pl-10 pr-8 py-3.5 rounded-2xl border-2 outline-none text-[10px] font-black uppercase tracking-widest transition-all appearance-none cursor-pointer ${
+                  isDarkMode ? 'bg-slate-900 border-slate-800 text-slate-300 focus:border-violet-500/50' : 'bg-white border-slate-100 text-slate-600 shadow-sm focus:border-violet-500/50'
+                }`}
+              >
+                <option value="date-desc">Sort: Newest First</option>
+                <option value="date-asc">Sort: Oldest First</option>
+                <option value="amount-desc">Amount: High to Low</option>
+                <option value="amount-asc">Amount: Low to High</option>
+              </select>
+            </div>
           </div>
         </div>
       </div>
@@ -230,7 +232,8 @@ const InvoiceList: React.FC<Props> = ({ bookings, clients, isDarkMode }) => {
         isDarkMode ? 'bg-[#0f172a] border-slate-800' : 'bg-white border-slate-50'
       }`}>
         <div className="overflow-x-auto no-scrollbar">
-          <table className="w-full text-left">
+          {/* Desktop Table View */}
+          <table className="w-full text-left hidden md:table">
             <thead>
               <tr className={`border-b-2 ${isDarkMode ? 'bg-slate-900/50 border-slate-800' : 'bg-slate-50/50 border-slate-100'}`}>
                 <th className="px-10 py-6 text-[10px] font-black uppercase tracking-widest text-slate-400">Invoice Reference</th>
@@ -242,7 +245,7 @@ const InvoiceList: React.FC<Props> = ({ bookings, clients, isDarkMode }) => {
               </tr>
             </thead>
             <tbody className={`divide-y-2 ${isDarkMode ? 'divide-slate-800/50' : 'divide-slate-50'}`}>
-              {filteredInvoices.length > 0 ? filteredInvoices.map((inv) => (
+              {filteredInvoices.map((inv) => (
                 <tr key={inv.id} className={`group transition-all ${isDarkMode ? 'hover:bg-violet-600/5' : 'hover:bg-violet-50/50'}`}>
                   <td className="px-10 py-7">
                     <div className="flex items-center gap-4">
@@ -300,26 +303,69 @@ const InvoiceList: React.FC<Props> = ({ bookings, clients, isDarkMode }) => {
                     </div>
                   </td>
                 </tr>
-              )) : (
-                <tr>
-                  <td colSpan={6} className="px-10 py-24 text-center">
-                    <div className="flex flex-col items-center opacity-30">
-                      <div className="p-8 rounded-full bg-slate-100 dark:bg-slate-800 mb-4">
-                        <FileText size={48} className="text-slate-400" />
-                      </div>
-                      <p className="text-xs font-black uppercase tracking-[0.2em]">No Invoices Match Your Selection</p>
-                      <button 
-                        onClick={() => {setSearchTerm(''); setFilterStatus('ALL');}}
-                        className="mt-4 text-[10px] font-black text-violet-600 uppercase tracking-widest hover:underline"
-                      >
-                        Clear All Filters
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              )}
+              ))}
             </tbody>
           </table>
+
+          {/* Mobile Card View */}
+          <div className="md:hidden divide-y-2 divide-slate-50 dark:divide-slate-800/50">
+            {filteredInvoices.map((inv) => (
+              <div key={inv.id} className="p-6 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className={`p-3 rounded-xl ${isDarkMode ? 'bg-slate-800 text-violet-400' : 'bg-violet-50 text-violet-600'}`}>
+                      <FileText size={18} />
+                    </div>
+                    <div>
+                      <p className={`text-sm font-black tracking-tight ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>INV-{inv.id.toUpperCase()}</p>
+                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{inv.date}</p>
+                    </div>
+                  </div>
+                  <p className={`text-sm font-black tracking-tighter ${isDarkMode ? 'text-violet-400' : 'text-violet-700'}`}>৳{inv.amount.toLocaleString()}</p>
+                </div>
+                
+                <div className="flex items-center justify-between py-2 border-y border-slate-50 dark:border-slate-800/50">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-black text-[8px] text-indigo-500">
+                      {inv.clientName.charAt(0)}
+                    </div>
+                    <span className="text-xs font-bold text-slate-500 truncate max-w-[120px]">{inv.clientName}</span>
+                  </div>
+                  <StatusBadge status={inv.status} isDarkMode={isDarkMode} />
+                </div>
+
+                <div className="flex gap-2">
+                  <button 
+                    onClick={() => handlePrint(inv)}
+                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border ${
+                      isDarkMode ? 'bg-slate-800 border-slate-700 text-slate-300' : 'bg-slate-50 border-slate-100 text-slate-700 shadow-sm'
+                    }`}
+                  >
+                    <Printer size={14} />
+                    Print
+                  </button>
+                  <button 
+                    onClick={() => handlePrint(inv)}
+                    className="flex-1 flex items-center justify-center gap-2 py-3 vibrant-gradient text-white text-[10px] font-black uppercase tracking-widest rounded-2xl shadow-lg shadow-violet-500/20"
+                  >
+                    <Download size={14} />
+                    PDF
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {filteredInvoices.length === 0 && (
+            <div className="px-10 py-24 text-center">
+              <div className="flex flex-col items-center opacity-30">
+                <div className="p-8 rounded-full bg-slate-100 dark:bg-slate-800 mb-4">
+                  <FileText size={48} className="text-slate-400" />
+                </div>
+                <p className="text-xs font-black uppercase tracking-[0.2em]">No Invoices Found</p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

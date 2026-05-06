@@ -67,33 +67,38 @@ const Forecast: React.FC<Props> = ({ bookings, isDarkMode }) => {
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>Trends & Forecast</h2>
-          <p className={`${isDarkMode ? 'text-slate-400' : 'text-slate-500'} text-sm`}>AI-powered revenue projections and seasonal analysis</p>
+          <h2 className={`text-2xl md:text-3xl font-black tracking-tighter ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+            TRENDS & <span className="text-violet-600">FORECAST</span>
+          </h2>
+          <p className={`${isDarkMode ? 'text-slate-400' : 'text-slate-500'} text-xs font-bold uppercase tracking-widest mt-1`}>AI-powered revenue projections</p>
         </div>
-        <div className={`flex items-center gap-2 px-4 py-2 rounded-xl border ${isDarkMode ? 'bg-indigo-900/20 border-indigo-800 text-indigo-400' : 'bg-indigo-50 border-indigo-100 text-indigo-700'}`}>
+        <div className={`flex items-center gap-2 px-4 py-2 rounded-xl border-2 self-start ${isDarkMode ? 'bg-indigo-900/20 border-indigo-800 text-indigo-400' : 'bg-indigo-50 border-indigo-100 text-indigo-700'}`}>
           <Sparkles size={18} />
-          <span className="text-sm font-bold">Predictive Model Active</span>
+          <span className="text-[10px] font-black uppercase tracking-widest">Predictive Model Active</span>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className={`lg:col-span-2 p-6 rounded-3xl border ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'} shadow-sm`}>
-          <div className="flex items-center justify-between mb-8">
-            <h3 className={`font-bold ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>Revenue Projection (3 Months)</h3>
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+        <div className={`xl:col-span-2 p-6 md:p-8 rounded-[40px] border-2 ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-50 shadow-xl shadow-slate-200/50'}`}>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+            <div>
+              <h3 className={`text-sm font-black uppercase tracking-tight ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>Revenue Projection (3 Months)</h3>
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Seasonal Trend Analysis</p>
+            </div>
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-indigo-600"></div>
-                <span className="text-xs text-slate-500">Actual</span>
+                <div className="w-3 h-3 rounded-full bg-violet-600"></div>
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Actual</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full border-2 border-dashed border-indigo-400 bg-transparent"></div>
-                <span className="text-xs text-slate-500">AI Predicted</span>
+                <div className="w-3 h-3 rounded-full border-2 border-dashed border-violet-400 bg-transparent"></div>
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">AI Predicted</span>
               </div>
             </div>
           </div>
-          <div className="h-[350px]">
+          <div className="h-[250px] md:h-[350px]">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={chartData}>
                 <defs>

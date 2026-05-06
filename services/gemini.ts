@@ -3,7 +3,12 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { Booking, Transaction } from "../types";
 
 export const analyzeAgencyData = async (bookings: Booking[], transactions: Transaction[], query: string) => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY || "";
+  if (!apiKey) {
+    console.error("Gemini API Key is missing");
+    return "AI service is currently unavailable. Please check configuration.";
+  }
+  const ai = new GoogleGenAI({ apiKey });
   
   const prompt = `
     You are an AI Travel Agency Accounting Expert. 
@@ -32,7 +37,12 @@ export const analyzeAgencyData = async (bookings: Booking[], transactions: Trans
 };
 
 export const generateForecast = async (bookings: Booking[]) => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY || "";
+  if (!apiKey) {
+    console.error("Gemini API Key is missing");
+    return null;
+  }
+  const ai = new GoogleGenAI({ apiKey });
 
   const prompt = `
     Analyze these travel agency bookings: ${JSON.stringify(bookings)}.
