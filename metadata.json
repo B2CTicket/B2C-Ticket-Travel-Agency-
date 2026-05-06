@@ -1,0 +1,7 @@
+{
+  "name": "B2C Ticket Travel Agency",
+  "description": "A comprehensive accounting and management software for B2C Ticket Travel Agency featuring AI-powered financial analysis, booking tracking, and automated invoicing.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
