@@ -3,7 +3,7 @@ import React, { useState, useMemo } from 'react';
 import { Booking, Client, BookingStatus } from '../types';
 import { 
   FileText, Search, Printer, Download, Filter, 
-  ChevronRight, Calendar, DollarSign, User, Plane,
+  ChevronRight, Calendar, Banknote, User, Plane,
   CheckCircle2, AlertCircle, XCircle, Building2,
   ArrowUpDown, SortAsc, SortDesc
 } from 'lucide-react';

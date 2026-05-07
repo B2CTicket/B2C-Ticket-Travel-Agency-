@@ -4,7 +4,7 @@ import { Booking, BookingStatus, Client } from '../types';
 import { 
   Search, Plus, X, Download, Plane, 
   Calendar, Users, Globe, ArrowRight, 
-  ShieldCheck, MapPin, Hash, DollarSign, 
+  ShieldCheck, MapPin, Hash, Banknote, 
   Briefcase, CheckCircle, Building2, 
   Bed, LogIn, LogOut, Phone, User,
   Navigation, Clock, Zap, ExternalLink,
@@ -601,7 +601,7 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, isDarkMode }) 
                      <div className={`p-8 rounded-[40px] border-2 transition-all focus-within:ring-4 focus-within:ring-indigo-500/10 ${isDarkMode ? 'bg-indigo-950/20 border-indigo-500/20' : 'bg-indigo-50 border-indigo-100'}`}>
                         <label className="text-[10px] font-black text-indigo-600 uppercase block mb-3">Consumer Quote (৳)</label>
                         <div className="relative">
-                          <DollarSign className="absolute left-6 top-1/2 -translate-y-1/2 text-indigo-500" size={26} />
+                          <Banknote className="absolute left-6 top-1/2 -translate-y-1/2 text-indigo-500" size={26} />
                           <input required type="number" placeholder="0.00" value={formData.amount || ''} onChange={e => setFormData({...formData, amount: Number(e.target.value)})} className={`w-full pl-16 pr-8 py-6 border-2 rounded-[28px] font-black text-3xl outline-none transition-all ${isDarkMode ? 'bg-slate-900 border-slate-800 text-indigo-400' : 'bg-white border-indigo-100 text-indigo-700'}`} />
                         </div>
                      </div>

@@ -8,7 +8,7 @@ import {
   Settings, 
   Plus, 
   TrendingUp, 
-  CreditCard, 
+  Banknote, 
   MessageSquareText,
   Search,
   ChevronRight,
@@ -163,7 +163,7 @@ const App: React.FC = () => {
     { id: 'invoices', icon: <FileText />, label: "Invoices" },
     { id: 'statements', icon: <History />, label: "Statements" },
     { id: 'forecast', icon: <BarChart3 />, label: "AI Forecast" },
-    { id: 'accounts', icon: <CreditCard />, label: "Financials" },
+    { id: 'accounts', icon: <Banknote />, label: "Financials" },
     { id: 'ai', icon: <MessageSquareText />, label: "Gemini AI" },
   ];
 

@@ -3,7 +3,7 @@ import React, { useState, useMemo } from 'react';
 import { Transaction, TransactionType, AgencyStats } from '../types';
 import { 
   ArrowUpCircle, ArrowDownCircle, Download, FileSpreadsheet, 
-  Plus, X, Calendar, Tag, CreditCard, Filter, Printer, RefreshCw,
+  Plus, X, Calendar, Tag, Banknote, Filter, Printer, RefreshCw,
   Search, ChevronDown, BookOpen
 } from 'lucide-react';
 
@@ -253,7 +253,7 @@ const TransactionList: React.FC<Props> = ({ transactions, stats, onAddTransactio
         <StatSummaryCard 
           label="Period Net Profit" 
           value={`৳${periodStats.profit.toLocaleString()}`} 
-          icon={<CreditCard className="text-violet-500" />} 
+          icon={<Banknote className="text-violet-500" />} 
           isDarkMode={isDarkMode}
           highlight
           colorClass="text-violet-600 dark:text-violet-400"
@@ -356,7 +356,7 @@ const TransactionList: React.FC<Props> = ({ transactions, stats, onAddTransactio
           {filteredTransactions.length === 0 && (
             <div className="px-10 py-24 text-center">
               <div className="flex flex-col items-center opacity-30">
-                <CreditCard size={48} className="mb-4" />
+                <Banknote size={48} className="mb-4" />
                 <p className="text-[10px] font-black uppercase tracking-[0.2em]">No Ledger Activity</p>
               </div>
             </div>

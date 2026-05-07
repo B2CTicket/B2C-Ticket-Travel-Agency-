@@ -17,11 +17,13 @@ export const analyzeAgencyData = async (bookings: Booking[], transactions: Trans
     Agency Data:
     - Current Bookings: ${JSON.stringify(bookings)}
     - Transaction History: ${JSON.stringify(transactions)}
+    - Base Currency: Bangladeshi Taka (BDT, ৳)
     
     User Query: ${query}
     
     Please provide professional, actionable insights in English or Bengali as per the user's language. 
     Focus on profit optimization, pending tasks, and financial health.
+    When mentioning amounts, always use the ৳ symbol.
   `;
 
   try {
@@ -46,13 +48,14 @@ export const generateForecast = async (bookings: Booking[]) => {
 
   const prompt = `
     Analyze these travel agency bookings: ${JSON.stringify(bookings)}.
+    Base Currency: Bangladeshi Taka (BDT, ৳).
     1. Identify seasonal patterns (e.g., Hajj, Summer, Year-end).
-    2. Forecast revenue and booking volume for the next 3 months.
+    2. Forecast revenue and booking volume for the next 3 months in BDT.
     3. Suggest which services (Visa, Ticket, Hotel) will be in highest demand.
     
     Return the response as a valid JSON object with:
     - predictions: Array of { month: string, predictedRevenue: number, confidence: number }
-    - insights: Array of string (bullet points)
+    - insights: Array of string (bullet points, use ৳ for currency)
     - topService: string
   `;
 

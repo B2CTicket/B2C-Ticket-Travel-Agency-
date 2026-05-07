@@ -3,7 +3,7 @@ import React, { useMemo } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { AgencyStats, Booking, BookingStatus } from '../types';
 import { 
-  DollarSign, UserCheck, Clock, TrendingUp, ArrowUpRight, 
+  Banknote, UserCheck, Clock, TrendingUp, ArrowUpRight, 
   Ticket, Bell, PlaneTakeoff, AlertCircle, ChevronRight,
   ShieldAlert, CalendarDays, Zap, Activity
 } from 'lucide-react';
@@ -139,7 +139,7 @@ const Dashboard: React.FC<Props> = ({ stats, bookings, isDarkMode }) => {
         <StatCard 
           label="Total Revenue" 
           value={`৳${stats.totalSales.toLocaleString()}`} 
-          icon={<DollarSign />} 
+          icon={<Banknote />} 
           trend="+12%" 
           gradient="from-violet-600 to-indigo-600"
           isDarkMode={isDarkMode}

@@ -4,7 +4,7 @@ import { Client, Booking, Transaction, TransactionType } from '../types';
 import { 
   History, Search, Printer, User, ArrowUpRight, 
   ArrowDownRight, Wallet, Download, Calendar, 
-  ChevronDown, CreditCard, Filter, RefreshCw, Users
+  ChevronDown, Filter, RefreshCw, Users
 } from 'lucide-react';
 
 interface Props {
