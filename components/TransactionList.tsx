@@ -34,14 +34,47 @@ const TransactionList: React.FC<Props> = ({ transactions, stats, onAddTransactio
     reference: ''
   });
 
+  const [customCategory, setCustomCategory] = useState('');
+  const [isCustom, setIsCustom] = useState(false);
+
   const categories = {
-    [TransactionType.INCOME]: ['Ticket Sale', 'Visa Fee', 'Package Sale', 'Service Charge', 'Consultation', 'Other Income'],
-    [TransactionType.EXPENSE]: ['BSP Payment', 'Office Rent', 'Electricity Bill', 'Internet Bill', 'Salaries', 'Marketing', 'Tea/Snacks', 'Other Expense']
+    [TransactionType.INCOME]: [
+      'Ticket Sale', 
+      'Visa Fee', 
+      'Package Sale', 
+      'Hotel Booking',
+      'Tour Package',
+      'Hajj & Umrah',
+      'Attestation',
+      'Insurance',
+      'Service Charge', 
+      'Consultation', 
+      'Other Income'
+    ],
+    [TransactionType.EXPENSE]: [
+      'BSP Payment', 
+      'Vendor Payment',
+      'Office Rent', 
+      'Electricity Bill', 
+      'Internet Bill', 
+      'Salaries', 
+      'Marketing', 
+      'Tea/Snacks', 
+      'Office Supplies',
+      'Travel Allowance',
+      'Client Refund',
+      'Bank Charges',
+      'Printing & Stationery',
+      'Other Expense'
+    ]
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onAddTransaction(formData);
+    onAddTransaction({
+      ...formData,
+      category: isCustom ? customCategory : formData.category
+    });
     setShowModal(false);
     setFormData({
       date: new Date().toISOString().split('T')[0],
@@ -50,6 +83,8 @@ const TransactionList: React.FC<Props> = ({ transactions, stats, onAddTransactio
       type: TransactionType.INCOME,
       reference: ''
     });
+    setCustomCategory('');
+    setIsCustom(false);
   };
 
   // Filter transactions based on date and type
@@ -417,16 +452,39 @@ const TransactionList: React.FC<Props> = ({ transactions, stats, onAddTransactio
                     <Tag className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
                     <select 
                       required
-                      value={formData.category}
-                      onChange={e => setFormData({...formData, category: e.target.value})}
+                      value={isCustom ? 'CUSTOM' : formData.category}
+                      onChange={e => {
+                        if (e.target.value === 'CUSTOM') {
+                          setIsCustom(true);
+                          setFormData({...formData, category: ''});
+                        } else {
+                          setIsCustom(false);
+                          setFormData({...formData, category: e.target.value});
+                        }
+                      }}
                       className={`w-full pl-12 pr-10 py-4 border-2 rounded-2xl outline-none text-sm font-bold appearance-none transition-all ${isDarkMode ? 'bg-slate-800 border-slate-700 focus:border-violet-500/50' : 'bg-slate-50 border-slate-100 focus:border-violet-500/50'}`}
                     >
                       <option value="">Select Category</option>
                       {categories[formData.type].map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                      <option value="CUSTOM">Other (Manual Type...)</option>
                     </select>
                     <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={16} />
                   </div>
                 </div>
+
+                {isCustom && (
+                  <div className="animate-in slide-in-from-top-2 duration-300">
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Custom Category Name</label>
+                    <input 
+                      required
+                      type="text"
+                      placeholder="Type custom category name..."
+                      value={customCategory}
+                      onChange={e => setCustomCategory(e.target.value)}
+                      className={`w-full px-6 py-4 border-2 rounded-2xl outline-none text-sm font-bold transition-all ${isDarkMode ? 'bg-slate-800 border-slate-700 focus:border-violet-500/50' : 'bg-slate-50 border-slate-100 focus:border-violet-500/50'}`}
+                    />
+                  </div>
+                )}
 
                 <div>
                   <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Amount (৳)</label>
