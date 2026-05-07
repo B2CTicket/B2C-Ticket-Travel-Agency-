@@ -22,15 +22,15 @@ import {
   FileText,
   History
 } from 'lucide-react';
-import { Booking, BookingStatus, Transaction, TransactionType, Client } from './types';
-import Dashboard from './components/Dashboard';
-import BookingList from './components/BookingList';
-import TransactionList from './components/TransactionList';
-import ClientList from './components/ClientList';
-import AIChat from './components/AIChat';
-import Forecast from './components/Forecast';
-import InvoiceList from './components/InvoiceList';
-import StatementView from './components/StatementView';
+import { Booking, BookingStatus, Transaction, TransactionType, Client } from '@/types';
+import Dashboard from '@/components/Dashboard';
+import BookingList from '@/components/BookingList';
+import TransactionList from '@/components/TransactionList';
+import ClientList from '@/components/ClientList';
+import AIChat from '@/components/AIChat';
+import Forecast from '@/components/Forecast';
+import InvoiceList from '@/components/InvoiceList';
+import StatementView from '@/components/StatementView';
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'bookings' | 'accounts' | 'ai' | 'clients' | 'forecast' | 'invoices' | 'statements'>('dashboard');
