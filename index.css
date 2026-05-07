@@ -18,7 +18,7 @@
 }
 
 .vibrant-gradient {
-    background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%);
+    background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%);
 }
 
 .vibrant-glow {
@@ -39,4 +39,36 @@
 
 .animate-pulse-soft {
     animation: pulse-soft 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes scan {
+  from { top: -100px; }
+  to { top: 100%; }
+}
+
+.animate-scan {
+  animation: scan 4s linear infinite;
+}
+
+.repeating-grid-dots {
+  background-image: radial-gradient(circle, currentColor 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+@keyframes pulse-slow {
+  0%, 100% { opacity: 0.15; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(1.05); }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 6s ease-in-out infinite;
+}
+
+
+.dark {
+  --bg-dots: rgba(255, 255, 255, 0.05);
+}
+
+.light {
+  --bg-dots: rgba(0, 0, 0, 0.05);
 }
