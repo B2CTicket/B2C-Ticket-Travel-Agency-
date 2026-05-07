@@ -33,6 +33,7 @@ import InvoiceList from '@/components/InvoiceList';
 import StatementView from '@/components/StatementView';
 
 const App: React.FC = () => {
+  console.log("App component initializing...");
   const [activeTab, setActiveTab] = useState<'dashboard' | 'bookings' | 'accounts' | 'ai' | 'clients' | 'forecast' | 'invoices' | 'statements'>('dashboard');
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const [isSidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 1024);

@@ -1,36 +1,21 @@
 
 import React from 'react';
-import ReactDOM from 'react-dom/client';
+import { createRoot } from 'react-dom/client';
 import App from './App';
 import './index.css';
 
-/* 
-// Register Service Worker for PNR/Route Tracking and Offline Support
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.js').then(registration => {
-      console.log('SW registered: ', registration);
-    }).catch(registrationError => {
-      console.log('SW registration failed: ', registrationError);
-    });
-  });
-}
-*/
-
-console.log("Bootstrap: index.tsx executing");
-
-window.onerror = (msg, url, lineNo, columnNo, error) => {
-  const root = document.getElementById('root');
-  if (root) {
-    root.innerHTML = `<div style="color: red; padding: 20px;">Runtime Error: ${msg}</div>`;
-  }
-  return false;
-};
+console.log("main.tsx: Starting render process");
 
 const rootElement = document.getElementById('root');
-if (!rootElement) throw new Error("Could not find root element");
-
-const root = ReactDOM.createRoot(rootElement);
-root.render(
-    <App />
-);
+if (rootElement) {
+  const root = createRoot(rootElement);
+  root.render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  );
+  console.log("main.tsx: App rendered");
+} else {
+  console.error("main.tsx: Root element not found");
+  document.body.innerHTML = "<h1>SYSTEM ERROR: #root missing from DOM</h1>";
+}
