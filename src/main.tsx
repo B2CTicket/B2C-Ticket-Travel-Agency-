@@ -6,6 +6,15 @@ import './index.css';
 
 console.log("main.tsx: Starting render process");
 
+// PWA Service Worker Registration
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then(reg => console.log('SW registered:', reg.scope))
+      .catch(err => console.error('SW registration failed:', err));
+  });
+}
+
 const rootElement = document.getElementById('root');
 if (rootElement) {
   const root = createRoot(rootElement);

@@ -1,0 +1,21 @@
+{
+  "name": "Unique ERP - B2C Ticket Accountings",
+  "short_name": "Unique ERP",
+  "description": "Professional ERP system for B2C Ticket Accounting and Management",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8faff",
+  "theme_color": "#4f46e5",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/201/201623.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/201/201623.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

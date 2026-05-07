@@ -5,8 +5,9 @@ import { AgencyStats, Booking, BookingStatus } from '@/types';
 import { 
   Banknote, UserCheck, Clock, TrendingUp, ArrowUpRight, 
   Ticket, Bell, PlaneTakeoff, AlertCircle, ChevronRight,
-  ShieldAlert, CalendarDays, Zap, Activity
+  ShieldAlert, CalendarDays, Zap, Activity, Download, ShieldCheck, Smartphone
 } from 'lucide-react';
+import InstallAppBanner from './InstallAppBanner';
 
 interface Props {
   stats: AgencyStats;
@@ -50,6 +51,50 @@ const Dashboard: React.FC<Props> = ({ stats, bookings, isDarkMode }) => {
 
   return (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-6 duration-700">
+      <InstallAppBanner isDarkMode={isDarkMode} />
+      
+      {/* App Download / Quick Actions Promo */}
+      <section className={`p-8 rounded-[40px] relative overflow-hidden transition-all ${
+        isDarkMode ? 'bg-[#0f172a] border border-slate-800' : 'bg-gradient-to-r from-indigo-600 to-violet-700 text-white border-none shadow-2xl'
+      }`}>
+        <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 -mr-20 -mt-20 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-400/20 -ml-20 -mb-20 rounded-full blur-2xl"></div>
+        
+        <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+          <div className="max-w-md">
+            <h2 className={`text-3xl font-black tracking-tighter mb-4 ${isDarkMode ? 'text-white' : 'text-white'}`}>
+              The ERP is Now in Your Pocket
+            </h2>
+            <p className={`text-sm font-medium opacity-80 leading-relaxed mb-6 ${isDarkMode ? 'text-slate-300' : 'text-white'}`}>
+              Experience lightning-fast ticketing and client management with our native mobile application. Install now for offline access and instant push notifications.
+            </p>
+            <div className="flex flex-wrap gap-4">
+              <button 
+                onClick={() => window.dispatchEvent(new Event('beforeinstallprompt'))}
+                className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all hover:scale-105 ${
+                  isDarkMode ? 'bg-indigo-600 text-white' : 'bg-white text-indigo-600 shadow-xl'
+                }`}
+              >
+                <Download size={18} />
+                Download App
+              </button>
+              <div className="flex items-center gap-3 px-6 py-3 rounded-2xl border border-white/20 bg-white/5 backdrop-blur-md">
+                <ShieldCheck size={18} className="text-emerald-400" />
+                <span className="text-[10px] font-bold uppercase tracking-widest">Enterprise Encrypted</span>
+              </div>
+            </div>
+          </div>
+          
+          <div className="relative">
+             <div className="w-48 h-48 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-xl border border-white/20 shadow-2xl animate-float">
+                <Smartphone size={80} className="text-white drop-shadow-lg" />
+             </div>
+             <div className="absolute -top-4 -right-4 w-12 h-12 bg-emerald-500 rounded-full flex items-center justify-center shadow-lg animate-bounce">
+                <Zap size={20} className="text-white" />
+             </div>
+          </div>
+        </div>
+      </section>
       
       {/* Flight Board Style Announcements */}
       {flightAlerts.length > 0 && (
