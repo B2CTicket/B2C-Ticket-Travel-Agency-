@@ -3,7 +3,7 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { Booking, Transaction } from "../types";
 
 export const analyzeAgencyData = async (bookings: Booking[], transactions: Transaction[], query: string) => {
-  const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY || "";
+  const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     console.error("Gemini API Key is missing");
     return "AI service is currently unavailable. Please check configuration.";
@@ -39,7 +39,7 @@ export const analyzeAgencyData = async (bookings: Booking[], transactions: Trans
 };
 
 export const generateForecast = async (bookings: Booking[]) => {
-  const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY || "";
+  const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     console.error("Gemini API Key is missing");
     return null;
@@ -61,7 +61,7 @@ export const generateForecast = async (bookings: Booking[]) => {
 
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-3-pro-preview',
+      model: 'gemini-3.1-pro-preview',
       contents: prompt,
       config: {
         responseMimeType: "application/json",
