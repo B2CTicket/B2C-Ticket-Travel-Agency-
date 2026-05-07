@@ -157,14 +157,14 @@ const App: React.FC = () => {
   };
 
   const menuItems = [
-    { id: 'dashboard', icon: <LayoutDashboard />, label: "Dashboard" },
-    { id: 'clients', icon: <Users />, label: "Client Base" },
-    { id: 'bookings', icon: <Ticket />, label: "Active Bookings" },
-    { id: 'invoices', icon: <FileText />, label: "Invoices" },
-    { id: 'statements', icon: <History />, label: "Statements" },
-    { id: 'forecast', icon: <BarChart3 />, label: "AI Forecast" },
-    { id: 'accounts', icon: <Banknote />, label: "Financials" },
-    { id: 'ai', icon: <MessageSquareText />, label: "Gemini AI" },
+    { id: 'dashboard', icon: <LayoutDashboard />, label: "DASHBOARD" },
+    { id: 'bookings', icon: <Ticket />, label: "ACTIVE BOOKINGS" },
+    { id: 'clients', icon: <Users />, label: "CLIENT BASE" },
+    { id: 'accounts', icon: <Banknote />, label: "FINANCIALS" },
+    { id: 'statements', icon: <History />, label: "STATEMENTS" },
+    { id: 'invoices', icon: <FileText />, label: "INVOICES" },
+    { id: 'forecast', icon: <BarChart3 />, label: "AI FORECAST" },
+    { id: 'ai', icon: <MessageSquareText />, label: "GEMINI AI" },
   ];
 
   return (
@@ -196,9 +196,9 @@ const App: React.FC = () => {
             {(isSidebarOpen || isMobile) && (
               <div className="animate-in fade-in slide-in-from-left-2 duration-300">
                 <h1 className={`font-black text-lg tracking-tighter transition-colors ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>
-                  B2C <span className="text-violet-600">TRAVEL</span>
+                  B2C <span className="text-violet-600">TICKET</span>
                 </h1>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest -mt-1">ERP Systems</p>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest -mt-1">ACCOUNTINGS</p>
               </div>
             )}
           </div>
