@@ -230,24 +230,30 @@ const App: React.FC = () => {
           ))}
         </nav>
 
-        <div className={`p-6 border-t ${isDarkMode ? 'border-slate-800' : 'border-slate-50'} shrink-0 space-y-4`}>
-           {deferredPrompt && (
+        <div className={`border-t ${isDarkMode ? 'border-slate-800' : 'border-slate-50'} shrink-0 transition-all duration-500 ${!isSidebarOpen && !isMobile ? 'p-3' : 'p-6'} space-y-3`}>
              <button 
-              onClick={handleInstallClick} 
+              onClick={() => {
+                if (deferredPrompt) {
+                  handleInstallClick();
+                } else {
+                  alert("To install the app, use your browser's 'Add to Home Screen' option.");
+                }
+              }} 
+              title="Install App"
               className={`w-full flex items-center bg-indigo-600 text-white hover:vibrant-gradient shadow-lg transition-all rounded-2xl ${!isSidebarOpen && !isMobile ? 'justify-center p-3' : 'gap-3 px-4 py-3'}`}
             >
-              <DownloadCloud size={20} />
-              {(isSidebarOpen || isMobile) && <span className="font-bold text-sm">Install App</span>}
+              <DownloadCloud size={20} className="shrink-0" />
+              {(isSidebarOpen || isMobile) && <span className="font-bold text-xs uppercase tracking-widest truncate">Install App</span>}
             </button>
-           )}
-           <div className={`flex items-center rounded-2xl transition-all duration-500 ${isDarkMode ? 'bg-slate-800/50' : 'bg-slate-50'} ${!isSidebarOpen && !isMobile ? 'justify-center p-2' : 'gap-3 px-4 py-3'}`}>
+           <div className={`flex items-center rounded-2xl transition-all duration-500 ${isDarkMode ? 'bg-slate-800/60' : 'bg-slate-50'} ${!isSidebarOpen && !isMobile ? 'justify-center p-1.5' : 'gap-3 px-3 py-2.5'}`}>
              <button 
               onClick={() => setIsDarkMode(!isDarkMode)} 
-              className={`p-2 rounded-xl transition-all ${isDarkMode ? 'bg-amber-500/20 text-amber-500' : 'bg-violet-600 text-white shadow-md'}`}
+              className={`p-2 rounded-xl transition-all duration-300 ${isDarkMode ? 'bg-amber-500/20 text-amber-500 hover:bg-amber-500/30' : 'bg-violet-600 text-white shadow-md hover:shadow-lg'}`}
+              title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
             >
-               {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
+               {isDarkMode ? <Sun size={16} /> : <Moon size={16} />}
              </button>
-             {(isSidebarOpen || isMobile) && <span className="text-xs font-bold uppercase tracking-widest text-slate-400">{isDarkMode ? 'Light Mode' : 'Dark Mode'}</span>}
+             {(isSidebarOpen || isMobile) && <span className="text-[10px] font-black uppercase tracking-[0.1em] text-slate-400">{isDarkMode ? 'Light' : 'Dark'} Mode</span>}
            </div>
         </div>
       </aside>
