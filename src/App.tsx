@@ -707,10 +707,10 @@ const App: React.FC = () => {
 
       {/* Unique Sidebar with Gradient & Blur */}
       <aside className={`
-        ${isMobile ? 'fixed inset-y-0 left-0 z-[70]' : 'relative'}
+        fixed inset-y-0 left-0 z-[70]
         ${isMobile 
           ? isSidebarOpen ? 'w-80 translate-x-0 shadow-2xl' : 'w-80 -translate-x-full'
-          : isSidebarOpen ? 'w-72 translate-x-0' : 'w-24'
+          : isSidebarOpen ? 'w-72 translate-x-0' : 'w-24 translate-x-0'
         }
         ${isDarkMode ? 'bg-slate-900/40 border-slate-800' : 'bg-white border-slate-100'} 
         border-r transition-all duration-500 flex flex-col group
@@ -800,25 +800,26 @@ const App: React.FC = () => {
         </div>
       </aside>
 
-      <main className="flex-1 flex flex-col overflow-hidden relative">
+      <main className={`flex-1 flex flex-col overflow-hidden relative transition-all duration-500 ${!isMobile ? (isSidebarOpen ? 'ml-72' : 'ml-24') : ''}`}>
         {/* Subtle Background Accent */}
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/5 blur-[120px] rounded-full pointer-events-none -z-10"></div>
-        <header className={`h-20 pt-safe ${isDarkMode ? 'bg-slate-950/80 border-slate-800' : 'bg-white/90 border-slate-100'} backdrop-blur-xl border-b flex items-center justify-between px-4 md:px-8 shrink-0 z-30 transition-all sticky top-0`}>
-          <div className="flex items-center gap-2 md:gap-4 flex-1 mr-8">
+        <header className={`h-20 pt-safe ${isDarkMode ? 'bg-slate-950/80 border-slate-800' : 'bg-white/90 border-slate-100'} backdrop-blur-xl border-b flex items-center justify-between px-4 md:px-8 shrink-0 z-40 transition-all sticky top-0`}>
+          <div className="flex items-center gap-4 flex-1">
              <button 
                 onClick={() => setSidebarOpen(!isSidebarOpen)} 
-                className={`p-2 rounded-xl transition-colors ${isDarkMode ? 'text-slate-400 hover:bg-slate-800 hover:text-white' : 'text-slate-500 hover:bg-slate-50 hover:text-indigo-600'}`}
+                className={`p-2.5 rounded-xl transition-all duration-300 ${isDarkMode ? 'text-slate-400 bg-slate-900/50 hover:bg-slate-800 hover:text-white' : 'text-slate-500 bg-slate-50 hover:bg-indigo-50 hover:text-indigo-600 shadow-sm hover:shadow-md'}`}
                 aria-label="Toggle Sidebar"
              >
-                <Menu size={22} />
+                {isSidebarOpen ? <X size={20} className="lg:block hidden" /> : <Menu size={20} />}
+                {isMobile && <Menu size={20} />}
              </button>
-             <div className="relative w-full max-w-sm hidden lg:block">
+             <div className="relative w-full max-w-xs hidden lg:block ml-2">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
               <input 
                 type="text" 
-                placeholder="Quick search itinerary..." 
-                className={`w-full pl-11 pr-4 py-2.5 text-sm font-medium border transparent outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all rounded-xl ${
-                  isDarkMode ? 'bg-slate-900 text-slate-100 border-slate-800' : 'bg-slate-100/50 text-slate-900 border-transparent hover:bg-slate-100'
+                placeholder="Search itinerary..." 
+                className={`w-full pl-11 pr-4 py-2.5 text-xs font-bold border outline-none focus:ring-4 focus:ring-indigo-500/10 transition-all rounded-xl ${
+                  isDarkMode ? 'bg-slate-900 text-slate-100 border-slate-800 focus:border-indigo-500/50' : 'bg-slate-50 text-slate-900 border-slate-200/50 focus:border-indigo-500/50'
                 }`} 
               />
             </div>
