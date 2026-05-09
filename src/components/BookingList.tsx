@@ -15,11 +15,14 @@ interface Props {
   bookings: Booking[];
   clients: Client[];
   onAdd: (booking: Omit<Booking, 'id'>) => void;
+  onUpdate: (booking: Booking) => void;
+  onDelete: (id: string) => void;
   isDarkMode?: boolean;
 }
 
-const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, isDarkMode }) => {
+const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDelete, isDarkMode }) => {
   const [showModal, setShowModal] = useState(false);
+  const [editingBookingId, setEditingBookingId] = useState<string | null>(null);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -69,9 +72,16 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, isDarkMode }) 
     e.preventDefault();
     setIsSynchronizing(true);
     await new Promise(resolve => setTimeout(resolve, 1200));
-    onAdd(formData);
+    
+    if (editingBookingId) {
+      onUpdate({ ...formData, id: editingBookingId } as Booking);
+    } else {
+      onAdd(formData);
+    }
+    
     setIsSynchronizing(false);
     setShowModal(false);
+    setEditingBookingId(null);
     setFormData({
       clientId: '', clientName: '', clientPhone: '', type: 'Air Ticket',
       date: new Date().toISOString().split('T')[0], issueDate: new Date().toISOString().split('T')[0],
@@ -81,8 +91,36 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, isDarkMode }) 
     });
   };
 
+  const handleEdit = (booking: Booking) => {
+    setFormData({
+      clientId: booking.clientId || '',
+      clientName: booking.clientName,
+      clientPhone: booking.clientPhone || '',
+      type: booking.type,
+      date: booking.date,
+      issueDate: booking.issueDate || booking.date,
+      flyingDate: booking.flyingDate || '',
+      from: booking.from || '',
+      to: booking.to || '',
+      checkIn: booking.checkIn || '',
+      checkOut: booking.checkOut || '',
+      hotelName: booking.hotelName || '',
+      amount: booking.amount,
+      cost: booking.cost,
+      status: booking.status,
+      description: booking.description || '',
+      pax: booking.pax || 1,
+      pnr: booking.pnr || '',
+      bookingSource: booking.bookingSource || ''
+    });
+    setEditingBookingId(booking.id);
+    setSelectedBooking(null);
+    setShowModal(true);
+  };
+
   const handleAbort = () => {
     setShowModal(false);
+    setEditingBookingId(null);
     setFormData({
       clientId: '', clientName: '', clientPhone: '', type: 'Air Ticket',
       date: new Date().toISOString().split('T')[0], issueDate: new Date().toISOString().split('T')[0],
@@ -472,9 +510,9 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, isDarkMode }) 
                                 </div>
                              </div>
                           </div>
-                       </section>
+                                               </section>
 
-                       <section className="space-y-3">
+                        <section className="space-y-3">
                           <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">System Remarks</label>
                           <div className={`p-5 rounded-2xl border flex gap-3 ${isDarkMode ? 'bg-slate-800/40 border-slate-800' : 'bg-slate-50 border-slate-100'}`}>
                              <Info size={16} className="text-indigo-400 shrink-0 mt-0.5" />
@@ -484,21 +522,29 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, isDarkMode }) 
                           </div>
                        </section>
                     </div>
-                  </div>
+                 </div>
+              </div>
 
-                  <div className="flex flex-col sm:flex-row gap-4 mt-12 bg-slate-50/50 dark:bg-slate-900/50 -mx-10 -mb-10 p-10 border-t border-slate-100 dark:border-slate-800">
-                     <button 
-                       onClick={() => setSelectedBooking(null)}
-                       className={`flex-1 py-4 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${isDarkMode ? 'bg-slate-800 text-slate-400 hover:text-white' : 'bg-slate-200 text-slate-600 hover:bg-slate-300'}`}>
-                        Return to List
-                      </button>
-                     <button 
-                       className="flex-[1.5] py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold uppercase tracking-widest shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2 transition-all active:scale-95"
-                     >
-                        <Download size={18} />
-                        Export Entry Data
-                     </button>
-                  </div>
+               <div className="flex flex-col sm:flex-row gap-4 bg-slate-50/50 dark:bg-slate-900/50 px-10 py-8 border-t border-slate-100 dark:border-slate-800 shrink-0">
+                  <button 
+                    onClick={() => {
+                      onDelete(selectedBooking.id);
+                      setSelectedBooking(null);
+                    }}
+                    className={`flex-1 py-4 rounded-xl text-xs font-bold uppercase tracking-widest transition-all bg-rose-500/10 text-rose-500 hover:bg-rose-500/20`}>
+                    Delete Record
+                  </button>
+                  <button 
+                    onClick={() => handleEdit(selectedBooking)}
+                    className={`flex-1 py-4 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${isDarkMode ? 'bg-indigo-600/10 text-indigo-400 hover:bg-indigo-600/20' : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100'}`}>
+                    Edit Reservation
+                  </button>
+                  <button 
+                    className="flex-1 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold uppercase tracking-widest shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2 transition-all active:scale-95"
+                  >
+                    <Download size={18} />
+                    Export Data
+                  </button>
                </div>
             </motion.div>
           </motion.div>
@@ -532,8 +578,8 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, isDarkMode }) 
                       <Zap size={20} className="text-white fill-current" />
                    </div>
                    <div>
-                      <h3 className="text-xl font-bold tracking-tight">New Reservation</h3>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Registering entry into ledger</p>
+                      <h3 className="text-xl font-bold tracking-tight">{editingBookingId ? 'Edit Reservation' : 'New Reservation'}</h3>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">{editingBookingId ? 'Modifying existing entry in ledger' : 'Registering entry into ledger'}</p>
                    </div>
                 </div>
                 <button 
@@ -563,6 +609,27 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, isDarkMode }) 
                       ))}
                     </div>
                  </section>
+
+                  {/* Status Selection */}
+                  <section className="space-y-3">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Booking Status</label>
+                    <div className="flex p-1 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                      {[BookingStatus.PENDING, BookingStatus.CONFIRMED, BookingStatus.CANCELLED].map(status => (
+                        <button 
+                          key={status}
+                          type="button"
+                          onClick={() => setFormData({...formData, status: status})}
+                          className={`flex-1 py-3 rounded-lg text-xs font-bold transition-all ${formData.status === status ? 
+                            status === BookingStatus.CONFIRMED ? 'bg-emerald-500 text-white shadow-sm' :
+                            status === BookingStatus.CANCELLED ? 'bg-rose-500 text-white shadow-sm' :
+                            'bg-amber-500 text-white shadow-sm' : 
+                            'text-slate-500 hover:text-slate-700'}`}
+                        >
+                          {status}
+                        </button>
+                      ))}
+                    </div>
+                  </section>
 
                  {/* Information Grid */}
                  <section className="space-y-6">
@@ -682,7 +749,7 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, isDarkMode }) 
                   disabled={isSynchronizing}
                   className="flex-[2] py-3 px-6 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold uppercase tracking-widest rounded-xl shadow-lg shadow-indigo-600/20 disabled:opacity-50 flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
                 >
-                  {isSynchronizing ? <><Activity size={16} className="animate-spin" /> Committing...</> : <><CheckCircle size={16} /> Confirm Entry</>}
+                  {isSynchronizing ? <><Activity size={16} className="animate-spin" /> Committing...</> : <><CheckCircle size={16} /> {editingBookingId ? 'Update Entry' : 'Confirm Entry'}</>}
                 </button>
               </div>
             </motion.form>

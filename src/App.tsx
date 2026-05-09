@@ -48,6 +48,42 @@ const App: React.FC = () => {
     }
   });
 
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    try {
+      const saved = localStorage.getItem('isLoggedIn');
+      return saved === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const [adminCreds, setAdminCreds] = useState(() => {
+    try {
+      const saved = localStorage.getItem('adminCredentials');
+      return saved ? JSON.parse(saved) : { 
+        username: 'admin', 
+        password: '1234',
+        recoveryQuestion: 'What is your base of operations?', 
+        recoveryAnswer: 'Dhaka' 
+      };
+    } catch {
+      return { 
+        username: 'admin', 
+        password: '1234',
+        recoveryQuestion: 'What is your base of operations?', 
+        recoveryAnswer: 'Dhaka' 
+      };
+    }
+  });
+
+  const [loginForm, setLoginForm] = useState({ username: '', password: '' });
+  const [loginError, setLoginError] = useState('');
+  const [showForgot, setShowForgot] = useState(false);
+  const [recoveryAnswer, setRecoveryAnswer] = useState('');
+  const [recoveryMessage, setRecoveryMessage] = useState('');
+  const [settingsForm, setSettingsForm] = useState({ ...adminCreds });
+  const [settingsMessage, setSettingsMessage] = useState('');
+
   useEffect(() => {
     let lastWidth = window.innerWidth;
     const handleResize = () => {
@@ -79,12 +115,37 @@ const App: React.FC = () => {
       document.documentElement.classList.remove('dark');
       document.body.style.backgroundColor = '#f8faff';
     }
-
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-    });
   }, [isDarkMode]);
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (loginForm.username === adminCreds.username && loginForm.password === adminCreds.password) {
+      setIsAuthenticated(true);
+      localStorage.setItem('isLoggedIn', 'true');
+      setLoginError('');
+      // Reset forms
+      setLoginForm({ username: '', password: '' });
+    } else {
+      setLoginError('Invalid credentials. Access denied.');
+    }
+  };
+
+  const updateSettings = (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      localStorage.setItem('adminCredentials', JSON.stringify(settingsForm));
+      setAdminCreds(settingsForm);
+      setSettingsMessage('Credentials updated successfully!');
+      setTimeout(() => setSettingsMessage(''), 3000);
+    } catch (e) {
+      setSettingsMessage('Error saving credentials.');
+    }
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    localStorage.removeItem('isLoggedIn');
+  };
 
   const handleInstallClick = async () => {
     if (deferredPrompt) {
@@ -136,9 +197,35 @@ const App: React.FC = () => {
     }]);
   };
 
+  const updateBooking = (updatedBooking: Booking) => {
+    setBookings(prev => prev.map(b => b.id === updatedBooking.id ? updatedBooking : b));
+    // Update linked transaction if it exists
+    setTransactions(prev => prev.map(t => 
+      t.bookingId === updatedBooking.id 
+        ? { ...t, amount: updatedBooking.amount, category: `${updatedBooking.type} Sale` } 
+        : t
+    ));
+  };
+
   const addTransaction = (newTransaction: Omit<Transaction, 'id'>) => {
     const id = 't' + Math.random().toString(36).substr(2, 7);
     setTransactions(prev => [ { ...newTransaction, id }, ...prev ]);
+  };
+
+  const updateTransaction = (updatedTransaction: Transaction) => {
+    setTransactions(prev => prev.map(t => t.id === updatedTransaction.id ? updatedTransaction : t));
+  };
+
+  const deleteTransaction = (id: string) => {
+    if (window.confirm('Are you sure you want to delete this transaction record?')) {
+      setTransactions(prev => prev.filter(t => t.id !== id));
+    }
+  };
+
+  const deleteBooking = (id: string) => {
+    if (window.confirm('Deleting this reservation will NOT automatically delete associated transactions. Proceed?')) {
+      setBookings(prev => prev.filter(b => b.id !== id));
+    }
   };
 
   const addClient = (newClient: Omit<Client, 'id' | 'createdAt'>) => {
@@ -166,7 +253,175 @@ const App: React.FC = () => {
     { id: 'invoices', icon: <FileText />, label: "INVOICES" },
     { id: 'forecast', icon: <BarChart3 />, label: "AI FORECAST" },
     { id: 'ai', icon: <MessageSquareText />, label: "GEMINI AI" },
+    { id: 'settings', icon: <Settings />, label: "SYSTEM SETTINGS" },
   ];
+
+  if (!isAuthenticated) {
+    return (
+      <div className={`min-h-screen flex items-center justify-center p-4 transition-colors ${isDarkMode ? 'bg-slate-950 text-white' : 'bg-slate-50 text-slate-900'}`}>
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/5 blur-[120px] rounded-full pointer-events-none -z-10"></div>
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-violet-600/5 blur-[120px] rounded-full pointer-events-none -z-10"></div>
+        
+        <div className={`w-full max-w-md p-8 md:p-12 rounded-[40px] shadow-2xl border transition-all ${isDarkMode ? 'bg-slate-900/50 border-slate-800' : 'bg-white border-slate-100'}`}>
+          <div className="text-center mb-10">
+            <div className="inline-flex p-4 vibrant-gradient rounded-3xl shadow-lg mb-6">
+              <Plane className="text-white w-8 h-8 rotate-45" />
+            </div>
+            <h1 className="text-3xl font-black tracking-tighter mb-2">
+              ADMIN <span className="text-indigo-600">LOGIN</span>
+            </h1>
+            <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">Financial Accounts Ledger</p>
+          </div>
+
+          <form onSubmit={handleLogin} className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-4">Access Username</label>
+              <div className="relative group">
+                <Users className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={20} />
+                <input 
+                  type="text" 
+                  placeholder="admin"
+                  required
+                  value={loginForm.username}
+                  onChange={e => setLoginForm({...loginForm, username: e.target.value})}
+                  className={`w-full pl-14 pr-6 py-4 rounded-2xl outline-none border-2 transition-all font-bold ${
+                    isDarkMode ? 'bg-slate-800 border-slate-700 focus:border-indigo-500/50' : 'bg-slate-50 border-slate-100 focus:border-indigo-500/50 shadow-inner'
+                  }`}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-4">Passcode</label>
+              <div className="relative group">
+                <Settings className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-violet-500 transition-colors" size={20} />
+                <input 
+                  type="password" 
+                  placeholder="••••"
+                  required
+                  value={loginForm.password}
+                  onChange={e => setLoginForm({...loginForm, password: e.target.value})}
+                  className={`w-full pl-14 pr-6 py-4 rounded-2xl outline-none border-2 transition-all font-bold ${
+                    isDarkMode ? 'bg-slate-800 border-slate-700 focus:border-violet-500/50' : 'bg-slate-50 border-slate-100 focus:border-violet-500/50 shadow-inner'
+                  }`}
+                />
+              </div>
+            </div>
+
+            {loginError && (
+              <div className="p-4 bg-rose-500/10 border border-rose-500/20 rounded-2xl text-rose-500 text-xs font-bold text-center animate-in shake duration-300">
+                {loginError}
+              </div>
+            )}
+
+            <button 
+              type="submit"
+              className="w-full py-4 vibrant-gradient text-white rounded-2xl shadow-xl shadow-indigo-500/30 font-black tracking-widest uppercase hover:scale-[1.02] active:scale-95 transition-all mt-4"
+            >
+              Authorize Access
+            </button>
+          </form>
+
+          <div className="mt-6 text-center">
+            <button 
+              onClick={() => setShowForgot(true)}
+              className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-indigo-500 transition-colors"
+            >
+              Forgot Passcode?
+            </button>
+          </div>
+
+          <button 
+            onClick={() => setIsDarkMode(!isDarkMode)}
+            className="w-full mt-8 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-indigo-500 transition-colors"
+          >
+            Switch to {isDarkMode ? 'Light' : 'Dark'} Mode
+          </button>
+        </div>
+
+        {/* Forgot Password Modal */}
+        {showForgot && (
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-300">
+            <div className={`w-full max-w-md p-10 rounded-[40px] border shadow-2xl ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-100'}`}>
+              <div className="mb-8 items-center flex flex-col text-center">
+                <div className="p-4 bg-rose-500/10 text-rose-500 rounded-2xl mb-4">
+                  <Settings className="animate-spin-slow" size={32} />
+                </div>
+                <h3 className="text-2xl font-black tracking-tight uppercase">Terminal Recovery</h3>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-2 px-6">
+                  Answer your security challenge to reset access credentials.
+                </p>
+              </div>
+
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-4">
+                    Challenge: <span className="text-slate-400">{adminCreds.recoveryQuestion}</span>
+                  </label>
+                  <input 
+                    type="text"
+                    placeholder="Provide your secret answer"
+                    value={recoveryAnswer}
+                    onChange={e => setRecoveryAnswer(e.target.value)}
+                    className={`w-full px-6 py-4 rounded-2xl outline-none border-2 transition-all font-bold ${
+                      isDarkMode ? 'bg-slate-800 border-slate-700 focus:border-rose-500/50' : 'bg-slate-50 border-slate-100 focus:border-rose-500/50 shadow-inner'
+                    }`}
+                  />
+                </div>
+
+                {recoveryMessage && (
+                  <div className={`p-4 rounded-2xl text-[10px] font-bold text-center ${
+                    recoveryMessage.includes('Reset') ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-500 border border-rose-500/20'
+                  }`}>
+                    {recoveryMessage}
+                  </div>
+                )}
+
+                <div className="flex gap-4">
+                  <button 
+                    onClick={() => {
+                      setShowForgot(false);
+                      setRecoveryMessage('');
+                      setRecoveryAnswer('');
+                    }}
+                    className={`flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'bg-slate-800 text-slate-400' : 'bg-slate-100 text-slate-500'}`}
+                  >
+                    Abort
+                  </button>
+                  <button 
+                    onClick={() => {
+                      if (recoveryAnswer.toLowerCase().trim() === adminCreds.recoveryAnswer.toLowerCase().trim()) {
+                        const defaultCreds = { 
+                          username: 'admin', 
+                          password: '1234',
+                          recoveryQuestion: adminCreds.recoveryQuestion,
+                          recoveryAnswer: adminCreds.recoveryAnswer
+                        };
+                        setAdminCreds(defaultCreds);
+                        setSettingsForm(defaultCreds);
+                        localStorage.setItem('adminCredentials', JSON.stringify(defaultCreds));
+                        setRecoveryMessage('Reset Successful! admin / 1234 restored.');
+                        setTimeout(() => {
+                          setShowForgot(false);
+                          setRecoveryMessage('');
+                          setRecoveryAnswer('');
+                        }, 2500);
+                      } else {
+                        setRecoveryMessage('Verification failed. Invalid answer.');
+                      }
+                    }}
+                    className="flex-[2] py-4 bg-rose-600 text-white rounded-2xl shadow-lg shadow-rose-500/20 font-black tracking-widest uppercase hover:scale-105 active:scale-95 transition-all"
+                  >
+                    Reset System Access
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className={`flex h-screen overflow-hidden font-sans transition-all duration-500 ${isDarkMode ? 'bg-slate-950 text-slate-100' : 'bg-[#f8faff] text-slate-900'}`}>
@@ -213,29 +468,33 @@ const App: React.FC = () => {
           )}
         </div>
 
-        <nav className="flex-1 px-4 space-y-2 mt-4 overflow-y-auto no-scrollbar">
-          {menuItems.map(item => (
+        <nav className="flex-1 px-4 space-y-1 mt-4 overflow-y-auto no-scrollbar">
+          <div className="space-y-1">
+            {menuItems.map(item => (
+              <NavItem 
+                key={item.id}
+                icon={item.icon} 
+                label={item.label} 
+                active={activeTab === item.id} 
+                onClick={() => {
+                  setActiveTab(item.id as any);
+                  if (isMobile) setSidebarOpen(false);
+                }} 
+                collapsed={!isSidebarOpen && !isMobile} 
+                isDarkMode={isDarkMode} 
+              />
+            ))}
+          </div>
+          <div className="pt-4 mt-4 border-t border-slate-100 dark:border-slate-800">
             <NavItem 
-              key={item.id}
-              icon={item.icon} 
-              label={item.label} 
-              active={activeTab === item.id} 
-              onClick={() => {
-                if (item.id === 'install') {
-                  if (deferredPrompt) {
-                    handleInstallClick();
-                  } else {
-                    alert("To install the app, use your browser's 'Add to Home Screen' option.");
-                  }
-                  return;
-                }
-                setActiveTab(item.id as any);
-                if (isMobile) setSidebarOpen(false);
-              }} 
+              icon={<History className="rotate-180" />} 
+              label="SIGN OUT" 
+              onClick={handleLogout} 
               collapsed={!isSidebarOpen && !isMobile} 
-              isDarkMode={isDarkMode} 
+              isDarkMode={isDarkMode}
+              danger
             />
-          ))}
+          </div>
         </nav>
 
         <div className={`border-t ${isDarkMode ? 'border-slate-800' : 'border-slate-50'} shrink-0 transition-all duration-500 ${!isSidebarOpen && !isMobile ? 'p-3' : 'p-6'} space-y-4`}>
@@ -308,6 +567,13 @@ const App: React.FC = () => {
               <span className="sm:hidden">ADD</span>
             </button>
             <div className={`h-8 w-px ${isDarkMode ? 'bg-slate-800' : 'bg-slate-200'} hidden sm:block`}></div>
+            <button 
+              onClick={handleLogout}
+              className={`p-2 rounded-xl transition-colors ${isDarkMode ? 'text-slate-400 hover:bg-slate-800 hover:text-rose-500' : 'text-slate-500 hover:bg-slate-50 hover:text-rose-500'}`}
+              title="Logout"
+            >
+              <History className="w-5 h-5 rotate-180" />
+            </button>
             <div className="flex items-center gap-3 shrink-0">
               <div className="text-right hidden md:block">
                 <p className={`text-xs font-black tracking-tight ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>Admin Terminal</p>
@@ -326,12 +592,105 @@ const App: React.FC = () => {
           <div className="max-w-7xl mx-auto">
             {activeTab === 'dashboard' && <Dashboard stats={stats} bookings={bookings} isDarkMode={isDarkMode} />}
             {activeTab === 'clients' && <ClientList clients={clients} bookings={bookings} onAdd={addClient} onUpdate={updateClient} onNavigateToStatement={navigateToStatement} isDarkMode={isDarkMode} />}
-            {activeTab === 'bookings' && <BookingList bookings={bookings} clients={clients} onAdd={addBooking} isDarkMode={isDarkMode} />}
+            {activeTab === 'bookings' && <BookingList bookings={bookings} clients={clients} onAdd={addBooking} onUpdate={updateBooking} onDelete={deleteBooking} isDarkMode={isDarkMode} />}
             {activeTab === 'invoices' && <InvoiceList bookings={bookings} clients={clients} isDarkMode={isDarkMode} />}
             {activeTab === 'statements' && <StatementView clients={clients} bookings={bookings} transactions={transactions} defaultClientId={selectedClientId} isDarkMode={isDarkMode} />}
             {activeTab === 'forecast' && <Forecast bookings={bookings} isDarkMode={isDarkMode} />}
-            {activeTab === 'accounts' && <TransactionList transactions={transactions} stats={stats} onAddTransaction={addTransaction} isDarkMode={isDarkMode} />}
+            {activeTab === 'accounts' && <TransactionList transactions={transactions} stats={stats} onAddTransaction={addTransaction} onUpdateTransaction={updateTransaction} onDeleteTransaction={deleteTransaction} isDarkMode={isDarkMode} />}
             {activeTab === 'ai' && <AIChat bookings={bookings} transactions={transactions} isDarkMode={isDarkMode} />}
+            {activeTab === 'settings' && (
+              <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="mb-10">
+                  <h2 className="text-3xl font-black tracking-tight mb-2">SYSTEM <span className="text-indigo-600">SETTINGS</span></h2>
+                  <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">Global account & terminal configuration</p>
+                </div>
+
+                <div className={`max-w-xl p-10 rounded-[40px] border shadow-2xl transition-all ${isDarkMode ? 'bg-slate-900/50 border-slate-800' : 'bg-white border-slate-100'}`}>
+                  <div className="flex items-center gap-4 mb-8">
+                    <div className="p-3 vibrant-gradient rounded-2xl shadow-lg">
+                      <Users className="text-white" size={24} />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold tracking-tight">Access Credentials</h3>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Manage administrative login data</p>
+                    </div>
+                  </div>
+
+                  <form onSubmit={updateSettings} className="space-y-6">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-4">Terminal Username</label>
+                      <input 
+                        type="text" 
+                        value={settingsForm.username}
+                        onChange={e => setSettingsForm({...settingsForm, username: e.target.value})}
+                        className={`w-full px-6 py-4 rounded-2xl outline-none border-2 transition-all font-bold ${
+                          isDarkMode ? 'bg-slate-800 border-slate-700 focus:border-indigo-500/50' : 'bg-slate-50 border-slate-100 focus:border-indigo-500/50 shadow-inner'
+                        }`}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-4">Access Passcode</label>
+                      <input 
+                        type="password" 
+                        value={settingsForm.password}
+                        onChange={e => setSettingsForm({...settingsForm, password: e.target.value})}
+                        className={`w-full px-6 py-4 rounded-2xl outline-none border-2 transition-all font-bold ${
+                          isDarkMode ? 'bg-slate-800 border-slate-700 focus:border-indigo-500/50' : 'bg-slate-50 border-slate-100 focus:border-indigo-500/50 shadow-inner'
+                        }`}
+                      />
+                    </div>
+
+                    <div className="space-y-4 pt-6 border-t border-slate-100 dark:border-slate-800">
+                      <div className="flex items-center gap-2 mb-2">
+                        <History size={16} className="text-violet-500" />
+                        <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-500">Security Recovery Details</h4>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-4">Recovery Question</label>
+                        <input 
+                          type="text" 
+                          placeholder="e.g. Favorite childhood pet?"
+                          value={settingsForm.recoveryQuestion || ''}
+                          onChange={e => setSettingsForm({...settingsForm, recoveryQuestion: e.target.value})}
+                          className={`w-full px-6 py-4 rounded-2xl outline-none border-2 transition-all font-bold ${
+                            isDarkMode ? 'bg-slate-800 border-slate-700 focus:border-violet-500/50' : 'bg-slate-50 border-slate-100 focus:border-violet-500/50 shadow-inner'
+                          }`}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-4">Secret Answer</label>
+                        <input 
+                          type="text" 
+                          value={settingsForm.recoveryAnswer || ''}
+                          onChange={e => setSettingsForm({...settingsForm, recoveryAnswer: e.target.value})}
+                          className={`w-full px-6 py-4 rounded-2xl outline-none border-2 transition-all font-bold ${
+                            isDarkMode ? 'bg-slate-800 border-slate-700 focus:border-violet-500/50' : 'bg-slate-50 border-slate-100 focus:border-violet-500/50 shadow-inner'
+                          }`}
+                        />
+                      </div>
+                    </div>
+
+                    {settingsMessage && (
+                      <div className={`p-4 rounded-2xl text-xs font-bold text-center animate-in zoom-in duration-300 ${
+                        settingsMessage.includes('successfully') ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-500 border border-rose-500/20'
+                      }`}>
+                        {settingsMessage}
+                      </div>
+                    )}
+
+                    <button 
+                      type="submit"
+                      className="w-full py-4 vibrant-gradient text-white rounded-2xl shadow-xl shadow-indigo-500/30 font-black tracking-widest uppercase hover:scale-[1.02] active:scale-95 transition-all mt-4"
+                    >
+                      Update Terminal Data
+                    </button>
+                  </form>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </main>
@@ -339,7 +698,7 @@ const App: React.FC = () => {
   );
 };
 
-const NavItem = ({ icon, label, active, onClick, collapsed, isDarkMode }: any) => (
+const NavItem = ({ icon, label, active, onClick, collapsed, isDarkMode, danger }: any) => (
   <button 
     onClick={onClick} 
     className={`
@@ -347,9 +706,11 @@ const NavItem = ({ icon, label, active, onClick, collapsed, isDarkMode }: any) =
       ${collapsed ? 'justify-center p-3.5' : 'gap-4 px-4 py-3.5'}
       ${active 
         ? 'vibrant-gradient text-white shadow-xl shadow-violet-500/20' 
-        : isDarkMode 
-          ? 'text-slate-500 hover:bg-slate-800/50 hover:text-slate-200' 
-          : 'text-slate-500 hover:bg-violet-50 hover:text-violet-700'
+        : danger
+          ? 'text-rose-500 hover:bg-rose-500/10'
+          : isDarkMode 
+            ? 'text-slate-500 hover:bg-slate-800/50 hover:text-slate-200' 
+            : 'text-slate-500 hover:bg-violet-50 hover:text-violet-700'
       }
     `}
   >

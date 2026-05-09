@@ -5,18 +5,21 @@ import { Transaction, TransactionType, AgencyStats } from '@/types';
 import { 
   ArrowUpCircle, ArrowDownCircle, Download, FileSpreadsheet, 
   Plus, X, Calendar, Tag, Banknote, Filter, Printer, RefreshCw,
-  Search, ChevronDown, BookOpen, Activity, LayoutGrid, List
+  Search, ChevronDown, BookOpen, Activity, LayoutGrid, List, Trash2
 } from 'lucide-react';
 
 interface Props {
   transactions: Transaction[];
   stats: AgencyStats;
   onAddTransaction: (transaction: Omit<Transaction, 'id'>) => void;
+  onUpdateTransaction: (transaction: Transaction) => void;
+  onDeleteTransaction: (id: string) => void;
   isDarkMode?: boolean;
 }
 
-const TransactionList: React.FC<Props> = ({ transactions, stats, onAddTransaction, isDarkMode }) => {
+const TransactionList: React.FC<Props> = ({ transactions, stats, onAddTransaction, onUpdateTransaction, onDeleteTransaction, isDarkMode }) => {
   const [showModal, setShowModal] = useState(false);
+  const [editingTransactionId, setEditingTransactionId] = useState<string | null>(null);
   const [filterType, setFilterType] = useState<'ALL' | 'INCOME' | 'EXPENSE'>('ALL');
   
   // Date states - Default to current month
@@ -72,11 +75,55 @@ const TransactionList: React.FC<Props> = ({ transactions, stats, onAddTransactio
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onAddTransaction({
-      ...formData,
-      category: isCustom ? customCategory : formData.category
-    });
+    const finalCategory = isCustom ? customCategory : formData.category;
+    
+    if (editingTransactionId) {
+      onUpdateTransaction({ ...formData, id: editingTransactionId, category: finalCategory } as Transaction);
+    } else {
+      onAddTransaction({
+        ...formData,
+        category: finalCategory
+      });
+    }
+    
     setShowModal(false);
+    setEditingTransactionId(null);
+    setFormData({
+      date: new Date().toISOString().split('T')[0],
+      category: '',
+      amount: 0,
+      type: TransactionType.INCOME,
+      reference: ''
+    });
+    setCustomCategory('');
+    setIsCustom(false);
+  };
+
+  const handleEdit = (t: Transaction) => {
+    setFormData({
+      date: t.date,
+      category: t.category,
+      amount: t.amount,
+      type: t.type,
+      reference: t.reference || ''
+    });
+    
+    const isStandard = categories[t.type].includes(t.category);
+    if (!isStandard) {
+      setIsCustom(true);
+      setCustomCategory(t.category);
+    } else {
+      setIsCustom(false);
+      setCustomCategory('');
+    }
+    
+    setEditingTransactionId(t.id);
+    setShowModal(true);
+  };
+
+  const handleAbort = () => {
+    setShowModal(false);
+    setEditingTransactionId(null);
     setFormData({
       date: new Date().toISOString().split('T')[0],
       category: '',
@@ -261,7 +308,17 @@ const TransactionList: React.FC<Props> = ({ transactions, stats, onAddTransactio
               <RefreshCw size={18} />
             </button>
             <button 
-              onClick={() => setShowModal(true)}
+              onClick={() => {
+                setEditingTransactionId(null);
+                setFormData({
+                  date: new Date().toISOString().split('T')[0],
+                  category: '',
+                  amount: 0,
+                  type: TransactionType.INCOME,
+                  reference: ''
+                });
+                setShowModal(true);
+              }}
               className="flex-[2] md:flex-initial px-6 py-2.5 vibrant-gradient text-white text-[11px] font-black uppercase tracking-widest rounded-2xl shadow-lg shadow-indigo-500/20 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 whitespace-nowrap"
             >
               <Plus size={16} />
@@ -349,12 +406,34 @@ const TransactionList: React.FC<Props> = ({ transactions, stats, onAddTransactio
                   <td className={`px-6 md:px-10 py-6 text-xs font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>
                     {t.reference || 'N/A'}
                   </td>
-                  <td className={`px-6 md:px-10 py-6 text-right font-black text-sm tracking-tighter ${
-                    t.type === TransactionType.INCOME 
-                      ? isDarkMode ? 'text-emerald-400' : 'text-emerald-600' 
-                      : isDarkMode ? 'text-rose-400' : 'text-rose-600'
-                  }`}>
-                    {t.type === TransactionType.INCOME ? '+' : '-'}৳{t.amount.toLocaleString()}
+                  <td className="px-6 md:px-10 py-6">
+                    <div className="flex items-center justify-end gap-4">
+                      <p className={`font-black text-sm tracking-tighter ${
+                        t.type === TransactionType.INCOME 
+                          ? isDarkMode ? 'text-emerald-400' : 'text-emerald-600' 
+                          : isDarkMode ? 'text-rose-400' : 'text-rose-600'
+                      }`}>
+                        {t.type === TransactionType.INCOME ? '+' : '-'}৳{t.amount.toLocaleString()}
+                      </p>
+                      {!t.bookingId && (
+                        <div className="flex items-center gap-1">
+                          <button 
+                            onClick={() => handleEdit(t)}
+                            className={`p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all ${isDarkMode ? 'hover:bg-slate-800 text-slate-500 hover:text-indigo-400' : 'hover:bg-slate-100 text-slate-400 hover:text-indigo-600'}`}
+                            title="Edit Entry"
+                          >
+                            <BookOpen size={14} />
+                          </button>
+                          <button 
+                            onClick={() => onDeleteTransaction(t.id)}
+                            className={`p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all ${isDarkMode ? 'hover:bg-slate-800 text-slate-500 hover:text-rose-500' : 'hover:bg-slate-100 text-slate-400 hover:text-rose-600'}`}
+                            title="Delete Entry"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -364,7 +443,7 @@ const TransactionList: React.FC<Props> = ({ transactions, stats, onAddTransactio
           {/* Mobile Card View */}
           <div className="md:hidden divide-y-2 divide-slate-50 dark:divide-slate-800/50">
             {filteredTransactions.map((t) => (
-              <div key={t.id} className="p-6 flex items-center justify-between gap-4">
+              <div key={t.id} className="p-6 flex items-center justify-between gap-4 group">
                 <div className="flex items-center gap-4">
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
                     t.type === TransactionType.INCOME 
@@ -378,13 +457,31 @@ const TransactionList: React.FC<Props> = ({ transactions, stats, onAddTransactio
                     <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{t.date} • {t.reference || 'NO REF'}</p>
                   </div>
                 </div>
-                <p className={`font-black text-sm tracking-tighter shrink-0 ${
-                  t.type === TransactionType.INCOME 
-                    ? isDarkMode ? 'text-emerald-400' : 'text-emerald-600' 
-                    : isDarkMode ? 'text-rose-400' : 'text-rose-600'
-                }`}>
-                  {t.type === TransactionType.INCOME ? '+' : '-'}৳{t.amount.toLocaleString()}
-                </p>
+                <div className="flex items-center gap-3">
+                  <p className={`font-black text-sm tracking-tighter shrink-0 ${
+                    t.type === TransactionType.INCOME 
+                      ? isDarkMode ? 'text-emerald-400' : 'text-emerald-600' 
+                      : isDarkMode ? 'text-rose-400' : 'text-rose-600'
+                  }`}>
+                    {t.type === TransactionType.INCOME ? '+' : '-'}৳{t.amount.toLocaleString()}
+                  </p>
+                  {!t.bookingId && (
+                    <div className="flex items-center gap-1">
+                      <button 
+                        onClick={() => handleEdit(t)}
+                        className={`p-2 rounded-lg ${isDarkMode ? 'bg-slate-800 text-slate-400' : 'bg-slate-100 text-slate-500'}`}
+                      >
+                        <BookOpen size={14} />
+                      </button>
+                      <button 
+                        onClick={() => onDeleteTransaction(t.id)}
+                        className={`p-2 rounded-lg ${isDarkMode ? 'bg-slate-800 text-rose-500/80' : 'bg-rose-50 text-rose-500'}`}
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             ))}
           </div>
@@ -431,13 +528,13 @@ const TransactionList: React.FC<Props> = ({ transactions, stats, onAddTransactio
                       <Activity size={20} />
                    </div>
                    <div>
-                      <h3 className="text-lg md:text-xl font-black tracking-tight uppercase leading-none">New Entry Log</h3>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1.5">Record individual income or expense</p>
+                      <h3 className="text-lg md:text-xl font-black tracking-tight uppercase leading-none">{editingTransactionId ? 'Modify Entry Log' : 'New Entry Log'}</h3>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1.5">{editingTransactionId ? 'Update existing ledger record' : 'Record individual income or expense'}</p>
                    </div>
                 </div>
                 <button 
                   type="button"
-                  onClick={() => setShowModal(false)} 
+                  onClick={handleAbort} 
                   className={`p-2 rounded-xl transition-colors ${isDarkMode ? 'hover:bg-slate-800 text-slate-500' : 'hover:bg-slate-100 text-slate-400'}`}
                 >
                   <X size={22} />
@@ -613,7 +710,7 @@ const TransactionList: React.FC<Props> = ({ transactions, stats, onAddTransactio
               }`}>
                 <button 
                   type="button" 
-                  onClick={() => setShowModal(false)}
+                  onClick={handleAbort}
                   className={`flex-1 py-4 text-[11px] font-black uppercase tracking-widest rounded-2xl transition-all ${
                     isDarkMode ? 'bg-slate-800 text-slate-400 hover:text-white' : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
                   }`}
@@ -626,10 +723,10 @@ const TransactionList: React.FC<Props> = ({ transactions, stats, onAddTransactio
                     formData.type === TransactionType.INCOME 
                       ? 'bg-emerald-600 shadow-emerald-500/20 hover:bg-emerald-500' 
                       : 'bg-rose-600 shadow-rose-500/20 hover:bg-rose-500'
-                  }`}
+                   }`}
                 >
-                  <Plus size={16} />
-                  Authorize Entry
+                  {editingTransactionId ? <RefreshCw size={16} /> : <Plus size={16} />}
+                  {editingTransactionId ? 'Update Record' : 'Authorize Entry'}
                 </button>
               </div>
             </motion.form>
