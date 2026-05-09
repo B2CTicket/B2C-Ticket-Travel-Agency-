@@ -1,10 +1,11 @@
 
 import React, { useState, useMemo } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { Transaction, TransactionType, AgencyStats } from '@/types';
 import { 
   ArrowUpCircle, ArrowDownCircle, Download, FileSpreadsheet, 
   Plus, X, Calendar, Tag, Banknote, Filter, Printer, RefreshCw,
-  Search, ChevronDown, BookOpen
+  Search, ChevronDown, BookOpen, Activity, LayoutGrid, List
 } from 'lucide-react';
 
 interface Props {
@@ -261,10 +262,10 @@ const TransactionList: React.FC<Props> = ({ transactions, stats, onAddTransactio
             </button>
             <button 
               onClick={() => setShowModal(true)}
-              className="flex-[2] md:flex-initial px-6 py-2.5 vibrant-gradient text-white text-[11px] font-black uppercase tracking-widest rounded-2xl shadow-lg shadow-violet-500/20 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 whitespace-nowrap"
+              className="flex-[2] md:flex-initial px-6 py-2.5 vibrant-gradient text-white text-[11px] font-black uppercase tracking-widest rounded-2xl shadow-lg shadow-indigo-500/20 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 whitespace-nowrap"
             >
               <Plus size={16} />
-              Manual Entry
+              New Entry
             </button>
           </div>
         </div>
@@ -321,19 +322,19 @@ const TransactionList: React.FC<Props> = ({ transactions, stats, onAddTransactio
           <table className="w-full text-left hidden md:table">
             <thead>
               <tr className={`${isDarkMode ? 'border-slate-800' : 'border-slate-100'}`}>
-                <th className="px-10 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Date</th>
-                <th className="px-10 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Category / Purpose</th>
-                <th className="px-10 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Reference ID</th>
-                <th className="px-10 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Amount (৳)</th>
+                <th className="px-6 md:px-10 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Date</th>
+                <th className="px-6 md:px-10 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Category / Purpose</th>
+                <th className="px-6 md:px-10 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Reference ID</th>
+                <th className="px-6 md:px-10 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Amount (৳)</th>
               </tr>
             </thead>
             <tbody className={`divide-y-2 ${isDarkMode ? 'divide-slate-800/50' : 'divide-slate-50'}`}>
               {filteredTransactions.map((t) => (
                 <tr key={t.id} className={`group transition-all ${isDarkMode ? 'hover:bg-violet-600/5' : 'hover:bg-violet-50/50'}`}>
-                  <td className="px-10 py-6">
+                  <td className="px-6 md:px-10 py-6">
                     <span className={`text-[10px] font-black uppercase ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>{t.date}</span>
                   </td>
-                  <td className="px-10 py-6">
+                  <td className="px-6 md:px-10 py-6">
                     <div className="flex items-center gap-3">
                       <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:rotate-6 ${
                         t.type === TransactionType.INCOME 
@@ -345,10 +346,10 @@ const TransactionList: React.FC<Props> = ({ transactions, stats, onAddTransactio
                       <span className={`text-sm font-black tracking-tight ${isDarkMode ? 'text-slate-200' : 'text-slate-800'}`}>{t.category}</span>
                     </div>
                   </td>
-                  <td className={`px-10 py-6 text-xs font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>
+                  <td className={`px-6 md:px-10 py-6 text-xs font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>
                     {t.reference || 'N/A'}
                   </td>
-                  <td className={`px-10 py-6 text-right font-black text-sm tracking-tighter ${
+                  <td className={`px-6 md:px-10 py-6 text-right font-black text-sm tracking-tighter ${
                     t.type === TransactionType.INCOME 
                       ? isDarkMode ? 'text-emerald-400' : 'text-emerald-600' 
                       : isDarkMode ? 'text-rose-400' : 'text-rose-600'
@@ -399,185 +400,248 @@ const TransactionList: React.FC<Props> = ({ transactions, stats, onAddTransactio
         </div>
       </div>
 
-      {/* New Transaction Modal */}
-      {showModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-          <div className={`rounded-[40px] w-full max-w-md shadow-2xl animate-in zoom-in-95 duration-200 overflow-hidden ${isDarkMode ? 'bg-slate-900 text-white' : 'bg-white text-slate-900'}`}>
-            <div className={`px-10 py-8 border-b-2 flex items-center justify-between ${isDarkMode ? 'bg-slate-800/50 border-slate-800' : 'bg-slate-50/50 border-slate-100'}`}>
-              <div>
-                <h3 className="font-black text-xl tracking-tighter uppercase">New Entry</h3>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Record income or expense</p>
-              </div>
-              <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-rose-500 transition-colors">
-                <X size={24} />
-              </button>
-            </div>
-            
-            <form onSubmit={handleSubmit} className="p-10 space-y-6">
-              <div className="flex p-1.5 bg-slate-100 dark:bg-slate-800 rounded-[20px]">
-                <button 
-                  type="button"
-                  onClick={() => setFormData({...formData, type: TransactionType.INCOME, category: ''})}
-                  className={`flex-1 py-3 rounded-[14px] text-[10px] font-black uppercase tracking-widest transition-all ${formData.type === TransactionType.INCOME ? 'bg-emerald-600 text-white shadow-lg' : 'text-slate-500'}`}
-                >
-                  Income
-                </button>
-                <button 
-                  type="button"
-                  onClick={() => setFormData({...formData, type: TransactionType.EXPENSE, category: ''})}
-                  className={`flex-1 py-3 rounded-[14px] text-[10px] font-black uppercase tracking-widest transition-all ${formData.type === TransactionType.EXPENSE ? 'bg-rose-600 text-white shadow-lg' : 'text-slate-500'}`}
-                >
-                  Expense
-                </button>
-              </div>
-
-              <div className="space-y-5">
-                <div>
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Transaction Date</label>
-                  <div className="relative">
-                    <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-                    <input 
-                      required
-                      type="date"
-                      value={formData.date}
-                      onChange={e => setFormData({...formData, date: e.target.value})}
-                      className={`w-full pl-12 pr-6 py-4 border-2 rounded-2xl outline-none text-sm font-bold transition-all ${isDarkMode ? 'bg-slate-800 border-slate-700 focus:border-violet-500/50' : 'bg-slate-50 border-slate-100 focus:border-violet-500/50'}`}
-                    />
-                  </div>
+      {/* New Transaction Modal & AnimatePresence for smooth transitions */}
+      <AnimatePresence>
+        {showModal && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[150] bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6"
+            onClick={() => setShowModal(false)}
+          >
+            <motion.form 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              onSubmit={handleSubmit}
+              onClick={(e) => e.stopPropagation()}
+              className={`w-full max-w-xl max-h-[90vh] rounded-[32px] md:rounded-[40px] shadow-2xl flex flex-col overflow-hidden ${
+                isDarkMode ? 'bg-slate-900 border border-slate-800 text-white' : 'bg-white text-slate-900'
+              }`}
+            >
+              {/* Modal Header */}
+              <div className={`px-6 md:px-10 py-6 border-b-2 flex items-center justify-between shrink-0 ${
+                isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-slate-50/50 border-slate-100'
+              }`}>
+                <div className="flex items-center gap-3">
+                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-lg ${
+                     formData.type === TransactionType.INCOME ? 'bg-emerald-600 text-white shadow-emerald-500/20' : 'bg-rose-600 text-white shadow-rose-500/20'
+                   }`}>
+                      <Activity size={20} />
+                   </div>
+                   <div>
+                      <h3 className="text-lg md:text-xl font-black tracking-tight uppercase leading-none">New Entry Log</h3>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1.5">Record individual income or expense</p>
+                   </div>
                 </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <div className="md:col-span-2">
-                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Category Selection</label>
-                    <div className="relative group">
-                      <Tag className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${isDarkMode ? 'text-slate-500 group-focus-within:text-violet-400' : 'text-slate-400 group-focus-within:text-violet-600'}`} size={18} />
-                      <select 
-                        required
-                        value={isCustom ? 'CUSTOM' : formData.category}
-                        onChange={e => {
-                          const val = e.target.value;
-                          if (val === 'CUSTOM') {
-                            setIsCustom(true);
-                            setFormData({...formData, category: 'Other'});
-                          } else {
-                            setIsCustom(false);
-                            setFormData({...formData, category: val});
-                          }
-                        }}
-                        className={`w-full pl-12 pr-10 py-4 border-2 rounded-2xl outline-none text-base md:text-sm font-bold appearance-none transition-all cursor-pointer ${
-                          isDarkMode 
-                            ? 'bg-slate-800 border-slate-700 text-white focus:border-violet-500/50 hover:border-slate-600' 
-                            : 'bg-slate-50 border-slate-100 text-slate-900 focus:border-violet-500/50 hover:border-slate-200'
-                        }`}
-                      >
-                        <option value="" disabled>Select a Category...</option>
-                        <optgroup label="Standard Categories">
-                          {categories[formData.type].map(cat => (
-                            <option key={cat} value={cat}>{cat}</option>
-                          ))}
-                        </optgroup>
-                        <optgroup label="Manual Entry">
-                          <option value="CUSTOM">✎ Custom (Type Manually...)</option>
-                        </optgroup>
-                      </select>
-                      <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-                        <ChevronDown size={18} className="text-slate-400" />
-                      </div>
-                    </div>
+                <button 
+                  type="button"
+                  onClick={() => setShowModal(false)} 
+                  className={`p-2 rounded-xl transition-colors ${isDarkMode ? 'hover:bg-slate-800 text-slate-500' : 'hover:bg-slate-100 text-slate-400'}`}
+                >
+                  <X size={22} />
+                </button>
+              </div>
+              
+              <div className="flex-1 overflow-y-auto p-6 md:p-10 scrollbar-hide">
+                <div className="space-y-8">
+                  {/* Type Selector */}
+                  <div className="flex p-1.5 bg-slate-100 dark:bg-slate-800 rounded-2xl">
+                    <button 
+                      type="button"
+                      onClick={() => setFormData({...formData, type: TransactionType.INCOME, category: ''})}
+                      className={`flex-1 py-3.5 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all ${
+                        formData.type === TransactionType.INCOME 
+                          ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/20' 
+                          : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                      }`}
+                    >
+                      Credit / Income
+                    </button>
+                    <button 
+                      type="button"
+                      onClick={() => setFormData({...formData, type: TransactionType.EXPENSE, category: ''})}
+                      className={`flex-1 py-3.5 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all ${
+                        formData.type === TransactionType.EXPENSE 
+                          ? 'bg-rose-600 text-white shadow-lg shadow-rose-500/20' 
+                          : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                      }`}
+                    >
+                      Debit / Expense
+                    </button>
                   </div>
-
-                  {/* Progressive Disclosure for Custom Category */}
-                  {(isCustom || formData.category.includes('Other')) && (
-                    <div className="md:col-span-2 animate-in slide-in-from-top-4 fade-in duration-500">
-                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">
-                        {isCustom ? 'Define Custom Category' : 'Specify Other Category'}
-                      </label>
+  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+                    {/* Date input */}
+                    <div className="md:col-span-2">
+                      <label className="block text-[11px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2 px-1">Transaction Schedule</label>
                       <div className="relative group">
-                        <BookOpen className={`absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors ${isDarkMode ? 'group-focus-within:text-violet-400' : 'group-focus-within:text-violet-600'}`} size={16} />
+                        <Calendar className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${isDarkMode ? 'text-slate-500 group-focus-within:text-violet-400' : 'text-slate-400 group-focus-within:text-violet-600'}`} size={18} />
                         <input 
                           required
-                          type="text"
-                          placeholder="e.g. Domain Renewal, Client Dinner, etc."
-                          value={isCustom ? customCategory : (formData.category.includes('Other') && !formData.category.startsWith('Other') ? formData.category : '')}
-                          onChange={e => {
-                            if (isCustom) {
-                              setCustomCategory(e.target.value);
-                            } else {
-                              setFormData({...formData, category: e.target.value});
-                            }
-                          }}
-                          className={`w-full pl-12 pr-6 py-4 border-2 rounded-2xl outline-none text-base font-bold transition-all ${
+                          type="date"
+                          value={formData.date}
+                          onChange={e => setFormData({...formData, date: e.target.value})}
+                          className={`w-full pl-12 pr-6 py-4 border-2 rounded-2xl outline-none text-sm font-bold transition-all ${
                             isDarkMode 
-                              ? 'bg-slate-800 border-slate-700 text-white focus:border-violet-500/50' 
-                              : 'bg-violet-50/20 border-slate-100 text-slate-900 focus:border-violet-500/50'
+                              ? 'bg-slate-950 border-slate-800 focus:border-violet-500/50' 
+                              : 'bg-white border-slate-100 focus:border-violet-500/50'
                           }`}
                         />
                       </div>
                     </div>
-                  )}
-
-                  <div className="md:col-span-1">
-                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Amount (৳)</label>
-                    <div className="relative">
-                      <Banknote className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                      <input 
-                        required
-                        type="number"
-                        placeholder="0.00"
-                        value={formData.amount || ''}
-                        onChange={e => setFormData({...formData, amount: Number(e.target.value)})}
-                        className={`w-full pl-12 pr-6 py-4 border-2 rounded-2xl outline-none text-xl font-black transition-all ${
-                          isDarkMode 
-                            ? 'bg-slate-800 border-slate-700 text-violet-400 focus:border-violet-500/50' 
-                            : 'bg-slate-50 border-slate-100 text-violet-700 focus:border-violet-500/50 shadow-inner'
-                        }`}
-                      />
+    
+                    {/* Category Selection */}
+                    <div className="md:col-span-2">
+                        <label className="block text-[11px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2 px-1">Allocation Category</label>
+                        <div className="relative group">
+                          <Tag className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${isDarkMode ? 'text-slate-500 group-focus-within:text-violet-400' : 'text-slate-400 group-focus-within:text-violet-600'}`} size={18} />
+                          <select 
+                            required
+                            value={isCustom ? 'CUSTOM' : formData.category}
+                            onChange={e => {
+                              const val = e.target.value;
+                              if (val === 'CUSTOM') {
+                                setIsCustom(true);
+                                setFormData({...formData, category: 'Other'});
+                              } else {
+                                setIsCustom(false);
+                                setFormData({...formData, category: val});
+                              }
+                            }}
+                            className={`w-full pl-12 pr-10 py-4 border-2 rounded-2xl outline-none text-base md:text-sm font-bold appearance-none transition-all cursor-pointer ${
+                              isDarkMode 
+                                ? 'bg-slate-950 border-slate-800 text-white focus:border-violet-500/50 hover:border-slate-800' 
+                                : 'bg-white border-slate-100 text-slate-900 focus:border-violet-500/50 hover:border-slate-200'
+                            }`}
+                          >
+                            <option value="" disabled>Awaiting selection...</option>
+                            <optgroup label="Primary Labels">
+                              {categories[formData.type].map(cat => ( cat !== 'Other Income' && cat !== 'Other Expense' ? (
+                                <option key={cat} value={cat}>{cat}</option>
+                              ) : null))}
+                            </optgroup>
+                            <optgroup label="Miscellaneous">
+                              <option value={formData.type === TransactionType.INCOME ? 'Other Income' : 'Other Expense'}>
+                                {formData.type === TransactionType.INCOME ? 'Other Income' : 'Other Expense'}
+                              </option>
+                              <option value="CUSTOM">✎ Custom Definition...</option>
+                            </optgroup>
+                          </select>
+                          <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                            <ChevronDown size={18} className="text-slate-400" />
+                          </div>
+                        </div>
                     </div>
-                  </div>
-
-                  <div className="md:col-span-1">
-                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Ref / Tracking ID</label>
-                    <div className="relative">
-                       <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+    
+                    {/* Custom Input */}
+                    {(isCustom || formData.category.includes('Other')) && (
+                      <motion.div 
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        className="md:col-span-2"
+                      >
+                        <label className="block text-[11px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2 px-1">Describe Definition</label>
+                        <div className="relative group">
+                          <BookOpen className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${isDarkMode ? 'text-slate-500 group-focus-within:text-violet-400' : 'text-slate-400 group-focus-within:text-violet-600'}`} size={16} />
+                          <input 
+                            required
+                            type="text"
+                            placeholder="e.g. Website Maintenance Fee"
+                            value={isCustom ? customCategory : (formData.category.includes('Other') && !formData.category.startsWith('Other') ? formData.category : '')}
+                            onChange={e => {
+                              if (isCustom) {
+                                setCustomCategory(e.target.value);
+                              } else {
+                                setFormData({...formData, category: e.target.value});
+                              }
+                            }}
+                            className={`w-full pl-12 pr-6 py-4 border-2 rounded-2xl outline-none text-base font-bold transition-all ${
+                              isDarkMode 
+                                ? 'bg-slate-950 border-slate-800 focus:border-violet-500/50' 
+                                : 'bg-violet-50/20 border-slate-100 text-indigo-700 placeholder:text-slate-300 focus:border-violet-500/50'
+                            }`}
+                          />
+                        </div>
+                      </motion.div>
+                    )}
+    
+                    {/* Amount Input */}
+                    <div className="md:col-span-1">
+                      <label className="block text-[11px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2 px-1">Financial Value (৳)</label>
+                      <div className="relative group">
+                        <Banknote className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${isDarkMode ? 'text-slate-500 group-focus-within:text-violet-400' : 'text-slate-400 group-focus-within:text-violet-600'}`} size={18} />
                         <input 
-                          type="text"
-                          placeholder="Voucher or Ref#"
-                          value={formData.reference}
-                          onChange={e => setFormData({...formData, reference: e.target.value})}
-                          className={`w-full pl-12 pr-6 py-4 border-2 rounded-2xl outline-none text-base md:text-sm font-bold transition-all ${
-                            isDarkMode ? 'bg-slate-800 border-slate-700 focus:border-violet-500/50' : 'bg-slate-50 border-slate-100 focus:border-violet-500/50'
+                          required
+                          type="number"
+                          placeholder="0"
+                          value={formData.amount || ''}
+                          onChange={e => setFormData({...formData, amount: Number(e.target.value)})}
+                          className={`w-full pl-12 pr-6 py-4 border-2 rounded-2xl outline-none text-xl font-black transition-all ${
+                            isDarkMode 
+                              ? 'bg-slate-950 border-slate-800 text-emerald-400 focus:border-emerald-500/50' 
+                              : 'bg-slate-50 border-slate-100 text-indigo-700 focus:border-indigo-500/50'
                           }`}
                         />
+                      </div>
+                    </div>
+    
+                    {/* Ref Id */}
+                    <div className="md:col-span-1">
+                      <label className="block text-[11px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2 px-1">Audit Reference</label>
+                      <div className="relative group">
+                         <Search className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${isDarkMode ? 'text-slate-500 group-focus-within:text-violet-400' : 'text-slate-400 group-focus-within:text-violet-600'}`} size={16} />
+                          <input 
+                            type="text"
+                            placeholder="Voucher # / PNR"
+                            value={formData.reference}
+                            onChange={e => setFormData({...formData, reference: e.target.value})}
+                            className={`w-full pl-12 pr-6 py-4 border-2 rounded-2xl outline-none text-sm font-bold transition-all ${
+                              isDarkMode ? 'bg-slate-950 border-slate-800 focus:border-violet-500/50' : 'bg-white border-slate-100 focus:border-violet-500/50'
+                            }`}
+                          />
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-
-              <div className="flex gap-4 pt-4">
+  
+              {/* Modal Actions */}
+              <div className={`px-6 md:px-10 py-6 border-t-2 flex flex-col sm:flex-row gap-3 shrink-0 ${
+                isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-slate-50/50 border-slate-50'
+              }`}>
                 <button 
                   type="button" 
                   onClick={() => setShowModal(false)}
-                  className={`flex-1 py-4 text-[10px] font-black uppercase tracking-widest rounded-2xl transition-all ${isDarkMode ? 'text-slate-400 hover:bg-slate-800' : 'text-slate-500 hover:bg-slate-50 border-2 border-slate-100'}`}
+                  className={`flex-1 py-4 text-[11px] font-black uppercase tracking-widest rounded-2xl transition-all ${
+                    isDarkMode ? 'bg-slate-800 text-slate-400 hover:text-white' : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
+                  }`}
                 >
-                  Discard
+                  Terminate
                 </button>
                 <button 
                   type="submit" 
-                  className={`flex-1 py-4 text-white text-[10px] font-black uppercase tracking-widest rounded-2xl shadow-xl transition-all active:scale-95 ${formData.type === TransactionType.INCOME ? 'bg-emerald-600 shadow-emerald-500/20' : 'bg-rose-600 shadow-rose-500/20'}`}
+                  className={`flex-[1.5] py-4 text-white text-[11px] font-black uppercase tracking-widest rounded-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center gap-2 ${
+                    formData.type === TransactionType.INCOME 
+                      ? 'bg-emerald-600 shadow-emerald-500/20 hover:bg-emerald-500' 
+                      : 'bg-rose-600 shadow-rose-500/20 hover:bg-rose-500'
+                  }`}
                 >
-                  Save Entry
+                  <Plus size={16} />
+                  Authorize Entry
                 </button>
               </div>
-            </form>
-          </div>
-        </div>
-      )}
+            </motion.form>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
 
 const StatSummaryCard = ({ label, value, icon, isDarkMode, highlight, colorClass }: any) => (
-  <div className={`p-8 rounded-[32px] border-2 transition-all ${
+  <div className={`p-6 md:p-8 rounded-[32px] border-2 transition-all ${
     isDarkMode 
       ? highlight ? 'bg-violet-900/10 border-violet-500/30' : 'bg-slate-900 border-slate-800' 
       : highlight ? 'bg-violet-50 border-violet-100 shadow-xl shadow-violet-200/20' : 'bg-white border-slate-100 shadow-lg shadow-slate-200/40'
