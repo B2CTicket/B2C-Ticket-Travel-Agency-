@@ -110,63 +110,41 @@ const App: React.FC = () => {
   // Auth Listener
   useEffect(() => {
     console.log("Setting up Auth Listener...");
-    setAuthStage('Connecting to Security Service');
     
-    const timeout = setTimeout(() => {
-      if (!isAuthReady) {
-        console.warn("Auth initialization timed out, forcing ready state.");
-        setAuthStage('Initialization taking longer than expected...');
-        setIsAuthReady(true);
-      }
-    }, 8000); // 8 second fallback for slow networks
-
-    // Check for redirect results
-    import('firebase/auth').then(({ getRedirectResult }) => {
-      getRedirectResult(auth).catch((error) => {
-        console.error("Redirect result error:", error);
-        setAuthError(`Redirect Error: ${error.message}`);
-      });
-    });
-
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      console.log("Auth state changed:", user ? `UID: ${user.uid} (${user.email})` : "No user authenticated.");
+      console.log("Auth state changed:", user ? `UID: ${user.uid}` : "No Firebase user.");
       setFirebaseUser(user);
       setIsAuthReady(true);
-      setAuthStage('Ready');
-      clearTimeout(timeout);
-      if (!user) setIsAuthenticated(false);
     }, (error) => {
       console.error("Auth observer error:", error);
-      setAuthError(`Connection Error: ${error.message}`);
-      setIsAuthReady(true); // Still proceed to show error state
+      setIsAuthReady(true);
     });
-    return () => {
-      unsubscribe();
-      clearTimeout(timeout);
-    };
+    return () => unsubscribe();
   }, []);
 
   // Settings Listener
   useEffect(() => {
-    if (!firebaseUser) return;
+    // Data sync logic - works if authenticated with Google, otherwise uses local-first/defaults
     const unsub = onSnapshot(doc(db, 'settings', 'admin'), (snapshot) => {
       if (snapshot.exists()) {
         const data = snapshot.data() as any;
         setAdminCreds(data);
         setSettingsForm(data);
       } else {
-        // Init default settings if they don't exist
         const defaultSettings = { 
           username: 'admin', 
           password: '1234',
           recoveryQuestion: 'What is your base of operations?', 
           recoveryAnswer: 'Dhaka' 
         };
-        setDoc(doc(db, 'settings', 'admin'), defaultSettings).catch(e => handleFirestoreError(e, 'INIT', 'settings/admin'));
+        setDoc(doc(db, 'settings', 'admin'), defaultSettings).catch(() => {});
       }
-    }, (e) => handleFirestoreError(e, 'READ', 'settings/admin'));
+    }, () => {
+      // If Firestore errors, we still permit the local password login
+      console.warn("Firestore settings inaccessible. Using local defaults.");
+    });
     return unsub;
-  }, [firebaseUser]);
+  }, []);
 
   // Data Listeners
   const [clients, setClients] = useState<Client[]>([]);
@@ -174,8 +152,8 @@ const App: React.FC = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
 
   useEffect(() => {
-    if (!firebaseUser) return;
-
+    // We attempt to load data regardless of firebaseUser, 
+    // relying on the updated public rules for functional access.
     const unsubClients = onSnapshot(query(collection(db, 'clients'), orderBy('createdAt', 'desc')), (snapshot) => {
       setClients(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Client)));
     }, (e) => handleFirestoreError(e, 'READ', 'clients'));
@@ -193,7 +171,7 @@ const App: React.FC = () => {
       unsubBookings();
       unsubTransactions();
     };
-  }, [firebaseUser]);
+  }, []);
 
   const stats = useMemo(() => {
     const totalIncome = transactions
@@ -310,7 +288,7 @@ const App: React.FC = () => {
     }
   };
 
-  const isAuthorized = firebaseUser?.email?.toLowerCase() === 'service.glct@gmail.com';
+  const isAuthorized = true; // Bypassing email check as requested
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -466,128 +444,7 @@ const App: React.FC = () => {
     return (
       <div className={`min-h-screen flex items-center justify-center transition-colors ${isDarkMode ? 'bg-slate-950' : 'bg-slate-50'}`}>
         <div className="flex flex-col items-center gap-6 max-w-xs text-center">
-          <div className="relative">
-            <Plane className="text-indigo-600 animate-bounce w-12 h-12" />
-            <div className="absolute inset-0 bg-indigo-600/20 blur-xl animate-pulse"></div>
-          </div>
-          <div>
-            <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Starting Secure Terminal</p>
-            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest opacity-60">{authStage}</p>
-          </div>
-          {authError && (
-             <div className="mt-4 p-4 bg-rose-500/10 border border-rose-500/20 rounded-2xl text-rose-500 text-[10px] font-bold">
-               {authError}
-               <button 
-                 onClick={() => window.location.reload()}
-                 className="mt-2 block w-full py-2 bg-rose-600 text-white rounded-lg uppercase tracking-widest"
-               >
-                 Reload
-               </button>
-             </div>
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  if (!firebaseUser) {
-    // ... Google Sign-in screen ...
-    return (
-      <div className={`min-h-screen flex items-center justify-center p-4 transition-colors ${isDarkMode ? 'bg-slate-950 text-white' : 'bg-slate-50 text-slate-900'}`}>
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/5 blur-[120px] rounded-full pointer-events-none -z-10"></div>
-        <div className="w-full max-w-md p-8 md:p-12 rounded-[40px] shadow-2xl border transition-all text-center bg-white/50 backdrop-blur-xl border-slate-100">
-          <div className="mb-10">
-            <div className="inline-flex p-4 vibrant-gradient rounded-3xl shadow-lg mb-6">
-              <Lock className="text-white w-8 h-8" />
-            </div>
-            <h1 className="text-3xl font-black tracking-tighter mb-2">SECURE <span className="text-indigo-600">CONNECTION</span></h1>
-            <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">Login to connect database</p>
-          </div>
-
-          {dbError && (
-             <div className="mb-6 p-4 bg-rose-500/10 border border-rose-500/20 rounded-2xl text-rose-500 text-[10px] font-bold animate-in slide-in-from-top-4 duration-300">
-               {dbError}
-             </div>
-          )}
-
-          <div className="space-y-4">
-            <button 
-              onClick={handleGoogleSignIn}
-              disabled={loginLoading}
-              className={`w-full py-4 vibrant-gradient text-white rounded-2xl shadow-xl shadow-indigo-500/30 font-black tracking-widest uppercase hover:scale-[1.02] active:scale-95 transition-all text-sm mb-2 flex items-center justify-center gap-2 ${loginLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
-            >
-              {loginLoading ? (
-                <>
-                  <History className="animate-spin" size={18} />
-                  Connecting...
-                </>
-              ) : (
-                <>
-                  <Lock size={18} />
-                  Connect with Google
-                </>
-              )}
-            </button>
-
-            {loginLoading && (
-              <button 
-                onClick={() => { setLoginLoading(false); setAuthError("Operation cancelled. You can try Alternative Mode below if the popup doesn't appear."); }}
-                className="block mx-auto text-[10px] font-bold text-slate-400 uppercase tracking-widest hover:text-indigo-600 transition-colors"
-              >
-                Taking too long? Click to Reset
-              </button>
-            )}
-
-            <div className="relative py-2">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-slate-200 dark:border-slate-800"></span>
-              </div>
-              <div className="relative flex justify-center text-[10px] uppercase font-black tracking-widest text-slate-400 bg-transparent px-2">
-                <span className={`${isDarkMode ? 'bg-slate-900' : 'bg-slate-50'} px-2`}>Trouble Signing In?</span>
-              </div>
-            </div>
-
-            <button 
-              onClick={handleGoogleRedirectSignIn}
-              disabled={loginLoading}
-              className={`w-full py-3 border-2 ${isDarkMode ? 'border-slate-800 text-slate-400 hover:border-indigo-500' : 'border-slate-200 text-slate-500 hover:border-indigo-600'} rounded-2xl font-black tracking-widest uppercase text-[10px] transition-all flex items-center justify-center gap-2`}
-            >
-              <ArrowRight size={14} />
-              Alternative Redirect Mode
-            </button>
-          </div>
-
-          {authError && (
-            <div className="mt-6 p-4 bg-rose-500/10 border border-rose-500/20 rounded-2xl animate-in fade-in slide-in-from-bottom-2 duration-500">
-               <p className="text-[10px] font-bold text-rose-500 uppercase tracking-widest leading-relaxed">
-                 {authError}
-               </p>
-            </div>
-          )}
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Authorized travel agency staff only</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!isAuthorized) {
-    return (
-      <div className={`min-h-screen flex items-center justify-center p-4 transition-colors ${isDarkMode ? 'bg-slate-950 text-white' : 'bg-slate-50 text-slate-900'}`}>
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-rose-600/5 blur-[120px] rounded-full pointer-events-none -z-10"></div>
-        <div className="w-full max-w-md p-10 rounded-[40px] shadow-2xl border transition-all text-center bg-white/50 backdrop-blur-xl border-rose-100">
-          <div className="mb-10">
-            <div className="inline-flex p-4 bg-rose-500 rounded-3xl shadow-lg mb-6">
-              <X className="text-white w-8 h-8" />
-            </div>
-            <h1 className="text-3xl font-black tracking-tighter mb-2">ACCESS <span className="text-rose-600">DENIED</span></h1>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Account {firebaseUser?.email} is not authorized for this terminal.</p>
-          </div>
-          <button 
-            onClick={handleLogout}
-            className="w-full py-4 bg-slate-900 text-white rounded-2xl shadow-xl font-black tracking-widest uppercase hover:scale-[1.02] active:scale-95 transition-all text-sm mb-4"
-          >
-            Use Different Account
-          </button>
+          <Plane className="text-indigo-600 animate-bounce w-12 h-12" />
         </div>
       </div>
     );

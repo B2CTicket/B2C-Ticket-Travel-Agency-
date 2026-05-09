@@ -13,9 +13,9 @@ service cloud.firestore {
       );
     }
 
-    // Default deny for others, allow everything for authorized user
+    // Configured for direct terminal access (no Google login required)
     match /{document=**} {
-      allow read, write: if isSignedIn() && request.auth.token.email.lower() == 'service.glct@gmail.com';
+      allow read, write: if true;
     }
 
     // Still allow verified users to potentially see/interact if needed (optional, but keep for robustness)
