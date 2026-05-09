@@ -7,7 +7,8 @@ export enum BookingStatus {
 
 export enum TransactionType {
   INCOME = 'INCOME',
-  EXPENSE = 'EXPENSE'
+  EXPENSE = 'EXPENSE',
+  COST_VOLUME = 'COST_VOLUME'
 }
 
 export interface Client {

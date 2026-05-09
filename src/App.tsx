@@ -215,7 +215,7 @@ const App: React.FC = () => {
       await addDoc(collection(db, 'transactions'), {
         date: new Date().toISOString().split('T')[0],
         category: `${newBooking.type} Sale`,
-        amount: newBooking.amount,
+        amount: newBooking.amount - newBooking.cost,
         type: TransactionType.INCOME,
         bookingId: bookingRef.id,
         reference: `BOOKING-${bookingRef.id}`,
@@ -228,7 +228,7 @@ const App: React.FC = () => {
           date: new Date().toISOString().split('T')[0],
           category: `${newBooking.type} Cost`,
           amount: newBooking.cost,
-          type: TransactionType.EXPENSE,
+          type: TransactionType.COST_VOLUME,
           bookingId: bookingRef.id,
           reference: `COST-${bookingRef.id}`,
           createdAt: serverTimestamp()
@@ -248,13 +248,13 @@ const App: React.FC = () => {
       const linkedIncome = transactions.find(t => t.bookingId === id && t.type === TransactionType.INCOME);
       if (linkedIncome) {
         await updateDoc(doc(db, 'transactions', linkedIncome.id), {
-          amount: updatedBooking.amount,
+          amount: updatedBooking.amount - updatedBooking.cost,
           category: `${updatedBooking.type} Sale`
         });
       }
 
       // Update linked expense transaction if it exists, or create if needed
-      const linkedExpense = transactions.find(t => t.bookingId === id && t.type === TransactionType.EXPENSE);
+      const linkedExpense = transactions.find(t => t.bookingId === id && t.type === TransactionType.COST_VOLUME);
       if (linkedExpense) {
         if (updatedBooking.cost > 0) {
           await updateDoc(doc(db, 'transactions', linkedExpense.id), {
@@ -269,7 +269,7 @@ const App: React.FC = () => {
           date: new Date().toISOString().split('T')[0],
           category: `${updatedBooking.type} Cost`,
           amount: updatedBooking.cost,
-          type: TransactionType.EXPENSE,
+          type: TransactionType.COST_VOLUME,
           bookingId: id,
           reference: `COST-${id}`,
           createdAt: serverTimestamp()
