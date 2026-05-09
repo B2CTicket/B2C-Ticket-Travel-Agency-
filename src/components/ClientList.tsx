@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Client, Booking } from '@/types';
 import { 
   Search, Plus, Mail, Phone, User, MoreVertical, 
-  Edit2, Trash2, ExternalLink, FileText, X, History 
+  Edit2, Trash2, ExternalLink, FileText, X, History, Download 
 } from 'lucide-react';
 
 interface Props {

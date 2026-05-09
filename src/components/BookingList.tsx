@@ -762,11 +762,10 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
                        <div className="col-span-1 md:col-span-2">
                           <label className="text-[11px] font-bold text-slate-500 mb-1.5 block uppercase tracking-wide">Connect to existing profile</label>
                           <select 
-                            required
                             value={formData.clientId}
                             onChange={e => handleClientChange(e.target.value)}
                             className={`w-full px-4 py-3 border rounded-xl font-medium text-sm outline-none transition-all ${isDarkMode ? 'bg-slate-950 border-slate-800 focus:border-indigo-500' : 'bg-white border-slate-200 focus:border-indigo-500'}`}>
-                            <option value="">Awaiting selection...</option>
+                            <option value="">None (Manual entry)</option>
                             {clients.map(cl => <option key={cl.id} value={cl.id}>{cl.name} ({cl.phone})</option>)}
                           </select>
                        </div>
