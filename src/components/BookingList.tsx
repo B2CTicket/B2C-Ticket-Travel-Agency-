@@ -822,11 +822,11 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
                                <input required placeholder="DXB" value={formData.to} onChange={e => setFormData({...formData, to: e.target.value.toUpperCase()})} className={`w-full px-4 py-3 border rounded-xl font-medium text-sm uppercase ${isDarkMode ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-200'}`} />
                             </div>
                             <div className="space-y-1.5">
-                               <label className="text-[11px] font-bold text-slate-500 uppercase">Deployment Date</label>
+                               <label className="text-[11px] font-bold text-slate-500 uppercase">Travel Date</label>
                                <input required type="date" value={formData.flyingDate} onChange={e => setFormData({...formData, flyingDate: e.target.value})} className={`w-full px-4 py-3 border rounded-xl font-medium text-sm ${isDarkMode ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-200'}`} />
                             </div>
                             <div className="space-y-1.5">
-                               <label className="text-[11px] font-bold text-slate-500 uppercase">Registration Date</label>
+                               <label className="text-[11px] font-bold text-slate-500 uppercase">Issue Date</label>
                                <input required type="date" value={formData.issueDate} onChange={e => setFormData({...formData, issueDate: e.target.value})} className={`w-full px-4 py-3 border rounded-xl font-medium text-sm ${isDarkMode ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-200'}`} />
                             </div>
                          </div>

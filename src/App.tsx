@@ -207,15 +207,30 @@ const App: React.FC = () => {
   const addBooking = async (newBooking: Omit<Booking, 'id'>) => {
     try {
       const bookingRef = await addDoc(collection(db, 'bookings'), newBooking);
+      
+      // Auto-create income transaction
       await addDoc(collection(db, 'transactions'), {
         date: new Date().toISOString().split('T')[0],
         category: `${newBooking.type} Sale`,
-        amount: newBooking.amount,
+        amount: newBooking.amount - newBooking.cost,
         type: TransactionType.INCOME,
         bookingId: bookingRef.id,
         reference: `BOOKING-${bookingRef.id}`,
         createdAt: serverTimestamp()
       });
+
+      // Auto-create expense transaction for cost
+      if (newBooking.cost > 0) {
+        await addDoc(collection(db, 'transactions'), {
+          date: new Date().toISOString().split('T')[0],
+          category: `${newBooking.type} Cost`,
+          amount: newBooking.cost,
+          type: TransactionType.EXPENSE,
+          bookingId: bookingRef.id,
+          reference: `COST-${bookingRef.id}`,
+          createdAt: serverTimestamp()
+        });
+      }
     } catch (e) {
       handleFirestoreError(e, 'CREATE', 'bookings');
     }
@@ -226,12 +241,35 @@ const App: React.FC = () => {
       const { id, ...data } = updatedBooking;
       await updateDoc(doc(db, 'bookings', id), data);
       
-      // Update linked transaction if it exists
-      const linkedTrans = transactions.find(t => t.bookingId === id);
-      if (linkedTrans) {
-        await updateDoc(doc(db, 'transactions', linkedTrans.id), {
-          amount: updatedBooking.amount,
+      // Update linked income transaction if it exists
+      const linkedIncome = transactions.find(t => t.bookingId === id && t.type === TransactionType.INCOME);
+      if (linkedIncome) {
+        await updateDoc(doc(db, 'transactions', linkedIncome.id), {
+          amount: updatedBooking.amount - updatedBooking.cost,
           category: `${updatedBooking.type} Sale`
+        });
+      }
+
+      // Update linked expense transaction if it exists, or create if needed
+      const linkedExpense = transactions.find(t => t.bookingId === id && t.type === TransactionType.EXPENSE);
+      if (linkedExpense) {
+        if (updatedBooking.cost > 0) {
+          await updateDoc(doc(db, 'transactions', linkedExpense.id), {
+            amount: updatedBooking.cost,
+            category: `${updatedBooking.type} Cost`
+          });
+        } else {
+          await deleteDoc(doc(db, 'transactions', linkedExpense.id));
+        }
+      } else if (updatedBooking.cost > 0) {
+         await addDoc(collection(db, 'transactions'), {
+          date: new Date().toISOString().split('T')[0],
+          category: `${updatedBooking.type} Cost`,
+          amount: updatedBooking.cost,
+          type: TransactionType.EXPENSE,
+          bookingId: id,
+          reference: `COST-${id}`,
+          createdAt: serverTimestamp()
         });
       }
     } catch (e) {
