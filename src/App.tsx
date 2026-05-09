@@ -272,36 +272,49 @@ const App: React.FC = () => {
 
       <main className="flex-1 flex flex-col overflow-hidden relative">
         {/* Subtle Background Accent */}
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-violet-600/5 blur-[120px] rounded-full pointer-events-none"></div>
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/5 blur-[120px] rounded-full pointer-events-none -z-10"></div>
         
-        <header className={`h-20 ${isDarkMode ? 'bg-slate-950/50 border-slate-800' : 'bg-white/80 border-slate-100'} backdrop-blur-md border-b flex items-center justify-between px-6 md:px-10 shrink-0 z-40 transition-colors`}>
-          <div className="flex items-center gap-4">
-             <button onClick={() => setSidebarOpen(!isSidebarOpen)} className={`p-2 rounded-xl transition-colors ${isDarkMode ? 'text-slate-400 hover:bg-slate-800' : 'text-slate-500 hover:bg-slate-50'}`}>
-               <Menu size={22} />
+        <header className={`h-20 ${isDarkMode ? 'bg-slate-950/80 border-slate-800' : 'bg-white/90 border-slate-100'} backdrop-blur-xl border-b flex items-center justify-between px-4 md:px-8 shrink-0 z-30 transition-all sticky top-0`}>
+          <div className="flex items-center gap-2 md:gap-4 flex-1">
+             <button 
+                onClick={() => setSidebarOpen(!isSidebarOpen)} 
+                className={`p-2 rounded-xl transition-colors ${isDarkMode ? 'text-slate-400 hover:bg-slate-800 hover:text-white' : 'text-slate-500 hover:bg-slate-50 hover:text-indigo-600'}`}
+                aria-label="Toggle Sidebar"
+             >
+                <Menu size={22} />
              </button>
-             <div className="relative w-full max-w-md hidden md:block">
+             <div className="relative w-full max-w-sm hidden lg:block">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
-              <input type="text" placeholder="Search itinerary, PNR..." className={`w-full pl-12 pr-4 py-2.5 ${isDarkMode ? 'bg-slate-900 text-slate-100 border-slate-800' : 'bg-slate-100/50 text-slate-900 border-transparent'} rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-violet-500/20 transition-all`} />
+              <input 
+                type="text" 
+                placeholder="Quick search itinerary..." 
+                className={`w-full pl-11 pr-4 py-2.5 text-sm font-medium border transparent outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all rounded-xl ${
+                  isDarkMode ? 'bg-slate-900 text-slate-100 border-slate-800' : 'bg-slate-100/50 text-slate-900 border-transparent hover:bg-slate-100'
+                }`} 
+              />
             </div>
           </div>
           
-          <div className="flex items-center gap-2 md:gap-6">
-            <button onClick={() => {
-              setActiveTab('bookings');
-              if (isMobile) setSidebarOpen(false);
-            }} className="vibrant-gradient text-white px-3 md:px-6 py-2.5 rounded-2xl flex items-center gap-2 hover:scale-[1.02] active:scale-95 transition-all text-[10px] md:text-xs font-bold shadow-lg shadow-violet-500/20 shrink-0">
+          <div className="flex items-center gap-3 md:gap-5">
+            <button 
+              onClick={() => {
+                setActiveTab('bookings');
+                if (isMobile) setSidebarOpen(false);
+              }} 
+              className="vibrant-gradient text-white px-4 md:px-6 py-2.5 rounded-xl flex items-center gap-2 hover:shadow-indigo-500/30 active:scale-95 transition-all text-[11px] md:text-sm font-bold shadow-lg shadow-indigo-500/20 shrink-0"
+            >
               <Plus size={18} className="shrink-0" />
-              <span className="hidden xs:block">NEW RESERVATION</span>
-              <span className="xs:hidden">NEW</span>
+              <span className="hidden sm:block">NEW ENTRY</span>
+              <span className="sm:hidden">ADD</span>
             </button>
-            <div className="h-10 w-[1px] bg-slate-200 dark:bg-slate-800 hidden sm:block"></div>
-            <div className="flex items-center gap-3">
-              <div className="text-right hidden sm:block">
-                <p className={`text-xs font-black ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>Admin Panel</p>
-                <p className="text-[10px] text-violet-500 font-bold uppercase tracking-widest">B2C Ticket</p>
+            <div className={`h-8 w-px ${isDarkMode ? 'bg-slate-800' : 'bg-slate-200'} hidden sm:block`}></div>
+            <div className="flex items-center gap-3 shrink-0">
+              <div className="text-right hidden md:block">
+                <p className={`text-xs font-black tracking-tight ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>Admin Terminal</p>
+                <p className="text-[10px] text-indigo-500 font-bold uppercase tracking-widest mt-0.5">Global Access</p>
               </div>
-              <div className="w-9 h-9 md:w-11 md:h-11 rounded-2xl vibrant-gradient p-[2px] shadow-lg">
-                <div className={`w-full h-full rounded-[14px] overflow-hidden border-2 ${isDarkMode ? 'border-slate-900' : 'border-white'}`}>
+              <div className="w-10 h-10 rounded-xl vibrant-gradient p-[1.5px] shadow-lg group cursor-pointer">
+                <div className={`w-full h-full rounded-[10px] overflow-hidden border ${isDarkMode ? 'border-slate-950' : 'border-white'} transition-transform group-hover:scale-95`}>
                   <img src="https://picsum.photos/80/80?random=1" alt="Avatar" className="w-full h-full object-cover" />
                 </div>
               </div>
@@ -309,7 +322,7 @@ const App: React.FC = () => {
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto p-4 md:p-10 no-scrollbar z-10">
+        <div className="flex-1 overflow-y-auto p-4 md:p-8 no-scrollbar scroll-smooth">
           <div className="max-w-7xl mx-auto">
             {activeTab === 'dashboard' && <Dashboard stats={stats} bookings={bookings} isDarkMode={isDarkMode} />}
             {activeTab === 'clients' && <ClientList clients={clients} bookings={bookings} onAdd={addClient} onUpdate={updateClient} onNavigateToStatement={navigateToStatement} isDarkMode={isDarkMode} />}

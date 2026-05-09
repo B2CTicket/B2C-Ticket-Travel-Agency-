@@ -323,7 +323,7 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, isDarkMode }) 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[120] bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6"
+            className="fixed inset-0 z-[200] bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6"
             onClick={() => setSelectedBooking(null)}
           >
             <motion.div 
@@ -512,7 +512,7 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, isDarkMode }) 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[150] bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6"
+            className="fixed inset-0 z-[250] bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6"
             onClick={handleAbort}
           >
             <motion.form 
