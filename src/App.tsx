@@ -194,7 +194,7 @@ const App: React.FC = () => {
       .reduce((sum, t) => sum + t.amount, 0);
 
     const netProfit = totalIncome - totalExpense;
-    const pendingCount = bookings.filter(b => b.status === BookingStatus.PENDING).length;
+    const pendingCount = bookings.filter(b => b.status.toUpperCase() === BookingStatus.PENDING).length;
 
     return { 
       totalSales: totalIncome, 

@@ -450,7 +450,6 @@ const TransactionList: React.FC<Props> = ({ transactions, stats, onAddTransactio
                       }`}>
                         {t.type === TransactionType.INCOME ? '+' : '-'}৳{t.amount.toLocaleString()}
                       </p>
-                      {!t.bookingId && (
                         <div className="flex items-center gap-1">
                           <button 
                             onClick={() => handleEdit(t)}
@@ -467,7 +466,6 @@ const TransactionList: React.FC<Props> = ({ transactions, stats, onAddTransactio
                             <Trash2 size={14} />
                           </button>
                         </div>
-                      )}
                     </div>
                   </td>
                 </tr>
@@ -500,22 +498,20 @@ const TransactionList: React.FC<Props> = ({ transactions, stats, onAddTransactio
                   }`}>
                     {t.type === TransactionType.INCOME ? '+' : '-'}৳{t.amount.toLocaleString()}
                   </p>
-                  {!t.bookingId && (
-                    <div className="flex items-center gap-1">
-                      <button 
-                        onClick={() => handleEdit(t)}
-                        className={`p-2 rounded-lg ${isDarkMode ? 'bg-slate-800 text-slate-400' : 'bg-slate-100 text-slate-500'}`}
-                      >
-                        <BookOpen size={14} />
-                      </button>
-                      <button 
-                        onClick={() => onDeleteTransaction(t.id)}
-                        className={`p-2 rounded-lg ${isDarkMode ? 'bg-slate-800 text-rose-500/80' : 'bg-rose-50 text-rose-500'}`}
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  )}
+                  <div className="flex items-center gap-1">
+                    <button 
+                      onClick={() => handleEdit(t)}
+                      className={`p-2 rounded-lg ${isDarkMode ? 'bg-slate-800 text-slate-400' : 'bg-slate-100 text-slate-500'}`}
+                    >
+                      <BookOpen size={14} />
+                    </button>
+                    <button 
+                      onClick={() => onDeleteTransaction(t.id)}
+                      className={`p-2 rounded-lg ${isDarkMode ? 'bg-slate-800 text-rose-500/80' : 'bg-rose-50 text-rose-500'}`}
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
