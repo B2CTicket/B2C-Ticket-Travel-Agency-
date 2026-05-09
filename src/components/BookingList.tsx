@@ -378,112 +378,126 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, isDarkMode }) 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[120] flex items-center justify-center p-0 sm:p-6 bg-slate-950/90 backdrop-blur-xl"
+            className="fixed inset-0 z-[120] bg-slate-950/90 backdrop-blur-xl"
           >
             <motion.div 
-              initial={{ scale: 0.9, y: 50 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 50 }}
-              className={`rounded-none sm:rounded-[60px] w-full max-w-5xl shadow-2xl h-full sm:h-auto max-h-[95vh] overflow-hidden flex flex-col relative ${
-                isDarkMode ? 'bg-[#0f172a] border border-slate-800' : 'bg-white'
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 30 }}
+              className={`w-full h-full flex flex-col relative ${
+                isDarkMode ? 'bg-[#0f172a] text-white' : 'bg-white'
               }`}
             >
-               <div className="h-3 w-full vibrant-gradient"></div>
+               <div className="h-2 w-full vibrant-gradient shrink-0"></div>
                
-               <div className="p-10 sm:p-16 overflow-y-auto no-scrollbar space-y-16">
-                  <div className="flex flex-col md:flex-row justify-between items-start gap-8">
-                    <div>
-                      <div className="flex items-center gap-3 mb-4">
-                        <span className="px-5 py-1.5 rounded-2xl bg-indigo-600 text-white text-[11px] font-black uppercase tracking-widest">Live Booking Data</span>
-                        <span className={`text-[11px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>Booking ID: {selectedBooking.id.toUpperCase()}</span>
-                      </div>
-                      <h3 className="text-5xl md:text-6xl font-black tracking-tighter uppercase leading-none">
-                        {selectedBooking.type} <span className="opacity-30">/ {selectedBooking.pnr || 'NOT ASSIGNED'}</span>
-                      </h3>
-                    </div>
-                    <button onClick={() => setSelectedBooking(null)} className={`p-5 rounded-full transition-all ${isDarkMode ? 'bg-slate-800 hover:bg-rose-500 text-white' : 'bg-slate-100 hover:bg-rose-50 text-rose-500 shadow-xl shadow-slate-200/50'}`}>
-                      <X size={32} />
-                    </button>
+               {/* Modal Header */}
+               <div className={`px-8 py-8 sm:px-16 border-b shrink-0 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 ${isDarkMode ? 'border-slate-800' : 'border-slate-100'}`}>
+                  <div>
+                     <div className="flex items-center gap-3 mb-2">
+                        <span className="px-3 py-1 rounded-lg bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest">Live Record</span>
+                        <span className={`text-[10px] font-bold uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>UID: {selectedBooking.id.toUpperCase()}</span>
+                     </div>
+                     <h3 className="text-4xl sm:text-5xl font-black tracking-tighter uppercase leading-none">
+                        {selectedBooking.type} <span className="opacity-30">/ {selectedBooking.pnr || 'UNASSIGNED'}</span>
+                     </h3>
                   </div>
+                  <motion.button 
+                    whileHover={{ scale: 1.1, rotate: 90 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => setSelectedBooking(null)} 
+                    className={`p-4 rounded-2xl transition-all ${isDarkMode ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-500 shadow-sm'}`}
+                  >
+                    <X size={28} />
+                  </motion.button>
+               </div>
+               
+               <div className="flex-1 overflow-y-auto no-scrollbar">
+                  <div className="max-w-7xl mx-auto p-8 sm:p-16 space-y-16">
 
                   <div className="grid grid-cols-1 xl:grid-cols-2 gap-16">
                     <div className="space-y-12">
                        {/* Section 01: Customer Profile */}
-                       <section className="space-y-6">
-                          <label className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.3em] block">01 / Customer Profile</label>
-                          <div className={`p-8 rounded-[40px] border-2 flex items-center gap-8 ${isDarkMode ? 'bg-slate-800/40 border-slate-800' : 'bg-slate-50 border-slate-100'}`}>
+                       <section className="space-y-4">
+                          <div className="flex items-center gap-3">
+                             <span className="w-8 h-8 rounded-lg bg-indigo-600/10 flex items-center justify-center text-indigo-600 font-bold text-xs">01</span>
+                             <label className="text-sm font-bold text-slate-800 dark:text-slate-200">Customer Profile</label>
+                          </div>
+                          <div className={`p-6 rounded-3xl border flex items-center gap-6 ${isDarkMode ? 'bg-slate-800/40 border-slate-700' : 'bg-slate-50 border-slate-200 shadow-sm'}`}>
                              <div className="relative">
-                               <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${selectedBooking.clientName}`} className="w-24 h-24 rounded-[32px] bg-white shadow-2xl relative z-10" />
-                               <div className="absolute -inset-2 bg-indigo-500/20 blur-xl animate-pulse-slow"></div>
+                               <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${selectedBooking.clientName}`} className="w-20 h-20 rounded-2xl bg-white shadow-lg relative z-10" />
+                               <div className="absolute -inset-1 bg-indigo-500/10 blur-lg"></div>
                              </div>
                              <div className="flex-1">
-                                <p className="text-3xl font-black tracking-tight">{selectedBooking.clientName}</p>
-                                <div className="flex items-center gap-3 text-base font-bold text-slate-500 mt-2">
-                                  <Phone size={18} className="text-indigo-500" />
-                                  <span>{selectedBooking.clientPhone || 'Node Offline'}</span>
+                                <p className="text-2xl font-black tracking-tight">{selectedBooking.clientName}</p>
+                                <div className="flex items-center gap-2 text-sm font-bold text-slate-500 mt-1">
+                                  <Phone size={16} className="text-indigo-500" />
+                                  <span>{selectedBooking.clientPhone || 'No contact provided'}</span>
                                 </div>
-                                <div className="flex gap-3 mt-4 text-[10px] font-black uppercase tracking-widest">
-                                  <span className="px-4 py-1.5 rounded-xl bg-indigo-600 text-white">{selectedBooking.pax || 1} PAX UNIT</span>
-                                  <span className={`px-4 py-1.5 rounded-xl border ${isDarkMode ? 'bg-slate-900 border-slate-700 text-slate-400' : 'bg-white border-slate-200 text-slate-500'}`}>ID_VERIFIED</span>
+                                <div className="flex gap-2 mt-3 text-[10px] font-bold uppercase tracking-widest">
+                                  <span className="px-3 py-1 rounded-lg bg-indigo-600 text-white">{selectedBooking.pax || 1} PAX</span>
+                                  <span className={`px-3 py-1 rounded-lg border ${isDarkMode ? 'bg-slate-900 border-slate-700 text-slate-400' : 'bg-white border-slate-200 text-slate-500'}`}>Verified</span>
                                 </div>
                              </div>
                           </div>
                        </section>
 
                        {/* Section 02: Itinerary Data */}
-                       <section className="space-y-6">
-                          <label className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.3em] block">02 / Itinerary Data</label>
-                          <div className="grid grid-cols-2 gap-6">
+                       <section className="space-y-4">
+                          <div className="flex items-center gap-3">
+                             <span className="w-8 h-8 rounded-lg bg-indigo-600/10 flex items-center justify-center text-indigo-600 font-bold text-xs">02</span>
+                             <label className="text-sm font-bold text-slate-800 dark:text-slate-200">Itinerary Data</label>
+                          </div>
+                          <div className="grid grid-cols-2 gap-4">
                              {selectedBooking.type === 'Hotel' ? (
                                <>
-                                 <div className={`p-8 rounded-[36px] border-2 text-center flex flex-col justify-center ${isDarkMode ? 'border-slate-800 bg-slate-900/40' : 'border-slate-100 bg-white shadow-sm'}`}>
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">IN-Bound</p>
-                                    <p className="text-xl font-mono font-black text-indigo-500">{selectedBooking.checkIn || '--'}</p>
+                                 <div className={`p-6 rounded-3xl border text-center flex flex-col justify-center ${isDarkMode ? 'border-slate-800 bg-slate-900/40' : 'border-slate-100 bg-white shadow-sm'}`}>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Check-In</p>
+                                    <p className="text-lg font-mono font-bold text-indigo-500">{selectedBooking.checkIn || '--'}</p>
                                  </div>
-                                 <div className={`p-8 rounded-[36px] border-2 text-center flex flex-col justify-center ${isDarkMode ? 'border-slate-800 bg-slate-900/40' : 'border-slate-100 bg-white shadow-sm'}`}>
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">OUT-Bound</p>
-                                    <p className="text-xl font-mono font-black text-indigo-500">{selectedBooking.checkOut || '--'}</p>
+                                 <div className={`p-6 rounded-3xl border text-center flex flex-col justify-center ${isDarkMode ? 'border-slate-800 bg-slate-900/40' : 'border-slate-100 bg-white shadow-sm'}`}>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Check-Out</p>
+                                    <p className="text-lg font-mono font-bold text-indigo-500">{selectedBooking.checkOut || '--'}</p>
                                  </div>
-                                 <div className={`col-span-2 p-8 rounded-[36px] border-2 border-dashed flex items-center justify-between ${isDarkMode ? 'border-indigo-500/20 bg-indigo-500/5' : 'border-indigo-100 bg-indigo-50/30'}`}>
+                                 <div className={`col-span-2 p-6 rounded-3xl border-2 border-dashed flex items-center justify-between ${isDarkMode ? 'border-indigo-500/20 bg-indigo-500/5' : 'border-indigo-100 bg-indigo-50/30'}`}>
                                     <div className="flex items-center gap-4">
-                                       <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-lg">
-                                          <Building2 size={24} className="text-indigo-600" />
+                                       <div className="w-10 h-10 bg-white dark:bg-slate-800 rounded-xl flex items-center justify-center shadow-md">
+                                          <Building2 size={20} className="text-indigo-600" />
                                        </div>
                                        <div>
-                                          <p className="text-xs font-black uppercase tracking-widest text-slate-400">Hotel Name</p>
-                                          <span className="text-lg font-black">{selectedBooking.hotelName || 'PENDING ASSIGNMENT'}</span>
+                                          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Hotel Name</p>
+                                          <span className="text-base font-bold">{selectedBooking.hotelName || 'Pending Assignment'}</span>
                                        </div>
                                     </div>
-                                    <ShieldCheck size={28} className="text-emerald-500" />
+                                    <ShieldCheck size={24} className="text-emerald-500" />
                                  </div>
                                </>
                              ) : (
                                <>
-                                 <div className={`p-8 rounded-[36px] border-2 text-center flex flex-col justify-center ${isDarkMode ? 'border-slate-800 bg-slate-900/40' : 'border-slate-100 bg-white shadow-sm'}`}>
-                                    <p className="text-[10px] font-black text-slate-400 uppercase mb-3 tracking-widest">Departure From</p>
-                                    <p className="text-4xl font-mono font-black text-indigo-500 uppercase leading-none">{selectedBooking.from || '--'}</p>
+                                 <div className={`p-6 rounded-3xl border text-center flex flex-col justify-center ${isDarkMode ? 'border-slate-800 bg-slate-900/40' : 'border-slate-100 bg-white shadow-sm'}`}>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase mb-2 tracking-widest">Departure</p>
+                                    <p className="text-3xl font-mono font-black text-indigo-500 uppercase leading-none">{selectedBooking.from || '--'}</p>
                                  </div>
-                                 <div className={`p-8 rounded-[36px] border-2 text-center flex flex-col justify-center ${isDarkMode ? 'border-slate-800 bg-slate-900/40' : 'border-slate-100 bg-white shadow-sm'}`}>
-                                    <p className="text-[10px] font-black text-slate-400 uppercase mb-3 tracking-widest">Arriving At</p>
-                                    <p className="text-4xl font-mono font-black text-indigo-500 uppercase leading-none">{selectedBooking.to || '--'}</p>
+                                 <div className={`p-6 rounded-3xl border text-center flex flex-col justify-center ${isDarkMode ? 'border-slate-800 bg-slate-900/40' : 'border-slate-100 bg-white shadow-sm'}`}>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase mb-2 tracking-widest">Arrival</p>
+                                    <p className="text-3xl font-mono font-black text-indigo-500 uppercase leading-none">{selectedBooking.to || '--'}</p>
                                  </div>
-                                 <div className={`col-span-2 p-8 rounded-[36px] border-2 grid grid-cols-2 gap-8 ${isDarkMode ? 'bg-indigo-600/10 border-indigo-500/20' : 'bg-slate-50 border-slate-100'}`}>
-                                    <div className="flex items-center gap-5">
-                                       <div className="w-12 h-12 bg-white dark:bg-slate-800 rounded-2xl flex items-center justify-center shadow-lg">
-                                          <Clock size={24} className="text-indigo-600" />
+                                 <div className={`col-span-2 p-6 rounded-3xl border grid grid-cols-2 gap-6 ${isDarkMode ? 'bg-indigo-600/10 border-indigo-500/20' : 'bg-slate-50 border-slate-100'}`}>
+                                    <div className="flex items-center gap-4">
+                                       <div className="w-10 h-10 bg-white dark:bg-slate-800 rounded-xl flex items-center justify-center shadow-md">
+                                          <Clock size={20} className="text-indigo-600" />
                                        </div>
                                        <div>
-                                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Flight Date</p>
-                                          <p className="text-sm font-black font-mono">{selectedBooking.flyingDate || 'AWAITING DATE'}</p>
+                                          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Flight Date</p>
+                                          <p className="text-xs font-bold font-mono">{selectedBooking.flyingDate || 'Awaiting Date'}</p>
                                        </div>
                                     </div>
-                                    <div className="flex items-center gap-5 border-l-2 border-slate-200 dark:border-slate-800 pl-8">
-                                       <div className="w-12 h-12 bg-white dark:bg-slate-800 rounded-2xl flex items-center justify-center shadow-lg">
-                                          <ShieldCheck size={24} className="text-emerald-500" />
+                                    <div className="flex items-center gap-4 border-l border-slate-200 dark:border-slate-800 pl-6">
+                                       <div className="w-10 h-10 bg-white dark:bg-slate-800 rounded-xl flex items-center justify-center shadow-md">
+                                          <ShieldCheck size={20} className="text-emerald-500" />
                                        </div>
                                        <div>
-                                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">PNR Records</p>
-                                          <p className="text-sm font-black font-mono uppercase text-indigo-500">{selectedBooking.pnr || 'NOT ASSIGNED'}</p>
+                                          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">PNR Record</p>
+                                          <p className="text-xs font-bold font-mono uppercase text-indigo-500">{selectedBooking.pnr || 'Not Assigned'}</p>
                                        </div>
                                     </div>
                                  </div>
@@ -495,57 +509,61 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, isDarkMode }) 
 
                     <div className="space-y-12">
                        {/* Section 03: Booking Metadata */}
-                       <section className="space-y-6">
-                          <label className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.3em] block">03 / Booking Metadata</label>
-                          <div className={`grid grid-cols-1 md:grid-cols-2 gap-6 p-10 rounded-[50px] border-2 ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-100 shadow-xl shadow-slate-200/40'}`}>
-                             <div className="space-y-4">
-                                <div className="flex items-center gap-3">
-                                   <Calendar className="text-indigo-500" size={16} />
-                                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Issue Date</p>
+                       <section className="space-y-4">
+                          <div className="flex items-center gap-3">
+                             <span className="w-8 h-8 rounded-lg bg-indigo-600/10 flex items-center justify-center text-indigo-600 font-bold text-xs">03</span>
+                             <label className="text-sm font-bold text-slate-800 dark:text-slate-200">Booking Metadata</label>
+                          </div>
+                          <div className={`p-8 rounded-3xl border grid grid-cols-1 md:grid-cols-2 gap-8 ${isDarkMode ? 'bg-slate-900/40 border-slate-700' : 'bg-white border-slate-200 shadow-sm'}`}>
+                             <div className="space-y-2">
+                                <div className="flex items-center gap-2">
+                                   <Calendar className="text-indigo-500" size={14} />
+                                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Issue Date</p>
                                 </div>
-                                <p className="text-xl font-black font-mono">{selectedBooking.issueDate || selectedBooking.date}</p>
+                                <p className="text-lg font-bold font-mono text-slate-800 dark:text-slate-200">{selectedBooking.issueDate || selectedBooking.date}</p>
                              </div>
-                             <div className="space-y-4">
-                                <div className="flex items-center gap-3">
-                                   <Globe className="text-indigo-500" size={16} />
-                                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Booking Platform</p>
+                             <div className="space-y-2">
+                                <div className="flex items-center gap-2">
+                                   <Globe className="text-indigo-500" size={14} />
+                                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Reference</p>
                                 </div>
-                                <p className="text-xl font-black font-mono uppercase">{selectedBooking.bookingSource || 'DIRECT ENTRY'}</p>
+                                <p className="text-lg font-bold font-mono uppercase text-indigo-600">{selectedBooking.category || 'Direct Entry'}</p>
                              </div>
-                             <div className="col-span-1 md:col-span-2 pt-6 border-t-2 border-slate-100 dark:border-slate-800 mt-2 space-y-4">
-                                <div className="flex items-center gap-3">
-                                   <Info className="text-indigo-500" size={16} />
-                                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Booking Notes</p>
+                             <div className="col-span-1 md:col-span-2 pt-6 border-t border-slate-100 dark:border-slate-800 space-y-3">
+                                <div className="flex items-center gap-2">
+                                   <Info className="text-indigo-500" size={14} />
+                                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Service Notes</p>
                                 </div>
-                                <p className="text-sm font-bold text-slate-500 italic leading-relaxed">
-                                   {selectedBooking.description || 'No additional service notes available.'}
+                                <p className="text-sm font-medium text-slate-700 dark:text-slate-300 leading-relaxed italic">
+                                   "{selectedBooking.description || 'No additional service notes provided.'}"
                                 </p>
                              </div>
                           </div>
                        </section>
 
                        {/* Section 04: Accounting Overview */}
-                       <section className="space-y-6">
-                          <label className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.3em] block">04 / Accounting Overview</label>
-                          <div className={`p-10 rounded-[50px] border-2 relative overflow-hidden group ${isDarkMode ? 'bg-indigo-600/5 border-indigo-500/20' : 'bg-slate-50 border-slate-100 shadow-inner'}`}>
-                             <div className="space-y-6 relative z-10">
+                       <section className="space-y-4">
+                          <div className="flex items-center gap-3">
+                             <span className="w-8 h-8 rounded-lg bg-indigo-600/10 flex items-center justify-center text-indigo-600 font-bold text-xs">04</span>
+                             <label className="text-sm font-bold text-slate-800 dark:text-slate-200">Accounting Overview</label>
+                          </div>
+                          <div className={`p-8 rounded-3xl border relative overflow-hidden ${isDarkMode ? 'bg-indigo-600/5 border-indigo-500/20' : 'bg-slate-50 border-slate-200'}`}>
+                             <div className="space-y-4 relative z-10">
                                 <div className="flex justify-between items-center text-slate-500">
-                                   <div className="flex items-center gap-3">
-                                      <div className="w-1.5 h-1.5 rounded-full bg-slate-400"></div>
-                                      <span className="uppercase tracking-widest text-[11px] font-black">Total Revenue</span>
+                                   <div className="flex items-center gap-2">
+                                      <span className="uppercase tracking-widest text-[10px] font-bold">Total Revenue</span>
                                    </div>
-                                   <span className="font-black text-2xl font-mono">৳{selectedBooking.amount.toLocaleString()}</span>
+                                   <span className="font-bold text-xl font-mono">৳{selectedBooking.amount.toLocaleString()}</span>
                                 </div>
                                 <div className="flex justify-between items-center text-slate-500">
-                                   <div className="flex items-center gap-3">
-                                      <div className="w-1.5 h-1.5 rounded-full bg-rose-500"></div>
-                                      <span className="uppercase tracking-widest text-[11px] font-black">Operational Cost</span>
+                                   <div className="flex items-center gap-2">
+                                      <span className="uppercase tracking-widest text-[10px] font-bold text-rose-500">Operational Cost</span>
                                    </div>
-                                   <span className="font-black text-2xl font-mono text-rose-500">৳{selectedBooking.cost.toLocaleString()}</span>
+                                   <span className="font-bold text-xl font-mono text-rose-500">৳{selectedBooking.cost.toLocaleString()}</span>
                                 </div>
-                                <div className="pt-8 border-t-4 border-double border-indigo-500/20 flex flex-col gap-2">
-                                   <p className="font-black text-xs uppercase tracking-[0.4em] text-indigo-500 text-center">Net Profit</p>
-                                   <p className="text-6xl font-black tracking-tighter text-indigo-600 text-center font-mono">৳{(selectedBooking.amount - selectedBooking.cost).toLocaleString()}</p>
+                                <div className="pt-6 border-t-2 border-indigo-500/20 flex flex-col gap-1 text-center">
+                                   <p className="font-bold text-[10px] uppercase tracking-widest text-indigo-500">Net Profit</p>
+                                   <p className="text-5xl font-black tracking-tighter text-indigo-600 font-mono">৳{(selectedBooking.amount - selectedBooking.cost).toLocaleString()}</p>
                                 </div>
                              </div>
                           </div>
@@ -553,25 +571,26 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, isDarkMode }) 
                     </div>
                   </div>
 
-                  <div className="flex flex-col sm:flex-row gap-8 pt-12">
+                  <div className="flex flex-col sm:flex-row gap-6 pt-12 pb-20">
                      <motion.button 
-                       whileHover={{ x: -10 }}
+                       whileHover={{ backgroundColor: isDarkMode ? '#1e293b' : '#e2e8f0' }}
                        onClick={() => setSelectedBooking(null)}
-                       className={`flex-1 py-7 rounded-[35px] text-[11px] font-black uppercase tracking-[0.4em] transition-all ${isDarkMode ? 'bg-slate-800 text-slate-400 hover:text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}>
-                        Close Review
+                       className={`flex-1 py-6 rounded-2xl text-xs font-bold uppercase tracking-widest transition-all ${isDarkMode ? 'bg-slate-800 text-slate-400' : 'bg-slate-100 text-slate-500'}`}>
+                        Return to List
                       </motion.button>
                      <motion.button 
                        whileHover={{ scale: 1.02 }}
                        whileTap={{ scale: 0.98 }}
-                       className="flex-1 py-7 vibrant-gradient text-white rounded-[35px] text-[11px] font-black uppercase tracking-[0.4em] shadow-2xl shadow-indigo-600/40 flex items-center justify-center gap-5"
+                       className="flex-1 py-6 vibrant-gradient text-white rounded-2xl text-xs font-bold uppercase tracking-widest shadow-xl shadow-indigo-600/20 flex items-center justify-center gap-4"
                      >
-                        <Download size={22} className="stroke-[3]" />
-                        Download Receipt
+                        <Download size={20} />
+                        Generate Financial Report
                      </motion.button>
                   </div>
                </div>
-            </motion.div>
-          </motion.div>
+            </div>
+         </motion.div>
+      </motion.div>
         )}
       </AnimatePresence>
 
@@ -582,50 +601,54 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, isDarkMode }) 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[150] flex items-end sm:items-center justify-center bg-slate-950/95 backdrop-blur-md"
+            className="fixed inset-0 z-[150] bg-slate-950/95 backdrop-blur-xl"
           >
             <motion.form 
               initial={{ y: "100%" }}
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
-              transition={{ type: "spring", damping: 30, stiffness: 300 }}
+              transition={{ type: "spring", damping: 35, stiffness: 300 }}
               onSubmit={handleSubmit}
-              className={`rounded-t-[60px] sm:rounded-[60px] w-full max-w-4xl shadow-2xl h-[95vh] sm:h-auto max-h-[92vh] overflow-hidden flex flex-col ${
-                isDarkMode ? 'bg-[#0b1120] text-white border border-slate-800' : 'bg-white'
+              className={`w-full h-full flex flex-col ${
+                isDarkMode ? 'bg-[#0b1120] text-white' : 'bg-white'
               }`}
             >
-              <div className={`px-10 py-10 border-b-2 flex items-center justify-between shrink-0 ${isDarkMode ? 'border-slate-800 bg-[#0b1120]' : 'bg-white border-slate-50'}`}>
+              {/* Header */}
+              <div className={`px-8 py-8 sm:px-16 border-b flex items-center justify-between shrink-0 ${isDarkMode ? 'border-slate-800 bg-[#0b1120]' : 'bg-white border-slate-100'}`}>
                 <div className="flex items-center gap-5">
-                   <div className="w-14 h-14 vibrant-gradient rounded-[24px] flex items-center justify-center shadow-xl">
+                   <div className="w-14 h-14 vibrant-gradient rounded-2xl flex items-center justify-center shadow-2xl shadow-indigo-500/30">
                       <Zap size={28} className="text-white fill-current" />
                    </div>
                    <div>
-                      <h3 className="text-4xl font-black uppercase tracking-tighter leading-none">New <span className="text-indigo-600">Booking</span></h3>
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] mt-2">Add a new ticket or reservation</p>
+                      <h3 className="text-3xl sm:text-4xl font-black tracking-tighter leading-none uppercase">Entry <span className="text-indigo-600">Terminal</span></h3>
+                      <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em] mt-2">Initializing new reservation sequence</p>
                    </div>
                 </div>
-                <button 
+                <motion.button 
+                  whileHover={{ rotate: 90, scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
                   type="button"
                   onClick={handleAbort} 
-                  className={`p-5 rounded-full transition-all ${isDarkMode ? 'bg-slate-800 hover:bg-rose-500 text-white' : 'bg-slate-100 hover:bg-rose-50 text-rose-500'}`}
+                  className={`p-4 rounded-2xl transition-all ${isDarkMode ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-500'}`}
                 >
-                  <X size={32} />
-                </button>
+                  <X size={28} />
+                </motion.button>
               </div>
               
-              <div className="flex-1 overflow-y-auto p-10 sm:p-14 space-y-16 no-scrollbar">
-                 <section className="space-y-10">
-                    <div className="flex items-center gap-4">
-                       <span className="w-10 h-10 rounded-full bg-indigo-600/10 flex items-center justify-center text-indigo-600 font-black text-xs">01</span>
-                       <label className="text-[11px] font-black text-indigo-500 uppercase tracking-[0.4em] block">Reservation Type</label>
+              <div className="flex-1 overflow-y-auto no-scrollbar">
+                <div className="max-w-5xl mx-auto p-8 sm:p-16 space-y-20">
+                 <section className="space-y-6">
+                    <div className="flex items-center gap-3">
+                       <span className="w-8 h-8 rounded-lg bg-indigo-600/10 flex items-center justify-center text-indigo-600 font-bold text-xs">01</span>
+                       <label className="text-sm font-bold text-slate-800 dark:text-slate-200">Reservation Type</label>
                     </div>
-                    <div className="flex p-3 bg-slate-100 dark:bg-slate-900 rounded-[35px] border-2 border-transparent focus-within:border-indigo-500/30">
+                    <div className="flex p-1.5 bg-slate-100 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
                       {['Air Ticket', 'Hotel', 'Visa', 'Package'].map(type => (
                         <button 
                           key={type}
                           type="button"
                           onClick={() => setFormData({...formData, type: type as any})}
-                          className={`flex-1 py-5 rounded-[28px] text-[11px] font-black uppercase tracking-widest transition-all ${formData.type === type ? 'vibrant-gradient text-white shadow-2xl scale-105 z-10' : 'text-slate-400 hover:text-slate-600'}`}
+                          className={`flex-1 py-3.5 rounded-xl text-xs font-bold transition-all ${formData.type === type ? 'bg-white dark:bg-slate-800 text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
                         >
                           {type}
                         </button>
@@ -633,173 +656,175 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, isDarkMode }) 
                     </div>
                  </section>
 
-                 <section className="space-y-10">
-                    <div className="flex items-center gap-4">
-                       <span className="w-10 h-10 rounded-full bg-indigo-600/10 flex items-center justify-center text-indigo-600 font-black text-xs">02</span>
-                       <label className="text-[11px] font-black text-indigo-500 uppercase tracking-[0.4em] block">Customer Selection</label>
+                 <section className="space-y-8">
+                    <div className="flex items-center gap-3">
+                       <span className="w-8 h-8 rounded-lg bg-indigo-600/10 flex items-center justify-center text-indigo-600 font-bold text-xs">02</span>
+                       <label className="text-sm font-bold text-slate-800 dark:text-slate-200">Customer Details</label>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                        <div className="col-span-1 md:col-span-2">
-                          <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block mb-4">Select Customer from List <span className="text-rose-500">*</span></label>
+                          <label className="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-2.5">Select from Inventory</label>
                           <select 
                             required
                             value={formData.clientId}
                             onChange={e => handleClientChange(e.target.value)}
-                            className={`w-full px-10 py-6 border-2 rounded-[35px] font-black text-sm outline-none transition-all ${isDarkMode ? 'bg-slate-900 border-slate-800 focus:border-indigo-500' : 'bg-slate-50 border-slate-100 focus:border-indigo-500 shadow-inner'}`}>
-                            <option value="">Find customer in system</option>
+                            className={`w-full px-6 py-4 border rounded-2xl font-bold text-sm outline-none transition-all ${isDarkMode ? 'bg-slate-900 border-slate-800 focus:border-indigo-500' : 'bg-slate-50 border-slate-200 focus:border-indigo-500 shadow-sm'}`}>
+                            <option value="">Find customer in system...</option>
                             {clients.map(cl => <option key={cl.id} value={cl.id}>{cl.name} ({cl.phone})</option>)}
                           </select>
                        </div>
                        
-                       <div className="space-y-4">
-                          <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block">Customer Full Name</label>
+                       <div className="space-y-2.5">
+                          <label className="text-xs font-bold text-slate-400 uppercase tracking-widest block">Customer Name</label>
                           <div className="relative">
-                            <User className="absolute left-7 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-                            <input required placeholder="Enter Customer Name" value={formData.clientName} onChange={e => setFormData({...formData, clientName: e.target.value})} className={`w-full pl-16 pr-10 py-6 border-2 rounded-[35px] font-black text-sm transition-all ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-slate-50 border-slate-100'}`} />
+                            <User className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                            <input required placeholder="Enter name" value={formData.clientName} onChange={e => setFormData({...formData, clientName: e.target.value})} className={`w-full pl-12 pr-6 py-4 border rounded-2xl font-bold text-sm transition-all ${isDarkMode ? 'bg-slate-900 border-slate-800 focus:border-indigo-500 shadow-sm' : 'bg-white border-slate-200 focus:border-indigo-500 shadow-sm'}`} />
                           </div>
                        </div>
                        
-                       <div className="space-y-4">
-                          <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block">Contact Number</label>
+                       <div className="space-y-2.5">
+                          <label className="text-xs font-bold text-slate-400 uppercase tracking-widest block">Phone Number</label>
                           <div className="relative">
-                            <Phone className="absolute left-7 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-                            <input required placeholder="Phone Number" value={formData.clientPhone} onChange={e => setFormData({...formData, clientPhone: e.target.value})} className={`w-full pl-16 pr-10 py-6 border-2 rounded-[35px] font-black text-sm transition-all ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-slate-50 border-slate-100'}`} />
+                            <Phone className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                            <input required placeholder="Contact number" value={formData.clientPhone} onChange={e => setFormData({...formData, clientPhone: e.target.value})} className={`w-full pl-12 pr-6 py-4 border rounded-2xl font-bold text-sm transition-all ${isDarkMode ? 'bg-slate-900 border-slate-800 focus:border-indigo-500 shadow-sm' : 'bg-white border-slate-200 focus:border-indigo-500 shadow-sm'}`} />
                           </div>
                        </div>
  
-                       <div className="space-y-4">
-                          <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block">Number of Travelers (PAX)</label>
+                       <div className="space-y-2.5">
+                          <label className="text-xs font-bold text-slate-400 uppercase tracking-widest block">Travelers (PAX)</label>
                           <div className="relative">
-                            <Users className="absolute left-7 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-                            <input required type="number" min="1" value={formData.pax} onChange={e => setFormData({...formData, pax: Number(e.target.value)})} className={`w-full pl-16 pr-10 py-6 border-2 rounded-[35px] font-black text-sm outline-none transition-all ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-slate-50 border-slate-100'}`} />
+                            <Users className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                            <input required type="number" min="1" value={formData.pax} onChange={e => setFormData({...formData, pax: Number(e.target.value)})} className={`w-full pl-12 pr-6 py-4 border rounded-2xl font-bold text-sm outline-none transition-all ${isDarkMode ? 'bg-slate-900 border-slate-800 focus:border-indigo-500 shadow-sm' : 'bg-white border-slate-200 focus:border-indigo-500 shadow-sm'}`} />
                           </div>
                        </div>
  
-                       <div className="space-y-4">
-                          <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block">Booking Platform</label>
+                       <div className="space-y-2.5">
+                          <label className="text-xs font-bold text-slate-400 uppercase tracking-widest block">Booking Platform</label>
                           <div className="relative">
-                            <Globe className="absolute left-7 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-                            <input placeholder="GDS, Portal, Direct..." value={formData.bookingSource} onChange={e => setFormData({...formData, bookingSource: e.target.value})} className={`w-full pl-16 pr-10 py-6 border-2 rounded-[35px] font-black text-sm transition-all ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-slate-50 border-slate-100'}`} />
+                            <Globe className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                            <input placeholder="GDS, B2B, Direct..." value={formData.bookingSource} onChange={e => setFormData({...formData, bookingSource: e.target.value})} className={`w-full pl-12 pr-6 py-4 border rounded-2xl font-bold text-sm transition-all ${isDarkMode ? 'bg-slate-900 border-slate-800 focus:border-indigo-500 shadow-sm' : 'bg-white border-slate-200 focus:border-indigo-500 shadow-sm'}`} />
                           </div>
                        </div>
                        
-                       <div className="col-span-1 md:col-span-2 space-y-4">
-                          <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block">Reference Number (PNR)</label>
+                       <div className="col-span-1 md:col-span-2 space-y-2.5">
+                          <label className="text-xs font-bold text-slate-400 uppercase tracking-widest block">Reference / PNR</label>
                           <div className="relative">
-                            <Hash className="absolute left-7 top-1/2 -translate-y-1/2 text-indigo-500" size={20} />
-                            <input required placeholder="PNR or Confirmation Number" value={formData.pnr} onChange={e => setFormData({...formData, pnr: e.target.value.toUpperCase()})} className={`w-full pl-16 pr-10 py-6 border-2 rounded-[35px] font-black text-sm uppercase transition-all ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-slate-50 border-slate-100'}`} />
+                            <Hash className="absolute left-5 top-1/2 -translate-y-1/2 text-indigo-500" size={18} />
+                            <input required placeholder="Enter PNR or Ref ID" value={formData.pnr} onChange={e => setFormData({...formData, pnr: e.target.value.toUpperCase()})} className={`w-full pl-12 pr-6 py-4 border rounded-2xl font-bold text-sm uppercase transition-all ${isDarkMode ? 'bg-slate-900 border-slate-800 focus:border-indigo-500 shadow-sm' : 'bg-white border-slate-200 focus:border-indigo-500 shadow-sm'}`} />
                           </div>
                        </div>
                     </div>
                  </section>
 
-                 <section className="space-y-10">
-                    <div className="flex items-center gap-4">
-                       <span className="w-10 h-10 rounded-full bg-indigo-600/10 flex items-center justify-center text-indigo-600 font-black text-xs">03</span>
-                       <label className="text-[11px] font-black text-indigo-500 uppercase tracking-[0.4em] block">Travel Schedule</label>
+                 <section className="space-y-8">
+                    <div className="flex items-center gap-3">
+                       <span className="w-8 h-8 rounded-lg bg-indigo-600/10 flex items-center justify-center text-indigo-600 font-bold text-xs">03</span>
+                       <label className="text-sm font-bold text-slate-800 dark:text-slate-200">Travel Logistics</label>
                     </div>
-                    <div className={`p-10 rounded-[50px] border-2 border-dashed border-indigo-500/30 grid grid-cols-1 md:grid-cols-2 gap-10 ${isDarkMode ? 'bg-indigo-500/5' : 'bg-slate-50'}`}>
+                    <div className={`p-8 rounded-3xl border-2 border-dashed border-indigo-500/20 grid grid-cols-1 md:grid-cols-2 gap-8 ${isDarkMode ? 'bg-indigo-500/5' : 'bg-slate-50/50'}`}>
                        {formData.type === 'Hotel' ? (
                          <>
-                           <div className="col-span-1 md:col-span-2 space-y-3">
-                             <label className="text-[10px] font-black text-indigo-500 uppercase tracking-widest">Hotel / Property Name</label>
-                             <input required placeholder="e.g. Radisson Blu, New York" value={formData.hotelName} onChange={e => setFormData({...formData, hotelName: e.target.value})} className={`w-full px-10 py-6 border-2 rounded-[30px] font-black text-xs ${isDarkMode ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-100 shadow-sm'}`} />
+                           <div className="col-span-1 md:col-span-2 space-y-2.5">
+                             <label className="text-xs font-bold text-indigo-600 uppercase tracking-widest">Hotel Name</label>
+                             <input required placeholder="e.g. Radisson Blu" value={formData.hotelName} onChange={e => setFormData({...formData, hotelName: e.target.value})} className={`w-full px-6 py-4 border rounded-xl font-bold text-sm ${isDarkMode ? 'bg-slate-950 border-slate-800 focus:border-indigo-500' : 'bg-white border-slate-200 focus:border-indigo-500 shadow-sm'}`} />
                            </div>
-                           <div className="space-y-3">
-                             <label className="text-[10px] font-black text-indigo-500 uppercase tracking-widest">Check-in Date</label>
-                             <input required type="date" value={formData.checkIn} onChange={e => setFormData({...formData, checkIn: e.target.value})} className={`w-full px-10 py-6 border-2 rounded-[30px] font-black text-xs ${isDarkMode ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-100 shadow-sm'}`} />
+                           <div className="space-y-2.5">
+                             <label className="text-xs font-bold text-indigo-600 uppercase tracking-widest">Check-in</label>
+                             <input required type="date" value={formData.checkIn} onChange={e => setFormData({...formData, checkIn: e.target.value})} className={`w-full px-6 py-4 border rounded-xl font-bold text-sm ${isDarkMode ? 'bg-slate-950 border-slate-800 focus:border-indigo-500' : 'bg-white border-slate-200 focus:border-indigo-500 shadow-sm'}`} />
                            </div>
-                           <div className="space-y-3">
-                             <label className="text-[10px] font-black text-indigo-500 uppercase tracking-widest">Check-out Date</label>
-                             <input required type="date" value={formData.checkOut} onChange={e => setFormData({...formData, checkOut: e.target.value})} className={`w-full px-10 py-6 border-2 rounded-[30px] font-black text-xs ${isDarkMode ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-100 shadow-sm'}`} />
+                           <div className="space-y-2.5">
+                             <label className="text-xs font-bold text-indigo-600 uppercase tracking-widest">Check-out</label>
+                             <input required type="date" value={formData.checkOut} onChange={e => setFormData({...formData, checkOut: e.target.value})} className={`w-full px-6 py-4 border rounded-xl font-bold text-sm ${isDarkMode ? 'bg-slate-950 border-slate-800 focus:border-indigo-500' : 'bg-white border-slate-200 focus:border-indigo-500 shadow-sm'}`} />
                            </div>
                          </>
                        ) : (
                          <>
-                           <div className="space-y-3">
-                              <label className="text-[10px] font-black text-indigo-500 uppercase tracking-widest">Origin (From)</label>
-                              <input required placeholder="e.g. DAC" value={formData.from} onChange={e => setFormData({...formData, from: e.target.value.toUpperCase()})} className={`w-full px-10 py-6 border-2 rounded-[30px] font-black text-xs uppercase ${isDarkMode ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-100 shadow-sm'}`} />
+                           <div className="space-y-2.5">
+                              <label className="text-xs font-bold text-indigo-600 uppercase tracking-widest">From (Origin)</label>
+                              <input required placeholder="e.g. DAC" value={formData.from} onChange={e => setFormData({...formData, from: e.target.value.toUpperCase()})} className={`w-full px-6 py-4 border rounded-xl font-bold text-sm uppercase ${isDarkMode ? 'bg-slate-950 border-slate-800 focus:border-indigo-500' : 'bg-white border-slate-200 focus:border-indigo-500 shadow-sm'}`} />
                            </div>
-                           <div className="space-y-3">
-                              <label className="text-[10px] font-black text-indigo-500 uppercase tracking-widest">Destination (To)</label>
-                              <input required placeholder="e.g. DXB" value={formData.to} onChange={e => setFormData({...formData, to: e.target.value.toUpperCase()})} className={`w-full px-10 py-6 border-2 rounded-[30px] font-black text-xs uppercase ${isDarkMode ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-100 shadow-sm'}`} />
+                           <div className="space-y-2.5">
+                              <label className="text-xs font-bold text-indigo-600 uppercase tracking-widest">To (Dest.)</label>
+                              <input required placeholder="e.g. DXB" value={formData.to} onChange={e => setFormData({...formData, to: e.target.value.toUpperCase()})} className={`w-full px-6 py-4 border rounded-xl font-bold text-sm uppercase ${isDarkMode ? 'bg-slate-950 border-slate-800 focus:border-indigo-500' : 'bg-white border-slate-200 focus:border-indigo-500 shadow-sm'}`} />
                            </div>
-                           <div className="space-y-3">
-                              <label className="text-[10px] font-black text-indigo-500 uppercase tracking-widest">Travel Date</label>
-                              <input required type="date" value={formData.flyingDate} onChange={e => setFormData({...formData, flyingDate: e.target.value})} className={`w-full px-10 py-6 border-2 rounded-[30px] font-black text-xs ${isDarkMode ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-100 shadow-sm'}`} />
+                           <div className="space-y-2.5">
+                              <label className="text-xs font-bold text-indigo-600 uppercase tracking-widest">Travel Date</label>
+                              <input required type="date" value={formData.flyingDate} onChange={e => setFormData({...formData, flyingDate: e.target.value})} className={`w-full px-6 py-4 border rounded-xl font-bold text-sm ${isDarkMode ? 'bg-slate-950 border-slate-800 focus:border-indigo-500' : 'bg-white border-slate-200 focus:border-indigo-500 shadow-sm'}`} />
                            </div>
-                           <div className="space-y-3">
-                              <label className="text-[10px] font-black text-indigo-500 uppercase tracking-widest">Issue Date</label>
-                              <input required type="date" value={formData.issueDate} onChange={e => setFormData({...formData, issueDate: e.target.value})} className={`w-full px-10 py-6 border-2 rounded-[30px] font-black text-xs ${isDarkMode ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-100 shadow-sm'}`} />
+                           <div className="space-y-2.5">
+                              <label className="text-xs font-bold text-indigo-600 uppercase tracking-widest">Issue Date</label>
+                              <input required type="date" value={formData.issueDate} onChange={e => setFormData({...formData, issueDate: e.target.value})} className={`w-full px-6 py-4 border rounded-xl font-bold text-sm ${isDarkMode ? 'bg-slate-950 border-slate-800 focus:border-indigo-500' : 'bg-white border-slate-200 focus:border-indigo-500 shadow-sm'}`} />
                            </div>
                          </>
                        )}
                     </div>
                  </section>
 
-                 <section className="space-y-10">
-                    <div className="flex items-center gap-4">
-                       <span className="w-10 h-10 rounded-full bg-indigo-600/10 flex items-center justify-center text-indigo-600 font-black text-xs">04</span>
-                       <label className="text-[11px] font-black text-indigo-500 uppercase tracking-[0.4em] block">Accounting Details</label>
+                 <section className="space-y-8">
+                    <div className="flex items-center gap-3">
+                       <span className="w-8 h-8 rounded-lg bg-indigo-600/10 flex items-center justify-center text-indigo-600 font-bold text-xs">04</span>
+                       <label className="text-sm font-bold text-slate-800 dark:text-slate-200">Accounting Details</label>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                       <div className={`p-10 rounded-[50px] border-2 transition-all focus-within:scale-[1.02] ${isDarkMode ? 'bg-indigo-950/20 border-indigo-500/20' : 'bg-indigo-50 border-indigo-100'}`}>
-                          <label className="text-[10px] font-black text-indigo-600 uppercase block mb-4 tracking-widest">Booking Amount (৳)</label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                       <div className={`p-8 rounded-3xl border transition-all focus-within:ring-2 focus-within:ring-indigo-500/20 ${isDarkMode ? 'bg-indigo-950/20 border-indigo-500/20' : 'bg-indigo-50/50 border-indigo-100 shadow-sm'}`}>
+                          <label className="text-[10px] font-black text-indigo-600 uppercase block mb-3 tracking-widest">Invoice Amount (৳)</label>
                           <div className="relative">
-                            <Banknote className="absolute left-8 top-1/2 -translate-y-1/2 text-indigo-500" size={32} />
-                            <input required type="number" placeholder="0.00" value={formData.amount || ''} onChange={e => setFormData({...formData, amount: Number(e.target.value)})} className={`w-full pl-24 pr-10 py-8 border-2 rounded-[35px] font-black text-4xl outline-none transition-all ${isDarkMode ? 'bg-slate-900 border-slate-800 text-indigo-400' : 'bg-white border-indigo-100 text-indigo-700 shadow-xl shadow-indigo-200/20'}`} />
+                            <Banknote className="absolute left-6 top-1/2 -translate-y-1/2 text-indigo-500" size={28} />
+                            <input required type="number" placeholder="0.00" value={formData.amount || ''} onChange={e => setFormData({...formData, amount: Number(e.target.value)})} className={`w-full pl-16 pr-6 py-6 border rounded-2xl font-black text-3xl outline-none transition-all ${isDarkMode ? 'bg-slate-900 border-slate-800 text-indigo-400' : 'bg-white border-indigo-100 text-indigo-700 shadow-inner'}`} />
                           </div>
                        </div>
-                       <div className={`p-10 rounded-[50px] border-2 transition-all focus-within:scale-[1.02] ${isDarkMode ? 'bg-rose-950/20 border-rose-500/20' : 'bg-rose-50 border-rose-100'}`}>
-                          <label className="text-[10px] font-black text-rose-600 uppercase block mb-4 tracking-widest">Service Cost (৳)</label>
+                       <div className={`p-8 rounded-3xl border transition-all focus-within:ring-2 focus-within:ring-rose-500/20 ${isDarkMode ? 'bg-rose-950/20 border-rose-500/20' : 'bg-rose-50/50 border-rose-100 shadow-sm'}`}>
+                          <label className="text-[10px] font-black text-rose-600 uppercase block mb-3 tracking-widest">Service Cost (৳)</label>
                           <div className="relative">
-                            <Briefcase className="absolute left-8 top-1/2 -translate-y-1/2 text-rose-500" size={32} />
-                            <input required type="number" placeholder="0.00" value={formData.cost || ''} onChange={e => setFormData({...formData, cost: Number(e.target.value)})} className={`w-full pl-24 pr-10 py-8 border-2 rounded-[35px] font-black text-4xl outline-none transition-all ${isDarkMode ? 'bg-slate-900 border-slate-800 text-rose-400' : 'bg-white border-rose-100 text-rose-700 shadow-xl shadow-rose-200/20'}`} />
+                            <Briefcase className="absolute left-6 top-1/2 -translate-y-1/2 text-rose-500" size={28} />
+                            <input required type="number" placeholder="0.00" value={formData.cost || ''} onChange={e => setFormData({...formData, cost: Number(e.target.value)})} className={`w-full pl-16 pr-6 py-6 border rounded-2xl font-black text-3xl outline-none transition-all ${isDarkMode ? 'bg-slate-900 border-slate-800 text-rose-400' : 'bg-white border-rose-100 text-rose-700 shadow-inner'}`} />
                           </div>
                        </div>
-                       <div className="col-span-1 md:col-span-2 space-y-4">
-                          <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block">Service Log</label>
+                       <div className="col-span-1 md:col-span-2 space-y-2.5">
+                          <label className="text-xs font-bold text-slate-400 uppercase tracking-widest block">Service Notes</label>
                           <textarea 
                             required
-                            placeholder="Enter any additional service details or notes..."
+                            placeholder="Specify baggage details, inclusions, or specific requests..."
                             value={formData.description}
                             onChange={e => setFormData({...formData, description: e.target.value})}
-                            className={`w-full px-10 py-8 border-2 rounded-[40px] font-bold text-sm h-48 resize-none outline-none transition-all ${isDarkMode ? 'bg-slate-900 border-slate-800 focus:border-indigo-500' : 'bg-slate-50 border-slate-100 focus:border-indigo-500 shadow-inner'}`}
+                            className={`w-full px-6 py-5 border rounded-2xl font-medium text-sm h-32 resize-none outline-none transition-all ${isDarkMode ? 'bg-slate-900 border-slate-800 focus:border-indigo-500' : 'bg-slate-50 border-slate-200 focus:border-indigo-500 shadow-inner'}`}
                           />
                        </div>
                     </div>
                  </section>
               </div>
 
-              <div className={`p-10 sm:p-14 border-t-2 shrink-0 ${isDarkMode ? 'bg-[#0b1120] border-slate-800' : 'bg-white border-slate-50 shadow-[0_-10px_40px_rgba(0,0,0,0.03)]'}`}>
-                 <div className="flex flex-col sm:flex-row gap-8">
+              </div>
+
+            <div className={`p-10 border-t shrink-0 ${isDarkMode ? 'bg-[#0b1120] border-slate-800' : 'bg-slate-50/80 border-slate-200'}`}>
+                 <div className="max-w-5xl mx-auto flex flex-col sm:flex-row gap-6">
                    <motion.button 
-                    whileHover={{ scale: 1.02 }}
+                    whileHover={{ backgroundColor: isDarkMode ? '#1e293b' : '#e2e8f0' }}
                     type="button" 
                     onClick={handleAbort} 
                     disabled={isSynchronizing}
-                    className={`flex-1 py-7 rounded-[35px] text-[11px] font-black uppercase tracking-[0.4em] transition-all ${isDarkMode ? 'bg-slate-800 text-slate-400 hover:text-white disabled:opacity-50' : 'bg-slate-100 text-slate-500 hover:bg-slate-200 disabled:opacity-50 shadow-lg shadow-slate-200/30'}`}>
-                      Discard Entry
+                    className={`flex-1 py-6 rounded-2xl text-xs font-bold uppercase tracking-widest transition-all ${isDarkMode ? 'bg-slate-800 text-slate-400 disabled:opacity-50' : 'bg-slate-200 text-slate-600 disabled:opacity-50'}`}>
+                      Cancel Entry
                     </motion.button>
                    <motion.button 
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
+                    whileHover={{ scale: 1.01 }}
+                    whileTap={{ scale: 0.99 }}
                     type="submit" 
                     disabled={isSynchronizing}
-                    className="flex-1 py-7 vibrant-gradient text-white text-[11px] font-black uppercase tracking-[0.4em] rounded-[35px] shadow-2xl shadow-indigo-500/40 disabled:scale-100 transition-all flex items-center justify-center gap-4"
+                    className="flex-1 py-6 vibrant-gradient text-white text-xs font-bold uppercase tracking-widest rounded-2xl shadow-xl shadow-indigo-500/30 disabled:opacity-70 transition-all flex items-center justify-center gap-3"
                   >
                       {isSynchronizing ? (
                         <>
-                          <Activity size={24} className="animate-spin" />
-                          <span>Saving...</span>
+                           <Activity size={20} className="animate-spin" />
+                           <span>Synchronizing...</span>
                         </>
                       ) : (
                         <>
-                          <Zap size={24} className="fill-current" />
-                          <span>Commit Booking</span>
+                           <CheckCircle size={20} />
+                           <span>Commit Reservation</span>
                         </>
                       )}
-                   </motion.button>
+                    </motion.button>
                  </div>
               </div>
             </motion.form>
