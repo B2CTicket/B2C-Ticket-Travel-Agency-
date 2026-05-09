@@ -399,14 +399,14 @@ const TransactionList: React.FC<Props> = ({ transactions, stats, onAddTransactio
         </div>
       </div>
 
-      {/* Manual Entry Modal */}
+      {/* New Transaction Modal */}
       {showModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
           <div className={`rounded-[40px] w-full max-w-md shadow-2xl animate-in zoom-in-95 duration-200 overflow-hidden ${isDarkMode ? 'bg-slate-900 text-white' : 'bg-white text-slate-900'}`}>
             <div className={`px-10 py-8 border-b-2 flex items-center justify-between ${isDarkMode ? 'bg-slate-800/50 border-slate-800' : 'bg-slate-50/50 border-slate-100'}`}>
               <div>
-                <h3 className="font-black text-xl tracking-tighter uppercase">Add Entry</h3>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Update Financial Logs</p>
+                <h3 className="font-black text-xl tracking-tighter uppercase">New Entry</h3>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Record income or expense</p>
               </div>
               <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-rose-500 transition-colors">
                 <X size={24} />
@@ -490,7 +490,7 @@ const TransactionList: React.FC<Props> = ({ transactions, stats, onAddTransactio
                   {(isCustom || formData.category.includes('Other')) && (
                     <div className="md:col-span-2 animate-in slide-in-from-top-4 fade-in duration-500">
                       <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">
-                        {isCustom ? 'Custom Category Name' : 'Specify Other Category'}
+                        {isCustom ? 'Define Custom Category' : 'Specify Other Category'}
                       </label>
                       <div className="relative group">
                         <BookOpen className={`absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors ${isDarkMode ? 'group-focus-within:text-violet-400' : 'group-focus-within:text-violet-600'}`} size={16} />
@@ -541,7 +541,7 @@ const TransactionList: React.FC<Props> = ({ transactions, stats, onAddTransactio
                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
                         <input 
                           type="text"
-                          placeholder="Voucher or PN#"
+                          placeholder="Voucher or Ref#"
                           value={formData.reference}
                           onChange={e => setFormData({...formData, reference: e.target.value})}
                           className={`w-full pl-12 pr-6 py-4 border-2 rounded-2xl outline-none text-base md:text-sm font-bold transition-all ${
@@ -565,7 +565,7 @@ const TransactionList: React.FC<Props> = ({ transactions, stats, onAddTransactio
                   type="submit" 
                   className={`flex-1 py-4 text-white text-[10px] font-black uppercase tracking-widest rounded-2xl shadow-xl transition-all active:scale-95 ${formData.type === TransactionType.INCOME ? 'bg-emerald-600 shadow-emerald-500/20' : 'bg-rose-600 shadow-rose-500/20'}`}
                 >
-                  Commit Log
+                  Save Entry
                 </button>
               </div>
             </form>

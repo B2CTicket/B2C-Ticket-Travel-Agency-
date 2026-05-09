@@ -109,11 +109,11 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, isDarkMode }) 
             </motion.div>
             <div>
               <h2 className={`text-5xl font-black tracking-tighter uppercase leading-none ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
-                Operational <span className="text-indigo-600">Sync</span>
+                Booking <span className="text-indigo-600">Manager</span>
               </h2>
               <div className="flex items-center gap-2 mt-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">Grid Status: Online / Inventory Secured</p>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">System Connected / Inventory Real-time</p>
               </div>
             </div>
           </div>
@@ -139,12 +139,12 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, isDarkMode }) 
             className="w-full sm:w-auto vibrant-gradient text-white px-10 py-5 rounded-[30px] shadow-2xl shadow-indigo-500/40 font-black uppercase text-xs tracking-[0.2em] flex items-center justify-center gap-3 whitespace-nowrap"
           >
             <Plus size={20} className="stroke-[4]" />
-            New Mission
+            New Reservation
           </motion.button>
         </div>
       </header>
 
-      {/* Focus View: Current Priority Mission */}
+      {/* Focus View: Next Priority Booking */}
       {upcomingTravel && !searchTerm && (
         <section className="animate-in fade-in slide-in-from-top-10 duration-1000">
           <div className={`p-1 flex flex-col md:flex-row rounded-[50px] border-2 relative overflow-hidden ${
@@ -161,10 +161,10 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, isDarkMode }) 
               <div className="flex-1 p-6 md:p-14 space-y-6 md:space-y-8 relative z-10">
                 <div className="flex items-center gap-3 md:gap-4">
                   <div className="px-3 md:px-5 py-1.5 md:py-2 rounded-xl md:rounded-2xl bg-indigo-600 text-white text-[9px] md:text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
-                    <Zap size={12} className="fill-current" /> Priority Mission
+                    <Zap size={12} className="fill-current" /> Next Departure
                   </div>
                   <div className={`px-3 md:px-4 py-1.5 md:py-2 rounded-xl md:rounded-2xl text-[9px] md:text-[10px] font-black uppercase tracking-widest border ${isDarkMode ? 'bg-slate-800 border-slate-700 text-slate-400' : 'bg-slate-50 border-slate-200 text-slate-500'}`}>
-                    T-Minus: {Math.ceil((new Date(upcomingTravel.flyingDate || upcomingTravel.checkIn || '').getTime() - new Date().getTime()) / (1000 * 3600 * 24))} Days
+                    Flying In: {Math.ceil((new Date(upcomingTravel.flyingDate || upcomingTravel.checkIn || '').getTime() - new Date().getTime()) / (1000 * 3600 * 24))} Days
                   </div>
                 </div>
 
@@ -187,7 +187,7 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, isDarkMode }) 
                     </div>
                     <div className="h-10 w-px bg-slate-200 dark:bg-slate-800 hidden lg:block"></div>
                     <div className="space-y-0.5 md:space-y-1">
-                      <p className="text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest">Operation Pulse</p>
+                      <p className="text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest">Record Detail</p>
                       <div className="flex items-center gap-2 md:gap-3">
                          <span className={`text-lg md:text-2xl font-black ${isDarkMode ? 'text-indigo-400' : 'text-indigo-600'}`}>৳{upcomingTravel.amount.toLocaleString()}</span>
                          <span className="hidden xs:inline-block px-2 py-0.5 rounded-lg bg-emerald-500/10 text-emerald-500 text-[10px] font-black tracking-widest">+ Settlement Clear</span>
@@ -220,7 +220,7 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, isDarkMode }) 
                   onClick={() => setSelectedBooking(upcomingTravel)}
                   className="mt-10 md:mt-0 w-full py-6 vibrant-gradient text-white rounded-3xl font-black uppercase text-[11px] tracking-[0.3em] shadow-xl shadow-indigo-600/30 flex items-center justify-center gap-4 group"
                 >
-                  Sync Terminal <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />
+                  Review Booking <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />
                 </motion.button>
              </div>
           </div>
@@ -340,7 +340,7 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, isDarkMode }) 
                 <div className="flex items-center gap-2">
                    <Clock size={12} className="text-slate-400" />
                    <p className="text-[10px] font-black font-mono text-slate-500 uppercase tracking-widest">
-                     Mission: {booking.flyingDate || booking.checkIn || 'PENDING'}
+                     Booking Date: {booking.flyingDate || booking.checkIn || 'PENDING'}
                    </p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -363,15 +363,15 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, isDarkMode }) 
                 <AlertTriangle size={40} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-indigo-500/30" />
               </div>
               <div>
-                <h3 className={`text-2xl font-black uppercase tracking-[0.3em] ${isDarkMode ? 'text-slate-400' : 'text-slate-300'}`}>No Active Mission Data</h3>
-                <p className="text-xs font-bold uppercase tracking-widest text-slate-500 opacity-50 mt-2">Initialize synchronization to populate terminal</p>
+                <h3 className={`text-2xl font-black uppercase tracking-[0.3em] ${isDarkMode ? 'text-slate-400' : 'text-slate-300'}`}>No Recent Booking Data</h3>
+                <p className="text-xs font-bold uppercase tracking-widest text-slate-500 opacity-50 mt-2">Enter search criteria to find bookings</p>
               </div>
             </div>
           )}
         </AnimatePresence>
       </div>
 
-      {/* Reservation Terminal Modal */}
+      {/* Booking Review Modal */}
       <AnimatePresence>
         {selectedBooking && (
           <motion.div 
@@ -394,11 +394,11 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, isDarkMode }) 
                   <div className="flex flex-col md:flex-row justify-between items-start gap-8">
                     <div>
                       <div className="flex items-center gap-3 mb-4">
-                        <span className="px-5 py-1.5 rounded-2xl bg-indigo-600 text-white text-[11px] font-black uppercase tracking-widest">Active Data Stream</span>
-                        <span className={`text-[11px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>Node ID: {selectedBooking.id.toUpperCase()}</span>
+                        <span className="px-5 py-1.5 rounded-2xl bg-indigo-600 text-white text-[11px] font-black uppercase tracking-widest">Live Booking Data</span>
+                        <span className={`text-[11px] font-black uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>Booking ID: {selectedBooking.id.toUpperCase()}</span>
                       </div>
                       <h3 className="text-5xl md:text-6xl font-black tracking-tighter uppercase leading-none">
-                        {selectedBooking.type} <span className="opacity-30">/ {selectedBooking.pnr || 'UNREF'}</span>
+                        {selectedBooking.type} <span className="opacity-30">/ {selectedBooking.pnr || 'NOT ASSIGNED'}</span>
                       </h3>
                     </div>
                     <button onClick={() => setSelectedBooking(null)} className={`p-5 rounded-full transition-all ${isDarkMode ? 'bg-slate-800 hover:bg-rose-500 text-white' : 'bg-slate-100 hover:bg-rose-50 text-rose-500 shadow-xl shadow-slate-200/50'}`}>
@@ -408,9 +408,9 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, isDarkMode }) 
 
                   <div className="grid grid-cols-1 xl:grid-cols-2 gap-16">
                     <div className="space-y-12">
-                       {/* Section 01: Profile */}
+                       {/* Section 01: Customer Profile */}
                        <section className="space-y-6">
-                          <label className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.3em] block">01 / Subject Identity</label>
+                          <label className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.3em] block">01 / Customer Profile</label>
                           <div className={`p-8 rounded-[40px] border-2 flex items-center gap-8 ${isDarkMode ? 'bg-slate-800/40 border-slate-800' : 'bg-slate-50 border-slate-100'}`}>
                              <div className="relative">
                                <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${selectedBooking.clientName}`} className="w-24 h-24 rounded-[32px] bg-white shadow-2xl relative z-10" />
@@ -430,9 +430,9 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, isDarkMode }) 
                           </div>
                        </section>
 
-                       {/* Section 02: Logistics */}
+                       {/* Section 02: Itinerary Data */}
                        <section className="space-y-6">
-                          <label className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.3em] block">02 / Mission Logistics</label>
+                          <label className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.3em] block">02 / Itinerary Data</label>
                           <div className="grid grid-cols-2 gap-6">
                              {selectedBooking.type === 'Hotel' ? (
                                <>
@@ -450,7 +450,7 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, isDarkMode }) 
                                           <Building2 size={24} className="text-indigo-600" />
                                        </div>
                                        <div>
-                                          <p className="text-xs font-black uppercase tracking-widest text-slate-400">Assigned Facility</p>
+                                          <p className="text-xs font-black uppercase tracking-widest text-slate-400">Hotel Name</p>
                                           <span className="text-lg font-black">{selectedBooking.hotelName || 'PENDING ASSIGNMENT'}</span>
                                        </div>
                                     </div>
@@ -460,11 +460,11 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, isDarkMode }) 
                              ) : (
                                <>
                                  <div className={`p-8 rounded-[36px] border-2 text-center flex flex-col justify-center ${isDarkMode ? 'border-slate-800 bg-slate-900/40' : 'border-slate-100 bg-white shadow-sm'}`}>
-                                    <p className="text-[10px] font-black text-slate-400 uppercase mb-3 tracking-widest">Base Port</p>
+                                    <p className="text-[10px] font-black text-slate-400 uppercase mb-3 tracking-widest">Departure From</p>
                                     <p className="text-4xl font-mono font-black text-indigo-500 uppercase leading-none">{selectedBooking.from || '--'}</p>
                                  </div>
                                  <div className={`p-8 rounded-[36px] border-2 text-center flex flex-col justify-center ${isDarkMode ? 'border-slate-800 bg-slate-900/40' : 'border-slate-100 bg-white shadow-sm'}`}>
-                                    <p className="text-[10px] font-black text-slate-400 uppercase mb-3 tracking-widest">Target Port</p>
+                                    <p className="text-[10px] font-black text-slate-400 uppercase mb-3 tracking-widest">Arriving At</p>
                                     <p className="text-4xl font-mono font-black text-indigo-500 uppercase leading-none">{selectedBooking.to || '--'}</p>
                                  </div>
                                  <div className={`col-span-2 p-8 rounded-[36px] border-2 grid grid-cols-2 gap-8 ${isDarkMode ? 'bg-indigo-600/10 border-indigo-500/20' : 'bg-slate-50 border-slate-100'}`}>
@@ -473,8 +473,8 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, isDarkMode }) 
                                           <Clock size={24} className="text-indigo-600" />
                                        </div>
                                        <div>
-                                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Flight Time</p>
-                                          <p className="text-sm font-black font-mono">{selectedBooking.flyingDate || 'PENDING_SIGNAL'}</p>
+                                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Flight Date</p>
+                                          <p className="text-sm font-black font-mono">{selectedBooking.flyingDate || 'AWAITING DATE'}</p>
                                        </div>
                                     </div>
                                     <div className="flex items-center gap-5 border-l-2 border-slate-200 dark:border-slate-800 pl-8">
@@ -482,8 +482,8 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, isDarkMode }) 
                                           <ShieldCheck size={24} className="text-emerald-500" />
                                        </div>
                                        <div>
-                                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">PNR Manifest</p>
-                                          <p className="text-sm font-black font-mono uppercase text-indigo-500">{selectedBooking.pnr || 'UNREF'}</p>
+                                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">PNR Records</p>
+                                          <p className="text-sm font-black font-mono uppercase text-indigo-500">{selectedBooking.pnr || 'NOT ASSIGNED'}</p>
                                        </div>
                                     </div>
                                  </div>
@@ -494,9 +494,9 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, isDarkMode }) 
                     </div>
 
                     <div className="space-y-12">
-                       {/* Section 03: Operational Intelligence */}
+                       {/* Section 03: Booking Metadata */}
                        <section className="space-y-6">
-                          <label className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.3em] block">03 / Operational Intelligence</label>
+                          <label className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.3em] block">03 / Booking Metadata</label>
                           <div className={`grid grid-cols-1 md:grid-cols-2 gap-6 p-10 rounded-[50px] border-2 ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-100 shadow-xl shadow-slate-200/40'}`}>
                              <div className="space-y-4">
                                 <div className="flex items-center gap-3">
@@ -505,46 +505,46 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, isDarkMode }) 
                                 </div>
                                 <p className="text-xl font-black font-mono">{selectedBooking.issueDate || selectedBooking.date}</p>
                              </div>
-                             <div className="space-y-4 md:border-l-2 md:border-slate-100 md:dark:border-slate-800 md:pl-8">
+                             <div className="space-y-4">
                                 <div className="flex items-center gap-3">
                                    <Globe className="text-indigo-500" size={16} />
-                                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Signal Source</p>
+                                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Booking Platform</p>
                                 </div>
-                                <p className="text-xl font-black font-mono uppercase">{selectedBooking.bookingSource || 'DIRECT_CHANNEL'}</p>
+                                <p className="text-xl font-black font-mono uppercase">{selectedBooking.bookingSource || 'DIRECT ENTRY'}</p>
                              </div>
                              <div className="col-span-1 md:col-span-2 pt-6 border-t-2 border-slate-100 dark:border-slate-800 mt-2 space-y-4">
                                 <div className="flex items-center gap-3">
                                    <Info className="text-indigo-500" size={16} />
-                                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Mission Notes</p>
+                                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Booking Notes</p>
                                 </div>
                                 <p className="text-sm font-bold text-slate-500 italic leading-relaxed">
-                                   {selectedBooking.description || 'Transmission received without additional metadata. Mission status remains nominal.'}
+                                   {selectedBooking.description || 'No additional service notes available.'}
                                 </p>
                              </div>
                           </div>
                        </section>
 
-                       {/* Section 04: Financial Settlement */}
+                       {/* Section 04: Accounting Overview */}
                        <section className="space-y-6">
-                          <label className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.3em] block">04 / Financial Settlement</label>
+                          <label className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.3em] block">04 / Accounting Overview</label>
                           <div className={`p-10 rounded-[50px] border-2 relative overflow-hidden group ${isDarkMode ? 'bg-indigo-600/5 border-indigo-500/20' : 'bg-slate-50 border-slate-100 shadow-inner'}`}>
                              <div className="space-y-6 relative z-10">
                                 <div className="flex justify-between items-center text-slate-500">
                                    <div className="flex items-center gap-3">
                                       <div className="w-1.5 h-1.5 rounded-full bg-slate-400"></div>
-                                      <span className="uppercase tracking-widest text-[11px] font-black">Gross Signal Quote</span>
+                                      <span className="uppercase tracking-widest text-[11px] font-black">Total Revenue</span>
                                    </div>
                                    <span className="font-black text-2xl font-mono">৳{selectedBooking.amount.toLocaleString()}</span>
                                 </div>
                                 <div className="flex justify-between items-center text-slate-500">
                                    <div className="flex items-center gap-3">
                                       <div className="w-1.5 h-1.5 rounded-full bg-rose-500"></div>
-                                      <span className="uppercase tracking-widest text-[11px] font-black">Node Operations Cost</span>
+                                      <span className="uppercase tracking-widest text-[11px] font-black">Operational Cost</span>
                                    </div>
                                    <span className="font-black text-2xl font-mono text-rose-500">৳{selectedBooking.cost.toLocaleString()}</span>
                                 </div>
                                 <div className="pt-8 border-t-4 border-double border-indigo-500/20 flex flex-col gap-2">
-                                   <p className="font-black text-xs uppercase tracking-[0.4em] text-indigo-500 text-center">Net Yield Performance</p>
+                                   <p className="font-black text-xs uppercase tracking-[0.4em] text-indigo-500 text-center">Net Profit</p>
                                    <p className="text-6xl font-black tracking-tighter text-indigo-600 text-center font-mono">৳{(selectedBooking.amount - selectedBooking.cost).toLocaleString()}</p>
                                 </div>
                              </div>
@@ -558,7 +558,7 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, isDarkMode }) 
                        whileHover={{ x: -10 }}
                        onClick={() => setSelectedBooking(null)}
                        className={`flex-1 py-7 rounded-[35px] text-[11px] font-black uppercase tracking-[0.4em] transition-all ${isDarkMode ? 'bg-slate-800 text-slate-400 hover:text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}>
-                        End Link
+                        Close Review
                       </motion.button>
                      <motion.button 
                        whileHover={{ scale: 1.02 }}
@@ -566,7 +566,7 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, isDarkMode }) 
                        className="flex-1 py-7 vibrant-gradient text-white rounded-[35px] text-[11px] font-black uppercase tracking-[0.4em] shadow-2xl shadow-indigo-600/40 flex items-center justify-center gap-5"
                      >
                         <Download size={22} className="stroke-[3]" />
-                        Export Data Log
+                        Download Receipt
                      </motion.button>
                   </div>
                </div>
@@ -575,7 +575,7 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, isDarkMode }) 
         )}
       </AnimatePresence>
 
-      {/* Data Entry Terminal Modal (Modal) */}
+      {/* Booking Entry Modal */}
       <AnimatePresence>
         {showModal && (
           <motion.div 
@@ -600,8 +600,8 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, isDarkMode }) 
                       <Zap size={28} className="text-white fill-current" />
                    </div>
                    <div>
-                      <h3 className="text-4xl font-black uppercase tracking-tighter leading-none">Console <span className="text-indigo-600">Entry</span></h3>
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] mt-2">Initializing Operational Node</p>
+                      <h3 className="text-4xl font-black uppercase tracking-tighter leading-none">New <span className="text-indigo-600">Booking</span></h3>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] mt-2">Add a new ticket or reservation</p>
                    </div>
                 </div>
                 <button 
@@ -617,7 +617,7 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, isDarkMode }) 
                  <section className="space-y-10">
                     <div className="flex items-center gap-4">
                        <span className="w-10 h-10 rounded-full bg-indigo-600/10 flex items-center justify-center text-indigo-600 font-black text-xs">01</span>
-                       <label className="text-[11px] font-black text-indigo-500 uppercase tracking-[0.4em] block">Domain Specification</label>
+                       <label className="text-[11px] font-black text-indigo-500 uppercase tracking-[0.4em] block">Reservation Type</label>
                     </div>
                     <div className="flex p-3 bg-slate-100 dark:bg-slate-900 rounded-[35px] border-2 border-transparent focus-within:border-indigo-500/30">
                       {['Air Ticket', 'Hotel', 'Visa', 'Package'].map(type => (
@@ -636,58 +636,58 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, isDarkMode }) 
                  <section className="space-y-10">
                     <div className="flex items-center gap-4">
                        <span className="w-10 h-10 rounded-full bg-indigo-600/10 flex items-center justify-center text-indigo-600 font-black text-xs">02</span>
-                       <label className="text-[11px] font-black text-indigo-500 uppercase tracking-[0.4em] block">Entity Verification</label>
+                       <label className="text-[11px] font-black text-indigo-500 uppercase tracking-[0.4em] block">Customer Selection</label>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                        <div className="col-span-1 md:col-span-2">
-                          <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block mb-4">Database Signal Match <span className="text-rose-500">*</span></label>
+                          <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block mb-4">Select Customer from List <span className="text-rose-500">*</span></label>
                           <select 
                             required
                             value={formData.clientId}
                             onChange={e => handleClientChange(e.target.value)}
                             className={`w-full px-10 py-6 border-2 rounded-[35px] font-black text-sm outline-none transition-all ${isDarkMode ? 'bg-slate-900 border-slate-800 focus:border-indigo-500' : 'bg-slate-50 border-slate-100 focus:border-indigo-500 shadow-inner'}`}>
-                            <option value="">Query Existing Subject Database</option>
+                            <option value="">Find customer in system</option>
                             {clients.map(cl => <option key={cl.id} value={cl.id}>{cl.name} ({cl.phone})</option>)}
                           </select>
                        </div>
                        
                        <div className="space-y-4">
-                          <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block">Subject Descriptor (Name)</label>
+                          <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block">Customer Full Name</label>
                           <div className="relative">
                             <User className="absolute left-7 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-                            <input required placeholder="Manual Override Name" value={formData.clientName} onChange={e => setFormData({...formData, clientName: e.target.value})} className={`w-full pl-16 pr-10 py-6 border-2 rounded-[35px] font-black text-sm transition-all ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-slate-50 border-slate-100'}`} />
+                            <input required placeholder="Enter Customer Name" value={formData.clientName} onChange={e => setFormData({...formData, clientName: e.target.value})} className={`w-full pl-16 pr-10 py-6 border-2 rounded-[35px] font-black text-sm transition-all ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-slate-50 border-slate-100'}`} />
                           </div>
                        </div>
                        
                        <div className="space-y-4">
-                          <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block">Link ID (Phone)</label>
+                          <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block">Contact Number</label>
                           <div className="relative">
                             <Phone className="absolute left-7 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-                            <input required placeholder="Subject Contact Hub" value={formData.clientPhone} onChange={e => setFormData({...formData, clientPhone: e.target.value})} className={`w-full pl-16 pr-10 py-6 border-2 rounded-[35px] font-black text-sm transition-all ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-slate-50 border-slate-100'}`} />
+                            <input required placeholder="Phone Number" value={formData.clientPhone} onChange={e => setFormData({...formData, clientPhone: e.target.value})} className={`w-full pl-16 pr-10 py-6 border-2 rounded-[35px] font-black text-sm transition-all ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-slate-50 border-slate-100'}`} />
                           </div>
                        </div>
-
+ 
                        <div className="space-y-4">
-                          <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block">Unit Configuration (PAX)</label>
+                          <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block">Number of Travelers (PAX)</label>
                           <div className="relative">
                             <Users className="absolute left-7 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
                             <input required type="number" min="1" value={formData.pax} onChange={e => setFormData({...formData, pax: Number(e.target.value)})} className={`w-full pl-16 pr-10 py-6 border-2 rounded-[35px] font-black text-sm outline-none transition-all ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-slate-50 border-slate-100'}`} />
                           </div>
                        </div>
-
+ 
                        <div className="space-y-4">
-                          <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block">Signal Source</label>
+                          <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block">Booking Platform</label>
                           <div className="relative">
                             <Globe className="absolute left-7 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-                            <input placeholder="GDS, B2B, DIRECT_CHANNEL" value={formData.bookingSource} onChange={e => setFormData({...formData, bookingSource: e.target.value})} className={`w-full pl-16 pr-10 py-6 border-2 rounded-[35px] font-black text-sm transition-all ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-slate-50 border-slate-100'}`} />
+                            <input placeholder="GDS, Portal, Direct..." value={formData.bookingSource} onChange={e => setFormData({...formData, bookingSource: e.target.value})} className={`w-full pl-16 pr-10 py-6 border-2 rounded-[35px] font-black text-sm transition-all ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-slate-50 border-slate-100'}`} />
                           </div>
                        </div>
                        
                        <div className="col-span-1 md:col-span-2 space-y-4">
-                          <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block">Reference Terminal (PNR / ID)</label>
+                          <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block">Reference Number (PNR)</label>
                           <div className="relative">
                             <Hash className="absolute left-7 top-1/2 -translate-y-1/2 text-indigo-500" size={20} />
-                            <input required placeholder="SYSTEM-REF-MANIFEST-PNR" value={formData.pnr} onChange={e => setFormData({...formData, pnr: e.target.value.toUpperCase()})} className={`w-full pl-16 pr-10 py-6 border-2 rounded-[35px] font-black text-sm uppercase transition-all ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-slate-50 border-slate-100'}`} />
+                            <input required placeholder="PNR or Confirmation Number" value={formData.pnr} onChange={e => setFormData({...formData, pnr: e.target.value.toUpperCase()})} className={`w-full pl-16 pr-10 py-6 border-2 rounded-[35px] font-black text-sm uppercase transition-all ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-slate-50 border-slate-100'}`} />
                           </div>
                        </div>
                     </div>
@@ -696,40 +696,40 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, isDarkMode }) 
                  <section className="space-y-10">
                     <div className="flex items-center gap-4">
                        <span className="w-10 h-10 rounded-full bg-indigo-600/10 flex items-center justify-center text-indigo-600 font-black text-xs">03</span>
-                       <label className="text-[11px] font-black text-indigo-500 uppercase tracking-[0.4em] block">Logistics Specification</label>
+                       <label className="text-[11px] font-black text-indigo-500 uppercase tracking-[0.4em] block">Travel Schedule</label>
                     </div>
                     <div className={`p-10 rounded-[50px] border-2 border-dashed border-indigo-500/30 grid grid-cols-1 md:grid-cols-2 gap-10 ${isDarkMode ? 'bg-indigo-500/5' : 'bg-slate-50'}`}>
                        {formData.type === 'Hotel' ? (
                          <>
                            <div className="col-span-1 md:col-span-2 space-y-3">
-                             <label className="text-[10px] font-black text-indigo-500 uppercase tracking-widest">Property Metadata</label>
-                             <input required placeholder="Mission Luxury Hub, NY" value={formData.hotelName} onChange={e => setFormData({...formData, hotelName: e.target.value})} className={`w-full px-10 py-6 border-2 rounded-[30px] font-black text-xs ${isDarkMode ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-100 shadow-sm'}`} />
+                             <label className="text-[10px] font-black text-indigo-500 uppercase tracking-widest">Hotel / Property Name</label>
+                             <input required placeholder="e.g. Radisson Blu, New York" value={formData.hotelName} onChange={e => setFormData({...formData, hotelName: e.target.value})} className={`w-full px-10 py-6 border-2 rounded-[30px] font-black text-xs ${isDarkMode ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-100 shadow-sm'}`} />
                            </div>
                            <div className="space-y-3">
-                             <label className="text-[10px] font-black text-indigo-500 uppercase tracking-widest">Entry T-Clock (In)</label>
+                             <label className="text-[10px] font-black text-indigo-500 uppercase tracking-widest">Check-in Date</label>
                              <input required type="date" value={formData.checkIn} onChange={e => setFormData({...formData, checkIn: e.target.value})} className={`w-full px-10 py-6 border-2 rounded-[30px] font-black text-xs ${isDarkMode ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-100 shadow-sm'}`} />
                            </div>
                            <div className="space-y-3">
-                             <label className="text-[10px] font-black text-indigo-500 uppercase tracking-widest">Exit T-Clock (Out)</label>
+                             <label className="text-[10px] font-black text-indigo-500 uppercase tracking-widest">Check-out Date</label>
                              <input required type="date" value={formData.checkOut} onChange={e => setFormData({...formData, checkOut: e.target.value})} className={`w-full px-10 py-6 border-2 rounded-[30px] font-black text-xs ${isDarkMode ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-100 shadow-sm'}`} />
                            </div>
                          </>
                        ) : (
                          <>
                            <div className="space-y-3">
-                              <label className="text-[10px] font-black text-indigo-500 uppercase tracking-widest">Origin Port ID</label>
-                              <input required placeholder="DAC-HQ" value={formData.from} onChange={e => setFormData({...formData, from: e.target.value.toUpperCase()})} className={`w-full px-10 py-6 border-2 rounded-[30px] font-black text-xs uppercase ${isDarkMode ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-100 shadow-sm'}`} />
+                              <label className="text-[10px] font-black text-indigo-500 uppercase tracking-widest">Origin (From)</label>
+                              <input required placeholder="e.g. DAC" value={formData.from} onChange={e => setFormData({...formData, from: e.target.value.toUpperCase()})} className={`w-full px-10 py-6 border-2 rounded-[30px] font-black text-xs uppercase ${isDarkMode ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-100 shadow-sm'}`} />
                            </div>
                            <div className="space-y-3">
-                              <label className="text-[10px] font-black text-indigo-500 uppercase tracking-widest">Destination Port ID</label>
-                              <input required placeholder="DXB-NODE" value={formData.to} onChange={e => setFormData({...formData, to: e.target.value.toUpperCase()})} className={`w-full px-10 py-6 border-2 rounded-[30px] font-black text-xs uppercase ${isDarkMode ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-100 shadow-sm'}`} />
+                              <label className="text-[10px] font-black text-indigo-500 uppercase tracking-widest">Destination (To)</label>
+                              <input required placeholder="e.g. DXB" value={formData.to} onChange={e => setFormData({...formData, to: e.target.value.toUpperCase()})} className={`w-full px-10 py-6 border-2 rounded-[30px] font-black text-xs uppercase ${isDarkMode ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-100 shadow-sm'}`} />
                            </div>
                            <div className="space-y-3">
-                              <label className="text-[10px] font-black text-indigo-500 uppercase tracking-widest">Departure Sequence (Final)</label>
+                              <label className="text-[10px] font-black text-indigo-500 uppercase tracking-widest">Travel Date</label>
                               <input required type="date" value={formData.flyingDate} onChange={e => setFormData({...formData, flyingDate: e.target.value})} className={`w-full px-10 py-6 border-2 rounded-[30px] font-black text-xs ${isDarkMode ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-100 shadow-sm'}`} />
                            </div>
                            <div className="space-y-3">
-                              <label className="text-[10px] font-black text-indigo-500 uppercase tracking-widest">Signal Locked (Issue)</label>
+                              <label className="text-[10px] font-black text-indigo-500 uppercase tracking-widest">Issue Date</label>
                               <input required type="date" value={formData.issueDate} onChange={e => setFormData({...formData, issueDate: e.target.value})} className={`w-full px-10 py-6 border-2 rounded-[30px] font-black text-xs ${isDarkMode ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-100 shadow-sm'}`} />
                            </div>
                          </>
@@ -740,28 +740,28 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, isDarkMode }) 
                  <section className="space-y-10">
                     <div className="flex items-center gap-4">
                        <span className="w-10 h-10 rounded-full bg-indigo-600/10 flex items-center justify-center text-indigo-600 font-black text-xs">04</span>
-                       <label className="text-[11px] font-black text-indigo-500 uppercase tracking-[0.4em] block">Financial Matrix</label>
+                       <label className="text-[11px] font-black text-indigo-500 uppercase tracking-[0.4em] block">Accounting Details</label>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                        <div className={`p-10 rounded-[50px] border-2 transition-all focus-within:scale-[1.02] ${isDarkMode ? 'bg-indigo-950/20 border-indigo-500/20' : 'bg-indigo-50 border-indigo-100'}`}>
-                          <label className="text-[10px] font-black text-indigo-600 uppercase block mb-4 tracking-widest">Yield Input (৳)</label>
+                          <label className="text-[10px] font-black text-indigo-600 uppercase block mb-4 tracking-widest">Booking Amount (৳)</label>
                           <div className="relative">
                             <Banknote className="absolute left-8 top-1/2 -translate-y-1/2 text-indigo-500" size={32} />
                             <input required type="number" placeholder="0.00" value={formData.amount || ''} onChange={e => setFormData({...formData, amount: Number(e.target.value)})} className={`w-full pl-24 pr-10 py-8 border-2 rounded-[35px] font-black text-4xl outline-none transition-all ${isDarkMode ? 'bg-slate-900 border-slate-800 text-indigo-400' : 'bg-white border-indigo-100 text-indigo-700 shadow-xl shadow-indigo-200/20'}`} />
                           </div>
                        </div>
                        <div className={`p-10 rounded-[50px] border-2 transition-all focus-within:scale-[1.02] ${isDarkMode ? 'bg-rose-950/20 border-rose-500/20' : 'bg-rose-50 border-rose-100'}`}>
-                          <label className="text-[10px] font-black text-rose-600 uppercase block mb-4 tracking-widest">Node Operations Cost (৳)</label>
+                          <label className="text-[10px] font-black text-rose-600 uppercase block mb-4 tracking-widest">Service Cost (৳)</label>
                           <div className="relative">
                             <Briefcase className="absolute left-8 top-1/2 -translate-y-1/2 text-rose-500" size={32} />
                             <input required type="number" placeholder="0.00" value={formData.cost || ''} onChange={e => setFormData({...formData, cost: Number(e.target.value)})} className={`w-full pl-24 pr-10 py-8 border-2 rounded-[35px] font-black text-4xl outline-none transition-all ${isDarkMode ? 'bg-slate-900 border-slate-800 text-rose-400' : 'bg-white border-rose-100 text-rose-700 shadow-xl shadow-rose-200/20'}`} />
                           </div>
                        </div>
                        <div className="col-span-1 md:col-span-2 space-y-4">
-                          <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block">Signal Intelligence Log</label>
+                          <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block">Service Log</label>
                           <textarea 
                             required
-                            placeholder="Operational metadata, baggage limits, or node overrides..."
+                            placeholder="Enter any additional service details or notes..."
                             value={formData.description}
                             onChange={e => setFormData({...formData, description: e.target.value})}
                             className={`w-full px-10 py-8 border-2 rounded-[40px] font-bold text-sm h-48 resize-none outline-none transition-all ${isDarkMode ? 'bg-slate-900 border-slate-800 focus:border-indigo-500' : 'bg-slate-50 border-slate-100 focus:border-indigo-500 shadow-inner'}`}
@@ -779,7 +779,7 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, isDarkMode }) 
                     onClick={handleAbort} 
                     disabled={isSynchronizing}
                     className={`flex-1 py-7 rounded-[35px] text-[11px] font-black uppercase tracking-[0.4em] transition-all ${isDarkMode ? 'bg-slate-800 text-slate-400 hover:text-white disabled:opacity-50' : 'bg-slate-100 text-slate-500 hover:bg-slate-200 disabled:opacity-50 shadow-lg shadow-slate-200/30'}`}>
-                      Abort Mission
+                      Discard Entry
                     </motion.button>
                    <motion.button 
                     whileHover={{ scale: 1.02 }}
@@ -791,12 +791,12 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, isDarkMode }) 
                       {isSynchronizing ? (
                         <>
                           <Activity size={24} className="animate-spin" />
-                          <span>Synchronizing...</span>
+                          <span>Saving...</span>
                         </>
                       ) : (
                         <>
                           <Zap size={24} className="fill-current" />
-                          <span>Finalize Node</span>
+                          <span>Commit Booking</span>
                         </>
                       )}
                    </motion.button>
