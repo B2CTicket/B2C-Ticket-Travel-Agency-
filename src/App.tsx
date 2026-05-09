@@ -813,6 +813,16 @@ const App: React.FC = () => {
                 {isSidebarOpen ? <X size={20} className="lg:block hidden" /> : <Menu size={20} />}
                 {isMobile && <Menu size={20} />}
              </button>
+             
+             {/* Dark mode toggle for mobile */}
+             <button 
+               onClick={() => setIsDarkMode(!isDarkMode)} 
+               className={`md:hidden p-2.5 rounded-xl transition-all duration-300 ${isDarkMode ? 'bg-amber-500/10 text-amber-500 hover:bg-amber-500/20' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 shadow-sm'}`}
+               title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+             >
+               {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
+             </button>
+
              <div className="relative w-full max-w-xs hidden lg:block ml-2">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
               <input 
