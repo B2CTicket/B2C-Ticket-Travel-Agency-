@@ -192,7 +192,7 @@ const App: React.FC = () => {
       .reduce((sum, t) => sum + t.amount, 0);
     
     const totalExpense = transactions
-      .filter(t => t.type === TransactionType.EXPENSE && !t.category.toLowerCase().includes('cost'))
+      .filter(t => t.type === TransactionType.EXPENSE)
       .reduce((sum, t) => sum + t.amount, 0);
 
     const netProfit = totalIncome - totalExpense;
