@@ -23,4 +23,9 @@ async function testConnection() {
 testConnection();
 
 export const loginWithGoogle = () => signInWithPopup(auth, googleProvider);
+export const loginWithGoogleRedirect = () => {
+  import('firebase/auth').then(({ signInWithRedirect }) => {
+    signInWithRedirect(auth, googleProvider);
+  });
+};
 export const logout = () => signOut(auth);

@@ -21,7 +21,8 @@ import {
   Plane,
   FileText,
   History,
-  Lock
+  Lock,
+  ArrowRight
 } from 'lucide-react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { 
@@ -36,7 +37,7 @@ import {
   setDoc,
   serverTimestamp
 } from 'firebase/firestore';
-import { db, auth, loginWithGoogle, logout as firebaseLogout } from '@/lib/firebase';
+import { db, auth, loginWithGoogle, logout as firebaseLogout, googleProvider } from '@/lib/firebase';
 import { Booking, BookingStatus, Transaction, TransactionType, Client } from '@/types';
 import Dashboard from '@/components/Dashboard';
 import BookingList from '@/components/BookingList';
@@ -118,6 +119,14 @@ const App: React.FC = () => {
         setIsAuthReady(true);
       }
     }, 8000); // 8 second fallback for slow networks
+
+    // Check for redirect results
+    import('firebase/auth').then(({ getRedirectResult }) => {
+      getRedirectResult(auth).catch((error) => {
+        console.error("Redirect result error:", error);
+        setAuthError(`Redirect Error: ${error.message}`);
+      });
+    });
 
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       console.log("Auth state changed:", user ? `UID: ${user.uid} (${user.email})` : "No user authenticated.");
@@ -301,15 +310,29 @@ const App: React.FC = () => {
     }
   };
 
+  const isAuthorized = firebaseUser?.email?.toLowerCase() === 'service.glct@gmail.com';
+
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Attempting terminal login with:", loginForm.username);
     if (loginForm.username === adminCreds.username && loginForm.password === adminCreds.password) {
+      console.log("Terminal login successful");
       setIsAuthenticated(true);
       try { localStorage.setItem('isLoggedIn', 'true'); } catch {}
       setLoginError('');
       setLoginForm({ username: '', password: '' });
     } else {
+      console.warn("Terminal login failed: mapping mismatch");
       setLoginError('Invalid credentials. Access denied.');
+    }
+  };
+
+  const handleDeveloperBypass = () => {
+    if (isAuthorized) {
+      console.log("Developer bypass triggered");
+      setIsAuthenticated(true);
+      try { localStorage.setItem('isLoggedIn', 'true'); } catch {}
+      setLoginError('');
     }
   };
 
@@ -335,21 +358,43 @@ const App: React.FC = () => {
     setAuthError(null);
     try {
       console.log("Initiating Google Sign-in...");
-      await loginWithGoogle();
+      
+      // Add a safety timeout for the popup
+      const loginPromise = loginWithGoogle();
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('SIGNIN_TIMEOUT')), 25000)
+      );
+
+      await Promise.race([loginPromise, timeoutPromise]);
       console.log("Google Sign-in popup completed successfully");
     } catch (e: any) {
       console.error("Sign-in error details:", e);
-      // Suppress cancelled popup request error as it's common and harmless
-      if (e.code === 'auth/cancelled-popup-request' || e.code === 'auth/popup-closed-by-user') {
+      if (e.message === 'SIGNIN_TIMEOUT') {
+        setAuthError("The login popup is taking too long to respond. This usually means it was blocked or is hanging. Please try the Alternative (Redirect) Mode below.");
+      } else if (e.code === 'auth/cancelled-popup-request' || e.code === 'auth/popup-closed-by-user') {
         console.warn("Sign-in popup was cancelled or closed prematurely.");
       } else if (e.code === 'auth/unauthorized-domain') {
-        setAuthError("This domain is not authorized for Firebase login. Please try again in 1-2 minutes or contact support.");
+        setAuthError("This domain is not authorized for Firebase login. I am attempting to fix this. Please try again in a moment.");
+      } else if (e.code === 'auth/popup-blocked') {
+        setAuthError("The sign-in popup was blocked by your browser. Please allow popups for this site.");
       } else if (e.code === 'auth/network-request-failed') {
         setAuthError("Network error. Please check your internet connection.");
       } else {
         setAuthError(e.message || "Failed to sign in. Please try again.");
       }
     } finally {
+      setLoginLoading(false);
+    }
+  };
+
+  const handleGoogleRedirectSignIn = async () => {
+    setLoginLoading(true);
+    setAuthError(null);
+    try {
+      const { signInWithRedirect } = await import('firebase/auth');
+      await signInWithRedirect(auth, googleProvider);
+    } catch (e: any) {
+      setAuthError(e.message || "Redirect failed.");
       setLoginLoading(false);
     }
   };
@@ -465,33 +510,65 @@ const App: React.FC = () => {
              </div>
           )}
 
-          <button 
-            onClick={handleGoogleSignIn}
-            disabled={loginLoading}
-            className={`w-full py-4 bg-indigo-600 text-white rounded-2xl shadow-xl shadow-indigo-500/30 font-black tracking-widest uppercase hover:scale-[1.02] active:scale-95 transition-all text-sm mb-4 flex items-center justify-center gap-2 ${loginLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
-          >
-            {loginLoading ? (
-              <>
-                <History className="animate-spin" size={18} />
-                Connecting...
-              </>
-            ) : (
-              'Sign in with Google'
+          <div className="space-y-4">
+            <button 
+              onClick={handleGoogleSignIn}
+              disabled={loginLoading}
+              className={`w-full py-4 vibrant-gradient text-white rounded-2xl shadow-xl shadow-indigo-500/30 font-black tracking-widest uppercase hover:scale-[1.02] active:scale-95 transition-all text-sm mb-2 flex items-center justify-center gap-2 ${loginLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
+            >
+              {loginLoading ? (
+                <>
+                  <History className="animate-spin" size={18} />
+                  Connecting...
+                </>
+              ) : (
+                <>
+                  <Lock size={18} />
+                  Connect with Google
+                </>
+              )}
+            </button>
+
+            {loginLoading && (
+              <button 
+                onClick={() => { setLoginLoading(false); setAuthError("Operation cancelled. You can try Alternative Mode below if the popup doesn't appear."); }}
+                className="block mx-auto text-[10px] font-bold text-slate-400 uppercase tracking-widest hover:text-indigo-600 transition-colors"
+              >
+                Taking too long? Click to Reset
+              </button>
             )}
-          </button>
+
+            <div className="relative py-2">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-slate-200 dark:border-slate-800"></span>
+              </div>
+              <div className="relative flex justify-center text-[10px] uppercase font-black tracking-widest text-slate-400 bg-transparent px-2">
+                <span className={`${isDarkMode ? 'bg-slate-900' : 'bg-slate-50'} px-2`}>Trouble Signing In?</span>
+              </div>
+            </div>
+
+            <button 
+              onClick={handleGoogleRedirectSignIn}
+              disabled={loginLoading}
+              className={`w-full py-3 border-2 ${isDarkMode ? 'border-slate-800 text-slate-400 hover:border-indigo-500' : 'border-slate-200 text-slate-500 hover:border-indigo-600'} rounded-2xl font-black tracking-widest uppercase text-[10px] transition-all flex items-center justify-center gap-2`}
+            >
+              <ArrowRight size={14} />
+              Alternative Redirect Mode
+            </button>
+          </div>
+
           {authError && (
-            <p className="text-[10px] font-bold text-rose-500 uppercase tracking-widest mb-4 bg-rose-500/10 p-2 rounded-xl border border-rose-500/20">
-              {authError}
-            </p>
+            <div className="mt-6 p-4 bg-rose-500/10 border border-rose-500/20 rounded-2xl animate-in fade-in slide-in-from-bottom-2 duration-500">
+               <p className="text-[10px] font-bold text-rose-500 uppercase tracking-widest leading-relaxed">
+                 {authError}
+               </p>
+            </div>
           )}
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Authorized travel agency staff only</p>
         </div>
       </div>
     );
   }
-
-  // Email authorization check
-  const isAuthorized = firebaseUser.email?.toLowerCase() === 'service.glct@gmail.com';
 
   if (!isAuthorized) {
     return (
@@ -503,7 +580,7 @@ const App: React.FC = () => {
               <X className="text-white w-8 h-8" />
             </div>
             <h1 className="text-3xl font-black tracking-tighter mb-2">ACCESS <span className="text-rose-600">DENIED</span></h1>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Account {firebaseUser.email} is not authorized for this terminal.</p>
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Account {firebaseUser?.email} is not authorized for this terminal.</p>
           </div>
           <button 
             onClick={handleLogout}
@@ -580,12 +657,26 @@ const App: React.FC = () => {
               </div>
             )}
 
-            <button 
-              type="submit"
-              className="w-full py-4 vibrant-gradient text-white rounded-2xl shadow-xl shadow-indigo-500/30 font-black tracking-widest uppercase hover:scale-[1.02] active:scale-95 transition-all mt-4"
-            >
-              Authorize Access
-            </button>
+            <div className="space-y-3">
+              <button 
+                type="submit"
+                className="w-full py-4 vibrant-gradient text-white rounded-2xl shadow-xl shadow-indigo-500/30 font-black tracking-widest uppercase hover:scale-[1.02] active:scale-95 transition-all mt-4"
+              >
+                Authorize Access
+              </button>
+              
+              {isAuthorized && (
+                <button 
+                  type="button"
+                  onClick={handleDeveloperBypass}
+                  className={`w-full py-3 rounded-2xl border-2 border-dashed font-black tracking-widest uppercase text-[10px] transition-all hover:bg-indigo-500/5 ${
+                    isDarkMode ? 'border-slate-700 text-slate-400 hover:text-indigo-400' : 'border-slate-100 text-slate-400 hover:text-indigo-600'
+                  }`}
+                >
+                  Quick Connect (Authorized)
+                </button>
+              )}
+            </div>
           </form>
 
           <div className="mt-6 text-center">

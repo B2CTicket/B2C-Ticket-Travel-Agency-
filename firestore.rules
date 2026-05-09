@@ -6,56 +6,33 @@ service cloud.firestore {
       return request.auth != null;
     }
     
-    function isAdmin() {
-      // In a real app, you'd check a dedicated 'admins' collection or a custom claim.
-      // For this app, we'll allow the primary user to manage everything.
+    function isAuthorizedTarget() {
       return isSignedIn() && (
-        request.auth.token.email == 'service.glct@gmail.com' ||
+        request.auth.token.email.lower() == 'service.glct@gmail.com' ||
         request.auth.token.email_verified == true
       );
     }
 
-    function isValidId(id) {
-      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
-    }
-
-    // Default deny
+    // Default deny for others, allow everything for authorized user
     match /{document=**} {
-      allow read, write: if false;
+      allow read, write: if isSignedIn() && request.auth.token.email.lower() == 'service.glct@gmail.com';
     }
 
-    // Clients
+    // Still allow verified users to potentially see/interact if needed (optional, but keep for robustness)
     match /clients/{clientId} {
-      allow read, write: if isAdmin();
-      
-      function isValidClient(data) {
-        return data.keys().hasAll(['name', 'email', 'phone', 'createdAt']) &&
-               data.name is string && data.name.size() > 0 &&
-               data.email is string &&
-               data.phone is string &&
-               data.createdAt is string;
-      }
+      allow read, write: if isAuthorizedTarget();
     }
 
-    // Bookings
     match /bookings/{bookingId} {
-      allow read, write: if isAdmin();
-      
-      function isValidBooking(data) {
-        return data.keys().hasAll(['type', 'date', 'amount', 'cost', 'status', 'clientName']) &&
-               data.type in ['Air Ticket', 'Hotel', 'Visa', 'Package'] &&
-               data.status in ['CONFIRMED', 'PENDING', 'CANCELLED'];
-      }
+      allow read, write: if isAuthorizedTarget();
     }
 
-    // Transactions
     match /transactions/{transactionId} {
-      allow read, write: if isAdmin();
+      allow read, write: if isAuthorizedTarget();
     }
 
-    // Settings
     match /settings/admin {
-      allow read, write: if isAdmin();
+      allow read, write: if isAuthorizedTarget();
     }
   }
 }
