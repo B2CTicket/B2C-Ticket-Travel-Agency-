@@ -22,4 +22,7 @@ export default defineConfig({
   optimizeDeps: {
     include: ['recharts', 'lucide-react', 'motion/react'],
   },
+  build: {
+    outDir: 'dist',
+  },
 });

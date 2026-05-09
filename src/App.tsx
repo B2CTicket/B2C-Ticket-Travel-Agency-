@@ -52,6 +52,8 @@ const App: React.FC = () => {
   console.log("App component initializing...");
   const [activeTab, setActiveTab] = useState<'dashboard' | 'bookings' | 'accounts' | 'ai' | 'clients' | 'forecast' | 'invoices' | 'statements'>('dashboard');
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
+  const [openTransactionModalKey, setOpenTransactionModalKey] = useState(0);
+  const [openBookingModalKey, setOpenBookingModalKey] = useState(0);
   const [isSidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 1024);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -802,7 +804,7 @@ const App: React.FC = () => {
         {/* Subtle Background Accent */}
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/5 blur-[120px] rounded-full pointer-events-none -z-10"></div>
         <header className={`h-20 pt-safe ${isDarkMode ? 'bg-slate-950/80 border-slate-800' : 'bg-white/90 border-slate-100'} backdrop-blur-xl border-b flex items-center justify-between px-4 md:px-8 shrink-0 z-30 transition-all sticky top-0`}>
-          <div className="flex items-center gap-2 md:gap-4 flex-1">
+          <div className="flex items-center gap-2 md:gap-4 flex-1 mr-8">
              <button 
                 onClick={() => setSidebarOpen(!isSidebarOpen)} 
                 className={`p-2 rounded-xl transition-colors ${isDarkMode ? 'text-slate-400 hover:bg-slate-800 hover:text-white' : 'text-slate-500 hover:bg-slate-50 hover:text-indigo-600'}`}
@@ -825,14 +827,27 @@ const App: React.FC = () => {
           <div className="flex items-center gap-3 md:gap-5">
             <button 
               onClick={() => {
-                setActiveTab('bookings');
+                setActiveTab('accounts');
+                setOpenTransactionModalKey(Date.now());
                 if (isMobile) setSidebarOpen(false);
               }} 
-              className="vibrant-gradient text-white px-4 md:px-6 py-2.5 rounded-xl flex items-center gap-2 hover:shadow-indigo-500/30 active:scale-95 transition-all text-[11px] md:text-sm font-bold shadow-lg shadow-indigo-500/20 shrink-0"
+              className="bg-emerald-600 text-white px-4 md:px-6 py-2.5 rounded-xl flex items-center gap-2 hover:shadow-emerald-500/30 active:scale-95 transition-all text-[11px] md:text-sm font-bold shadow-lg shadow-emerald-500/20 shrink-0"
             >
-              <Plus size={18} className="shrink-0" />
-              <span className="hidden sm:block">NEW ENTRY</span>
-              <span className="sm:hidden">ADD</span>
+              <Banknote size={18} className="shrink-0" />
+              <span className="hidden sm:block">FINANCIAL ENTRY</span>
+              <span className="sm:hidden">FIN</span>
+            </button>
+            <button 
+              onClick={() => {
+                setActiveTab('bookings');
+                setOpenBookingModalKey(Date.now());
+                if (isMobile) setSidebarOpen(false);
+              }} 
+              className="bg-indigo-600 text-white px-4 md:px-6 py-2.5 rounded-xl flex items-center gap-2 hover:shadow-indigo-500/30 active:scale-95 transition-all text-[11px] md:text-sm font-bold shadow-lg shadow-indigo-500/20 shrink-0"
+            >
+              <Ticket size={18} className="shrink-0" />
+              <span className="hidden sm:block">ACTIVE BOOKINGS</span>
+              <span className="sm:hidden">BOOK</span>
             </button>
             <div className={`h-8 w-px ${isDarkMode ? 'bg-slate-800' : 'bg-slate-200'} hidden sm:block`}></div>
             <button 
@@ -863,11 +878,11 @@ const App: React.FC = () => {
             )}
             {activeTab === 'dashboard' && <Dashboard stats={stats} bookings={bookings} isDarkMode={isDarkMode} />}
             {activeTab === 'clients' && <ClientList clients={clients} bookings={bookings} onAdd={addClient} onUpdate={updateClient} onNavigateToStatement={navigateToStatement} isDarkMode={isDarkMode} />}
-            {activeTab === 'bookings' && <BookingList bookings={bookings} clients={clients} onAdd={addBooking} onUpdate={updateBooking} onDelete={deleteBooking} isDarkMode={isDarkMode} />}
+            {activeTab === 'bookings' && <BookingList bookings={bookings} clients={clients} onAdd={addBooking} onUpdate={updateBooking} onDelete={deleteBooking} isDarkMode={isDarkMode} triggerAddModalKey={openBookingModalKey} />}
             {activeTab === 'invoices' && <InvoiceList bookings={bookings} clients={clients} isDarkMode={isDarkMode} />}
             {activeTab === 'statements' && <StatementView clients={clients} bookings={bookings} transactions={transactions} defaultClientId={selectedClientId} isDarkMode={isDarkMode} />}
             {activeTab === 'forecast' && <Forecast bookings={bookings} isDarkMode={isDarkMode} />}
-            {activeTab === 'accounts' && <TransactionList transactions={transactions} stats={stats} onAddTransaction={addTransaction} onUpdateTransaction={updateTransaction} onDeleteTransaction={deleteTransaction} isDarkMode={isDarkMode} />}
+            {activeTab === 'accounts' && <TransactionList transactions={transactions} stats={stats} onAddTransaction={addTransaction} onUpdateTransaction={updateTransaction} onDeleteTransaction={deleteTransaction} isDarkMode={isDarkMode} triggerAddModalKey={openTransactionModalKey} />}
             {activeTab === 'ai' && <AIChat bookings={bookings} transactions={transactions} isDarkMode={isDarkMode} />}
             {activeTab === 'settings' && (
               <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">

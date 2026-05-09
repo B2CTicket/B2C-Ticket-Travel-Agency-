@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Booking, BookingStatus, Client } from '@/types';
 import { 
@@ -18,13 +18,20 @@ interface Props {
   onUpdate: (booking: Booking) => void;
   onDelete: (id: string) => void;
   isDarkMode?: boolean;
+  triggerAddModalKey?: number;
 }
 
-const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDelete, isDarkMode }) => {
+const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDelete, isDarkMode, triggerAddModalKey }) => {
   const [showModal, setShowModal] = useState(false);
   const [editingBookingId, setEditingBookingId] = useState<string | null>(null);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+
+  useEffect(() => {
+    if (triggerAddModalKey && triggerAddModalKey > 0) {
+      setShowModal(true);
+    }
+  }, [triggerAddModalKey]);
 
   const filteredBookings = useMemo(() => {
     return bookings.filter(b => 

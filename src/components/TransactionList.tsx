@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Transaction, TransactionType, AgencyStats } from '@/types';
 import { 
@@ -15,11 +15,18 @@ interface Props {
   onUpdateTransaction: (transaction: Transaction) => void;
   onDeleteTransaction: (id: string) => void;
   isDarkMode?: boolean;
+  triggerAddModalKey?: number;
 }
 
-const TransactionList: React.FC<Props> = ({ transactions, stats, onAddTransaction, onUpdateTransaction, onDeleteTransaction, isDarkMode }) => {
+const TransactionList: React.FC<Props> = ({ transactions, stats, onAddTransaction, onUpdateTransaction, onDeleteTransaction, isDarkMode, triggerAddModalKey }) => {
   const [showModal, setShowModal] = useState(false);
   const [editingTransactionId, setEditingTransactionId] = useState<string | null>(null);
+  
+  useEffect(() => {
+    if (triggerAddModalKey && triggerAddModalKey > 0) {
+      setShowModal(true);
+    }
+  }, [triggerAddModalKey]);
   const [filterType, setFilterType] = useState<'ALL' | 'INCOME' | 'EXPENSE'>('ALL');
   
   // Date states - Default to current month
