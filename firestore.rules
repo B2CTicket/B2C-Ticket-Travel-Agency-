@@ -1,0 +1,61 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isAdmin() {
+      // In a real app, you'd check a dedicated 'admins' collection or a custom claim.
+      // For this app, we'll allow the primary user to manage everything.
+      return isSignedIn() && (
+        request.auth.token.email == 'service.glct@gmail.com' ||
+        request.auth.token.email_verified == true
+      );
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Clients
+    match /clients/{clientId} {
+      allow read, write: if isAdmin();
+      
+      function isValidClient(data) {
+        return data.keys().hasAll(['name', 'email', 'phone', 'createdAt']) &&
+               data.name is string && data.name.size() > 0 &&
+               data.email is string &&
+               data.phone is string &&
+               data.createdAt is string;
+      }
+    }
+
+    // Bookings
+    match /bookings/{bookingId} {
+      allow read, write: if isAdmin();
+      
+      function isValidBooking(data) {
+        return data.keys().hasAll(['type', 'date', 'amount', 'cost', 'status', 'clientName']) &&
+               data.type in ['Air Ticket', 'Hotel', 'Visa', 'Package'] &&
+               data.status in ['CONFIRMED', 'PENDING', 'CANCELLED'];
+      }
+    }
+
+    // Transactions
+    match /transactions/{transactionId} {
+      allow read, write: if isAdmin();
+    }
+
+    // Settings
+    match /settings/admin {
+      allow read, write: if isAdmin();
+    }
+  }
+}

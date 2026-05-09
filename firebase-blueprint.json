@@ -1,0 +1,90 @@
+{
+  "entities": {
+    "Client": {
+      "title": "Client",
+      "description": "Customer information for the agency",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "passportNumber": { "type": "string" },
+        "address": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "email", "phone", "createdAt"]
+    },
+    "Booking": {
+      "title": "Booking",
+      "description": "Service reservation (ticket, hotel, visa, etc.)",
+      "type": "object",
+      "properties": {
+        "clientId": { "type": "string" },
+        "clientName": { "type": "string" },
+        "clientPhone": { "type": "string" },
+        "type": { "type": "string", "enum": ["Air Ticket", "Hotel", "Visa", "Package"] },
+        "date": { "type": "string", "format": "date-time" },
+        "issueDate": { "type": "string", "format": "date-time" },
+        "amount": { "type": "number" },
+        "cost": { "type": "number" },
+        "status": { "type": "string", "enum": ["CONFIRMED", "PENDING", "CANCELLED"] },
+        "description": { "type": "string" },
+        "pax": { "type": "number" },
+        "pnr": { "type": "string" },
+        "route": { "type": "string" },
+        "from": { "type": "string" },
+        "to": { "type": "string" },
+        "flyingDate": { "type": "string" },
+        "checkIn": { "type": "string" },
+        "checkOut": { "type": "string" },
+        "hotelName": { "type": "string" },
+        "bookingSource": { "type": "string" }
+      },
+      "required": ["type", "date", "amount", "cost", "status", "clientName"]
+    },
+    "Transaction": {
+      "title": "Transaction",
+      "description": "Financial record (income or expense)",
+      "type": "object",
+      "properties": {
+        "date": { "type": "string", "format": "date-time" },
+        "category": { "type": "string" },
+        "amount": { "type": "number" },
+        "type": { "type": "string", "enum": ["INCOME", "EXPENSE"] },
+        "bookingId": { "type": "string" },
+        "reference": { "type": "string" }
+      },
+      "required": ["date", "category", "amount", "type", "reference"]
+    },
+    "AdminSettings": {
+      "title": "AdminSettings",
+      "description": "Custom administrative credentials and security recovery",
+      "type": "object",
+      "properties": {
+        "username": { "type": "string" },
+        "password": { "type": "string" },
+        "recoveryQuestion": { "type": "string" },
+        "recoveryAnswer": { "type": "string" }
+      },
+      "required": ["username", "password"]
+    }
+  },
+  "firestore": {
+    "/clients": {
+      "schema": "Client",
+      "description": "Collection of all agency clients"
+    },
+    "/bookings": {
+      "schema": "Booking",
+      "description": "Collection of all service bookings"
+    },
+    "/transactions": {
+      "schema": "Transaction",
+      "description": "Collection of financial transactions"
+    },
+    "/settings/admin": {
+      "schema": "AdminSettings",
+      "description": "Single document for administrative credentials"
+    }
+  }
+}

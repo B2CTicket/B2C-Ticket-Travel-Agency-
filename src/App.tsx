@@ -20,8 +20,23 @@ import {
   DownloadCloud,
   Plane,
   FileText,
-  History
+  History,
+  Lock
 } from 'lucide-react';
+import { onAuthStateChanged, User } from 'firebase/auth';
+import { 
+  collection, 
+  onSnapshot, 
+  addDoc, 
+  updateDoc, 
+  deleteDoc, 
+  doc, 
+  query, 
+  orderBy, 
+  setDoc,
+  serverTimestamp
+} from 'firebase/firestore';
+import { db, auth, loginWithGoogle, logout as firebaseLogout } from '@/lib/firebase';
 import { Booking, BookingStatus, Transaction, TransactionType, Client } from '@/types';
 import Dashboard from '@/components/Dashboard';
 import BookingList from '@/components/BookingList';
@@ -39,6 +54,15 @@ const App: React.FC = () => {
   const [isSidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 1024);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  
+  // Firebase Auth State
+  const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
+  const [isAuthReady, setIsAuthReady] = useState(false);
+  const [dbError, setDbError] = useState<string | null>(null);
+  const [loginLoading, setLoginLoading] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [authStage, setAuthStage] = useState<string>('Initializing');
+
   const [isDarkMode, setIsDarkMode] = useState(() => {
     try {
       const saved = localStorage.getItem('darkMode');
@@ -50,30 +74,17 @@ const App: React.FC = () => {
 
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     try {
-      const saved = localStorage.getItem('isLoggedIn');
-      return saved === 'true';
+      return localStorage.getItem('isLoggedIn') === 'true';
     } catch {
       return false;
     }
   });
 
-  const [adminCreds, setAdminCreds] = useState(() => {
-    try {
-      const saved = localStorage.getItem('adminCredentials');
-      return saved ? JSON.parse(saved) : { 
-        username: 'admin', 
-        password: '1234',
-        recoveryQuestion: 'What is your base of operations?', 
-        recoveryAnswer: 'Dhaka' 
-      };
-    } catch {
-      return { 
-        username: 'admin', 
-        password: '1234',
-        recoveryQuestion: 'What is your base of operations?', 
-        recoveryAnswer: 'Dhaka' 
-      };
-    }
+  const [adminCreds, setAdminCreds] = useState({ 
+    username: 'admin', 
+    password: '1234',
+    recoveryQuestion: 'What is your base of operations?', 
+    recoveryAnswer: 'Dhaka' 
   });
 
   const [loginForm, setLoginForm] = useState({ username: '', password: '' });
@@ -84,82 +95,96 @@ const App: React.FC = () => {
   const [settingsForm, setSettingsForm] = useState({ ...adminCreds });
   const [settingsMessage, setSettingsMessage] = useState('');
 
-  useEffect(() => {
-    let lastWidth = window.innerWidth;
-    const handleResize = () => {
-      const width = window.innerWidth;
-      const isNowMobile = width < 1024;
-      const wasMobile = lastWidth < 1024;
-      
-      if (isNowMobile !== wasMobile) {
-        setIsMobile(isNowMobile);
-        setSidebarOpen(!isNowMobile);
-      }
-      lastWidth = width;
-    };
+  // Firestore Error Handler
+  const handleFirestoreError = (error: any, operation: string, path: string) => {
+    console.error(`Firestore Error [${operation}] on [${path}]:`, error);
+    if (error.code === 'permission-denied') {
+      setDbError("Unauthorized Access: Your account does not have permission to modify this data.");
+    } else {
+      setDbError(`Database Error: ${error.message}`);
+    }
+    setTimeout(() => setDbError(null), 5000);
+  };
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+  // Auth Listener
+  useEffect(() => {
+    console.log("Setting up Auth Listener...");
+    setAuthStage('Connecting to Security Service');
+    
+    const timeout = setTimeout(() => {
+      if (!isAuthReady) {
+        console.warn("Auth initialization timed out, forcing ready state.");
+        setAuthStage('Initialization taking longer than expected...');
+        setIsAuthReady(true);
+      }
+    }, 8000); // 8 second fallback for slow networks
+
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      console.log("Auth state changed:", user ? `UID: ${user.uid} (${user.email})` : "No user authenticated.");
+      setFirebaseUser(user);
+      setIsAuthReady(true);
+      setAuthStage('Ready');
+      clearTimeout(timeout);
+      if (!user) setIsAuthenticated(false);
+    }, (error) => {
+      console.error("Auth observer error:", error);
+      setAuthError(`Connection Error: ${error.message}`);
+      setIsAuthReady(true); // Still proceed to show error state
+    });
+    return () => {
+      unsubscribe();
+      clearTimeout(timeout);
+    };
   }, []);
 
+  // Settings Listener
   useEffect(() => {
-    try {
-      localStorage.setItem('darkMode', JSON.stringify(isDarkMode));
-    } catch (e) {
-      console.warn("Storage blocked", e);
-    }
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-      document.body.style.backgroundColor = '#020617';
-    } else {
-      document.documentElement.classList.remove('dark');
-      document.body.style.backgroundColor = '#f8faff';
-    }
-  }, [isDarkMode]);
-
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (loginForm.username === adminCreds.username && loginForm.password === adminCreds.password) {
-      setIsAuthenticated(true);
-      localStorage.setItem('isLoggedIn', 'true');
-      setLoginError('');
-      // Reset forms
-      setLoginForm({ username: '', password: '' });
-    } else {
-      setLoginError('Invalid credentials. Access denied.');
-    }
-  };
-
-  const updateSettings = (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      localStorage.setItem('adminCredentials', JSON.stringify(settingsForm));
-      setAdminCreds(settingsForm);
-      setSettingsMessage('Credentials updated successfully!');
-      setTimeout(() => setSettingsMessage(''), 3000);
-    } catch (e) {
-      setSettingsMessage('Error saving credentials.');
-    }
-  };
-
-  const handleLogout = () => {
-    setIsAuthenticated(false);
-    localStorage.removeItem('isLoggedIn');
-  };
-
-  const handleInstallClick = async () => {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === 'accepted') {
-        setDeferredPrompt(null);
+    if (!firebaseUser) return;
+    const unsub = onSnapshot(doc(db, 'settings', 'admin'), (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.data() as any;
+        setAdminCreds(data);
+        setSettingsForm(data);
+      } else {
+        // Init default settings if they don't exist
+        const defaultSettings = { 
+          username: 'admin', 
+          password: '1234',
+          recoveryQuestion: 'What is your base of operations?', 
+          recoveryAnswer: 'Dhaka' 
+        };
+        setDoc(doc(db, 'settings', 'admin'), defaultSettings).catch(e => handleFirestoreError(e, 'INIT', 'settings/admin'));
       }
-    }
-  };
-  
+    }, (e) => handleFirestoreError(e, 'READ', 'settings/admin'));
+    return unsub;
+  }, [firebaseUser]);
+
+  // Data Listeners
   const [clients, setClients] = useState<Client[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+
+  useEffect(() => {
+    if (!firebaseUser) return;
+
+    const unsubClients = onSnapshot(query(collection(db, 'clients'), orderBy('createdAt', 'desc')), (snapshot) => {
+      setClients(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Client)));
+    }, (e) => handleFirestoreError(e, 'READ', 'clients'));
+
+    const unsubBookings = onSnapshot(query(collection(db, 'bookings'), orderBy('date', 'desc')), (snapshot) => {
+      setBookings(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Booking)));
+    }, (e) => handleFirestoreError(e, 'READ', 'bookings'));
+
+    const unsubTransactions = onSnapshot(query(collection(db, 'transactions'), orderBy('date', 'desc')), (snapshot) => {
+      setTransactions(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Transaction)));
+    }, (e) => handleFirestoreError(e, 'READ', 'transactions'));
+
+    return () => {
+      unsubClients();
+      unsubBookings();
+      unsubTransactions();
+    };
+  }, [firebaseUser]);
 
   const stats = useMemo(() => {
     const totalIncome = transactions
@@ -181,61 +206,197 @@ const App: React.FC = () => {
     };
   }, [transactions, bookings]);
 
-  const addBooking = (newBooking: Omit<Booking, 'id'>) => {
-    const id = Math.random().toString(36).substr(2, 9);
-    setBookings(prev => [...prev, { ...newBooking, id }]);
-    
-    const transId = 't' + Math.random().toString(36).substr(2, 5);
-    setTransactions(prev => [...prev, {
-      id: transId,
-      date: new Date().toISOString().split('T')[0],
-      category: `${newBooking.type} Sale`,
-      amount: newBooking.amount,
-      type: TransactionType.INCOME,
-      bookingId: id,
-      reference: `BOOKING-${id}`
-    }]);
+  const addBooking = async (newBooking: Omit<Booking, 'id'>) => {
+    try {
+      const bookingRef = await addDoc(collection(db, 'bookings'), newBooking);
+      await addDoc(collection(db, 'transactions'), {
+        date: new Date().toISOString().split('T')[0],
+        category: `${newBooking.type} Sale`,
+        amount: newBooking.amount,
+        type: TransactionType.INCOME,
+        bookingId: bookingRef.id,
+        reference: `BOOKING-${bookingRef.id}`,
+        createdAt: serverTimestamp()
+      });
+    } catch (e) {
+      handleFirestoreError(e, 'CREATE', 'bookings');
+    }
   };
 
-  const updateBooking = (updatedBooking: Booking) => {
-    setBookings(prev => prev.map(b => b.id === updatedBooking.id ? updatedBooking : b));
-    // Update linked transaction if it exists
-    setTransactions(prev => prev.map(t => 
-      t.bookingId === updatedBooking.id 
-        ? { ...t, amount: updatedBooking.amount, category: `${updatedBooking.type} Sale` } 
-        : t
-    ));
+  const updateBooking = async (updatedBooking: Booking) => {
+    try {
+      const { id, ...data } = updatedBooking;
+      await updateDoc(doc(db, 'bookings', id), data);
+      
+      // Update linked transaction if it exists
+      const linkedTrans = transactions.find(t => t.bookingId === id);
+      if (linkedTrans) {
+        await updateDoc(doc(db, 'transactions', linkedTrans.id), {
+          amount: updatedBooking.amount,
+          category: `${updatedBooking.type} Sale`
+        });
+      }
+    } catch (e) {
+      handleFirestoreError(e, 'UPDATE', 'bookings');
+    }
   };
 
-  const addTransaction = (newTransaction: Omit<Transaction, 'id'>) => {
-    const id = 't' + Math.random().toString(36).substr(2, 7);
-    setTransactions(prev => [ { ...newTransaction, id }, ...prev ]);
+  const addTransaction = async (newTransaction: Omit<Transaction, 'id'>) => {
+    try {
+      await addDoc(collection(db, 'transactions'), {
+        ...newTransaction,
+        createdAt: serverTimestamp()
+      });
+    } catch (e) {
+      handleFirestoreError(e, 'CREATE', 'transactions');
+    }
   };
 
-  const updateTransaction = (updatedTransaction: Transaction) => {
-    setTransactions(prev => prev.map(t => t.id === updatedTransaction.id ? updatedTransaction : t));
+  const updateTransaction = async (updatedTransaction: Transaction) => {
+    try {
+      const { id, ...data } = updatedTransaction;
+      await updateDoc(doc(db, 'transactions', id), data);
+    } catch (e) {
+      handleFirestoreError(e, 'UPDATE', 'transactions');
+    }
   };
 
-  const deleteTransaction = (id: string) => {
+  const deleteTransaction = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this transaction record?')) {
-      setTransactions(prev => prev.filter(t => t.id !== id));
+      try {
+        await deleteDoc(doc(db, 'transactions', id));
+      } catch (e) {
+        handleFirestoreError(e, 'DELETE', 'transactions');
+      }
     }
   };
 
-  const deleteBooking = (id: string) => {
+  const deleteBooking = async (id: string) => {
     if (window.confirm('Deleting this reservation will NOT automatically delete associated transactions. Proceed?')) {
-      setBookings(prev => prev.filter(b => b.id !== id));
+      try {
+        await deleteDoc(doc(db, 'bookings', id));
+      } catch (e) {
+        handleFirestoreError(e, 'DELETE', 'bookings');
+      }
     }
   };
 
-  const addClient = (newClient: Omit<Client, 'id' | 'createdAt'>) => {
-    const id = 'c' + Math.random().toString(36).substr(2, 9);
-    setClients(prev => [...prev, { ...newClient, id, createdAt: new Date().toISOString() }]);
+  const addClient = async (newClient: Omit<Client, 'id' | 'createdAt'>) => {
+    try {
+      await addDoc(collection(db, 'clients'), {
+        ...newClient,
+        createdAt: new Date().toISOString()
+      });
+    } catch (e) {
+      handleFirestoreError(e, 'CREATE', 'clients');
+    }
   };
 
-  const updateClient = (updatedClient: Client) => {
-    setClients(prev => prev.map(c => c.id === updatedClient.id ? updatedClient : c));
-    setBookings(prev => prev.map(b => b.clientId === updatedClient.id ? { ...b, clientName: updatedClient.name } : b));
+  const updateClient = async (updatedClient: Client) => {
+    try {
+      const { id, ...data } = updatedClient;
+      await updateDoc(doc(db, 'clients', id), data);
+    } catch (e) {
+      handleFirestoreError(e, 'UPDATE', 'clients');
+    }
+  };
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (loginForm.username === adminCreds.username && loginForm.password === adminCreds.password) {
+      setIsAuthenticated(true);
+      try { localStorage.setItem('isLoggedIn', 'true'); } catch {}
+      setLoginError('');
+      setLoginForm({ username: '', password: '' });
+    } else {
+      setLoginError('Invalid credentials. Access denied.');
+    }
+  };
+
+  const updateSettings = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await setDoc(doc(db, 'settings', 'admin'), settingsForm);
+      setSettingsMessage('Credentials updated successfully!');
+      setTimeout(() => setSettingsMessage(''), 3000);
+    } catch (e) {
+      setSettingsMessage('Error saving credentials.');
+      handleFirestoreError(e, 'UPDATE', 'settings/admin');
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    console.log("handleGoogleSignIn triggered");
+    if (loginLoading) {
+      console.log("Sign-in already in progress, ignoring request");
+      return;
+    }
+    setLoginLoading(true);
+    setAuthError(null);
+    try {
+      console.log("Initiating Google Sign-in...");
+      await loginWithGoogle();
+      console.log("Google Sign-in popup completed successfully");
+    } catch (e: any) {
+      console.error("Sign-in error details:", e);
+      // Suppress cancelled popup request error as it's common and harmless
+      if (e.code === 'auth/cancelled-popup-request' || e.code === 'auth/popup-closed-by-user') {
+        console.warn("Sign-in popup was cancelled or closed prematurely.");
+      } else if (e.code === 'auth/unauthorized-domain') {
+        setAuthError("This domain is not authorized for Firebase login. Please try again in 1-2 minutes or contact support.");
+      } else if (e.code === 'auth/network-request-failed') {
+        setAuthError("Network error. Please check your internet connection.");
+      } else {
+        setAuthError(e.message || "Failed to sign in. Please try again.");
+      }
+    } finally {
+      setLoginLoading(false);
+    }
+  };
+
+  const handleLogout = () => {
+    setRecoveryAnswer('');
+    setIsAuthenticated(false);
+    try { localStorage.removeItem('isLoggedIn'); } catch {}
+    firebaseLogout();
+  };
+
+  useEffect(() => {
+    let lastWidth = window.innerWidth;
+    const handleResize = () => {
+      const width = window.innerWidth;
+      const isNowMobile = width < 1024;
+      const wasMobile = lastWidth < 1024;
+      
+      if (isNowMobile !== wasMobile) {
+        setIsMobile(isNowMobile);
+        setSidebarOpen(!isNowMobile);
+      }
+      lastWidth = width;
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+      document.body.style.backgroundColor = '#020617';
+    } else {
+      document.documentElement.classList.remove('dark');
+      document.body.style.backgroundColor = '#f8faff';
+    }
+  }, [isDarkMode]);
+
+  const handleInstallClick = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        setDeferredPrompt(null);
+      }
+    }
   };
 
   const navigateToStatement = (clientId: string) => {
@@ -256,6 +417,105 @@ const App: React.FC = () => {
     { id: 'settings', icon: <Settings />, label: "SYSTEM SETTINGS" },
   ];
 
+  if (!isAuthReady) {
+    return (
+      <div className={`min-h-screen flex items-center justify-center transition-colors ${isDarkMode ? 'bg-slate-950' : 'bg-slate-50'}`}>
+        <div className="flex flex-col items-center gap-6 max-w-xs text-center">
+          <div className="relative">
+            <Plane className="text-indigo-600 animate-bounce w-12 h-12" />
+            <div className="absolute inset-0 bg-indigo-600/20 blur-xl animate-pulse"></div>
+          </div>
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Starting Secure Terminal</p>
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest opacity-60">{authStage}</p>
+          </div>
+          {authError && (
+             <div className="mt-4 p-4 bg-rose-500/10 border border-rose-500/20 rounded-2xl text-rose-500 text-[10px] font-bold">
+               {authError}
+               <button 
+                 onClick={() => window.location.reload()}
+                 className="mt-2 block w-full py-2 bg-rose-600 text-white rounded-lg uppercase tracking-widest"
+               >
+                 Reload
+               </button>
+             </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  if (!firebaseUser) {
+    // ... Google Sign-in screen ...
+    return (
+      <div className={`min-h-screen flex items-center justify-center p-4 transition-colors ${isDarkMode ? 'bg-slate-950 text-white' : 'bg-slate-50 text-slate-900'}`}>
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/5 blur-[120px] rounded-full pointer-events-none -z-10"></div>
+        <div className="w-full max-w-md p-8 md:p-12 rounded-[40px] shadow-2xl border transition-all text-center bg-white/50 backdrop-blur-xl border-slate-100">
+          <div className="mb-10">
+            <div className="inline-flex p-4 vibrant-gradient rounded-3xl shadow-lg mb-6">
+              <Lock className="text-white w-8 h-8" />
+            </div>
+            <h1 className="text-3xl font-black tracking-tighter mb-2">SECURE <span className="text-indigo-600">CONNECTION</span></h1>
+            <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">Login to connect database</p>
+          </div>
+
+          {dbError && (
+             <div className="mb-6 p-4 bg-rose-500/10 border border-rose-500/20 rounded-2xl text-rose-500 text-[10px] font-bold animate-in slide-in-from-top-4 duration-300">
+               {dbError}
+             </div>
+          )}
+
+          <button 
+            onClick={handleGoogleSignIn}
+            disabled={loginLoading}
+            className={`w-full py-4 bg-indigo-600 text-white rounded-2xl shadow-xl shadow-indigo-500/30 font-black tracking-widest uppercase hover:scale-[1.02] active:scale-95 transition-all text-sm mb-4 flex items-center justify-center gap-2 ${loginLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
+          >
+            {loginLoading ? (
+              <>
+                <History className="animate-spin" size={18} />
+                Connecting...
+              </>
+            ) : (
+              'Sign in with Google'
+            )}
+          </button>
+          {authError && (
+            <p className="text-[10px] font-bold text-rose-500 uppercase tracking-widest mb-4 bg-rose-500/10 p-2 rounded-xl border border-rose-500/20">
+              {authError}
+            </p>
+          )}
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Authorized travel agency staff only</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Email authorization check
+  const isAuthorized = firebaseUser.email?.toLowerCase() === 'service.glct@gmail.com';
+
+  if (!isAuthorized) {
+    return (
+      <div className={`min-h-screen flex items-center justify-center p-4 transition-colors ${isDarkMode ? 'bg-slate-950 text-white' : 'bg-slate-50 text-slate-900'}`}>
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-rose-600/5 blur-[120px] rounded-full pointer-events-none -z-10"></div>
+        <div className="w-full max-w-md p-10 rounded-[40px] shadow-2xl border transition-all text-center bg-white/50 backdrop-blur-xl border-rose-100">
+          <div className="mb-10">
+            <div className="inline-flex p-4 bg-rose-500 rounded-3xl shadow-lg mb-6">
+              <X className="text-white w-8 h-8" />
+            </div>
+            <h1 className="text-3xl font-black tracking-tighter mb-2">ACCESS <span className="text-rose-600">DENIED</span></h1>
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Account {firebaseUser.email} is not authorized for this terminal.</p>
+          </div>
+          <button 
+            onClick={handleLogout}
+            className="w-full py-4 bg-slate-900 text-white rounded-2xl shadow-xl font-black tracking-widest uppercase hover:scale-[1.02] active:scale-95 transition-all text-sm mb-4"
+          >
+            Use Different Account
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (!isAuthenticated) {
     return (
       <div className={`min-h-screen flex items-center justify-center p-4 transition-colors ${isDarkMode ? 'bg-slate-950 text-white' : 'bg-slate-50 text-slate-900'}`}>
@@ -272,6 +532,12 @@ const App: React.FC = () => {
             </h1>
             <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">Financial Accounts Ledger</p>
           </div>
+
+          {dbError && (
+             <div className="mb-6 p-4 bg-rose-500/10 border border-rose-500/20 rounded-2xl text-rose-500 text-[10px] font-bold animate-in slide-in-from-top-4 duration-300">
+               {dbError}
+             </div>
+          )}
 
           <form onSubmit={handleLogin} className="space-y-6">
             <div className="space-y-2">
@@ -576,13 +842,11 @@ const App: React.FC = () => {
             </button>
             <div className="flex items-center gap-3 shrink-0">
               <div className="text-right hidden md:block">
-                <p className={`text-xs font-black tracking-tight ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>Admin Terminal</p>
-                <p className="text-[10px] text-indigo-500 font-bold uppercase tracking-widest mt-0.5">Global Access</p>
+                <p className={`text-xs font-black tracking-tight ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>{firebaseUser?.displayName || 'Admin Terminal'}</p>
+                <p className="text-[10px] text-indigo-500 font-bold uppercase tracking-widest mt-0.5">{firebaseUser?.email}</p>
               </div>
-              <div className="w-10 h-10 rounded-xl vibrant-gradient p-[1.5px] shadow-lg group cursor-pointer">
-                <div className={`w-full h-full rounded-[10px] overflow-hidden border ${isDarkMode ? 'border-slate-950' : 'border-white'} transition-transform group-hover:scale-95`}>
-                  <img src="https://picsum.photos/80/80?random=1" alt="Avatar" className="w-full h-full object-cover" />
-                </div>
+              <div className="w-10 h-10 rounded-xl vibrant-gradient p-[1.5px] shadow-lg group cursor-pointer overflow-hidden">
+                <img src={firebaseUser?.photoURL || "https://picsum.photos/80/80?random=1"} alt="Avatar" className="w-full h-full object-cover rounded-[10px] border-2 border-transparent group-hover:scale-110 transition-transform" />
               </div>
             </div>
           </div>
@@ -590,6 +854,11 @@ const App: React.FC = () => {
 
         <div className="flex-1 overflow-y-auto p-4 md:p-8 no-scrollbar scroll-smooth">
           <div className="max-w-7xl mx-auto">
+            {dbError && (
+              <div className="mb-6 p-4 bg-rose-500/10 border border-rose-500/20 rounded-2xl text-rose-500 text-xs font-bold animate-in slide-in-from-top-4 duration-300">
+                {dbError}
+              </div>
+            )}
             {activeTab === 'dashboard' && <Dashboard stats={stats} bookings={bookings} isDarkMode={isDarkMode} />}
             {activeTab === 'clients' && <ClientList clients={clients} bookings={bookings} onAdd={addClient} onUpdate={updateClient} onNavigateToStatement={navigateToStatement} isDarkMode={isDarkMode} />}
             {activeTab === 'bookings' && <BookingList bookings={bookings} clients={clients} onAdd={addBooking} onUpdate={updateBooking} onDelete={deleteBooking} isDarkMode={isDarkMode} />}
