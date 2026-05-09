@@ -49,34 +49,34 @@ const Dashboard: React.FC<Props> = ({ stats, bookings, isDarkMode }) => {
   }, [bookings]);
 
   return (
-    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-6 duration-700">
+    <div className="space-y-6 md:space-y-10 animate-in fade-in slide-in-from-bottom-6 duration-700 pb-10">
       {/* Flight Board Style Announcements */}
       {flightAlerts.length > 0 && (
-        <section className={`rounded-[32px] overflow-hidden shadow-2xl transition-all ${
+        <section className={`rounded-2xl md:rounded-[32px] overflow-hidden shadow-2xl transition-all ${
           isDarkMode ? 'bg-[#0f172a] border border-slate-800' : 'bg-white border border-slate-100'
         }`}>
-          <div className={`px-8 py-5 flex items-center justify-between border-b ${isDarkMode ? 'bg-indigo-600/10 border-slate-800' : 'bg-violet-50 border-violet-100'}`}>
-            <div className="flex items-center gap-4">
+          <div className={`px-5 md:px-8 py-4 md:py-5 flex items-center justify-between border-b ${isDarkMode ? 'bg-indigo-600/10 border-slate-800' : 'bg-violet-50 border-violet-100'}`}>
+            <div className="flex items-center gap-3 md:gap-4">
               <div className="relative">
                 <div className="absolute inset-0 bg-violet-600 blur-md opacity-30 animate-pulse-soft"></div>
-                <Bell size={24} className="text-violet-600 relative z-10" />
+                <Bell size={20} className="text-violet-600 md:w-6 md:h-6 relative z-10" />
               </div>
               <div>
-                <h3 className={`font-black text-sm md:text-lg uppercase tracking-tight ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                <h3 className={`font-black text-xs md:text-lg uppercase tracking-tight ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
                   Operational Flight Board
                 </h3>
-                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Real-time Departure Tracking</p>
+                <p className="text-[8px] md:text-[10px] font-bold text-slate-500 uppercase tracking-widest">Real-time Departure Tracking</p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-                <div className={`h-2 w-2 rounded-full bg-emerald-500 animate-pulse`}></div>
-                <span className={`text-xs font-black px-4 py-1.5 rounded-full ${isDarkMode ? 'bg-slate-800 text-slate-300' : 'bg-white text-slate-600 shadow-sm'}`}>
-                {flightAlerts.length} ACTIVE ALERTS
+            <div className="flex items-center gap-2 md:gap-3">
+                <div className={`h-1.5 w-1.5 md:h-2 md:w-2 rounded-full bg-emerald-500 animate-pulse`}></div>
+                <span className={`text-[10px] font-black px-2 md:px-4 py-1 rounded-full ${isDarkMode ? 'bg-slate-800 text-slate-300' : 'bg-white text-slate-600 shadow-sm'}`}>
+                {flightAlerts.length} <span className="hidden xs:inline">ACTIVE</span> ALERTS
                 </span>
             </div>
           </div>
           
-          <div className="p-4 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+          <div className="p-3 md:p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
             {flightAlerts.map(alert => {
               const diffTime = alert.fDate.getTime() - new Date().setHours(0,0,0,0);
               const daysLeft = Math.ceil(diffTime / (1000 * 3600 * 24));
@@ -134,7 +134,7 @@ const Dashboard: React.FC<Props> = ({ stats, bookings, isDarkMode }) => {
       )}
 
       {/* Modern KPI Cards */}
-      <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
         <StatCard 
           label="Total Revenue" 
           value={`৳${stats.totalSales.toLocaleString()}`} 
@@ -169,19 +169,19 @@ const Dashboard: React.FC<Props> = ({ stats, bookings, isDarkMode }) => {
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className={`lg:col-span-2 p-8 rounded-[32px] border transition-all ${isDarkMode ? 'bg-[#0f172a] border-slate-800' : 'bg-white border-slate-100 shadow-xl shadow-slate-200/50'}`}>
-          <div className="flex items-center justify-between mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+        <div className={`lg:col-span-2 p-5 md:p-8 rounded-2xl md:rounded-[32px] border transition-all ${isDarkMode ? 'bg-[#0f172a] border-slate-800' : 'bg-white border-slate-100 shadow-xl shadow-slate-200/50'}`}>
+          <div className="flex items-center justify-between mb-6 md:mb-8">
             <div>
-               <h3 className={`font-black text-lg ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>Revenue Performance</h3>
-               <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Financial Analytics Terminal</p>
+               <h3 className={`font-black text-base md:text-lg ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>Revenue Performance</h3>
+               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Financial Analytics Terminal</p>
             </div>
-            <div className="flex gap-2">
-                <button className={`px-4 py-1.5 rounded-xl text-[10px] font-black tracking-widest uppercase transition-all ${isDarkMode ? 'bg-slate-800 text-slate-300' : 'bg-slate-50 text-slate-500'}`}>WTD</button>
-                <button className="px-4 py-1.5 rounded-xl text-[10px] font-black tracking-widest uppercase vibrant-gradient text-white shadow-lg">MTD</button>
+            <div className="flex gap-1 md:gap-2">
+                <button className={`px-2 md:px-4 py-1 rounded-xl text-[9px] md:text-[10px] font-black tracking-widest uppercase transition-all ${isDarkMode ? 'bg-slate-800 text-slate-300' : 'bg-slate-50 text-slate-500'}`}>WTD</button>
+                <button className="px-2 md:px-4 py-1 rounded-xl text-[9px] md:text-[10px] font-black tracking-widest uppercase vibrant-gradient text-white shadow-lg">MTD</button>
             </div>
           </div>
-          <div className="h-[320px]">
+          <div className="h-[250px] md:h-[320px]">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={chartData}>
                 <defs>
@@ -210,10 +210,10 @@ const Dashboard: React.FC<Props> = ({ stats, bookings, isDarkMode }) => {
           </div>
         </div>
 
-        <div className={`p-8 rounded-[32px] border transition-all ${isDarkMode ? 'bg-[#0f172a] border-slate-800' : 'bg-white border-slate-100 shadow-xl shadow-slate-200/50'}`}>
-          <div className="mb-8">
-            <h3 className={`font-black text-lg ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>Operations Log</h3>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Live Service Pipeline</p>
+        <div className={`p-6 md:p-8 rounded-2xl md:rounded-[32px] border transition-all ${isDarkMode ? 'bg-[#0f172a] border-slate-800' : 'bg-white border-slate-100 shadow-xl shadow-slate-200/50'}`}>
+          <div className="mb-6 md:mb-8">
+            <h3 className={`font-black text-base md:text-lg ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>Operations Log</h3>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Live Service Pipeline</p>
           </div>
           <div className="space-y-4">
             {bookings.length > 0 ? bookings.slice(0, 5).map((booking) => (
@@ -249,25 +249,27 @@ const Dashboard: React.FC<Props> = ({ stats, bookings, isDarkMode }) => {
 };
 
 const StatCard = ({ label, value, icon, trend, gradient, isDarkMode }: any) => (
-  <div className={`p-8 rounded-[32px] border transition-all hover:scale-[1.05] duration-500 ${isDarkMode ? 'bg-[#0f172a] border-slate-800 text-white' : 'bg-white border-slate-100 text-slate-900 shadow-xl shadow-slate-200/40'} relative overflow-hidden group`}>
-    <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${gradient} opacity-[0.03] -mr-16 -mt-16 rounded-full group-hover:scale-150 transition-all duration-700`}></div>
+  <div className={`p-4 md:p-8 rounded-2xl md:rounded-[32px] border transition-all hover:scale-[1.05] duration-500 ${isDarkMode ? 'bg-[#0f172a] border-slate-800 text-white' : 'bg-white border-slate-100 text-slate-900 shadow-xl shadow-slate-200/40'} relative overflow-hidden group`}>
+    <div className={`absolute top-0 right-0 w-24 md:w-32 h-24 md:h-32 bg-gradient-to-br ${gradient} opacity-[0.03] -mr-12 -mt-12 md:-mr-16 md:-mt-16 rounded-full group-hover:scale-150 transition-all duration-700`}></div>
     
-    <div className="flex items-start justify-between mb-6 relative z-10">
-      <div className={`p-4 rounded-2xl bg-gradient-to-br ${gradient} text-white shadow-lg transition-transform group-hover:rotate-6`}>
-        {React.cloneElement(icon, { size: 24 })}
+    <div className="flex items-start justify-between mb-4 md:mb-6 relative z-10">
+      <div className={`p-3 md:p-4 rounded-xl md:rounded-2xl bg-gradient-to-br ${gradient} text-white shadow-lg transition-transform group-hover:rotate-6`}>
+        {React.cloneElement(icon, { size: isMobileWindow() ? 18 : 24 })}
       </div>
-      <div className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${
+      <div className={`px-2 md:px-3 py-1 rounded-full text-[8px] md:text-[10px] font-black uppercase tracking-widest border ${
         trend === 'ACTIVE' || trend === 'REVIEW' ? 'border-amber-500/30 text-amber-500 bg-amber-500/5' : 'border-emerald-500/30 text-emerald-500 bg-emerald-500/5'
       }`}>
         {trend}
       </div>
     </div>
     <div className="relative z-10">
-        <p className={`${isDarkMode ? 'text-slate-400' : 'text-slate-500'} text-[10px] font-black uppercase tracking-[0.2em] mb-1`}>{label}</p>
-        <h4 className="text-3xl font-black tracking-tighter">{value}</h4>
+        <p className={`${isDarkMode ? 'text-slate-400' : 'text-slate-500'} text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] mb-1`}>{label}</p>
+        <h4 className="text-xl md:text-3xl font-black tracking-tighter">{value}</h4>
     </div>
   </div>
 );
+
+const isMobileWindow = () => typeof window !== 'undefined' && window.innerWidth < 768;
 
 const StatusBadge = ({ status, isDarkMode }: { status: BookingStatus, isDarkMode?: boolean }) => {
   const styles = {

@@ -106,7 +106,7 @@ const AIChat: React.FC<Props> = ({ bookings, transactions, isDarkMode }) => {
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && handleSend()}
             placeholder="Query agency performance..."
-            className={`flex-1 px-4 md:px-6 py-2.5 md:py-3 bg-transparent outline-none text-xs md:text-sm font-bold placeholder:text-slate-400 tracking-tight ${
+            className={`flex-1 px-4 md:px-6 py-2.5 md:py-3 bg-transparent outline-none text-base md:text-sm font-bold placeholder:text-slate-400 tracking-tight ${
               isDarkMode ? 'text-white' : 'text-slate-900'
             }`}
           />

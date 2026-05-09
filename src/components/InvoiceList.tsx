@@ -184,7 +184,7 @@ const InvoiceList: React.FC<Props> = ({ bookings, clients, isDarkMode }) => {
               placeholder="Search Client, Hotel, or INV#..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className={`pl-12 pr-6 py-3.5 rounded-2xl border-2 outline-none transition-all text-sm font-bold w-full ${
+              className={`pl-12 pr-6 py-3.5 rounded-2xl border-2 outline-none transition-all text-base md:text-sm font-bold w-full ${
                 isDarkMode ? 'bg-slate-900 border-slate-800 text-white focus:border-violet-500/50' : 'bg-white border-slate-100 focus:border-violet-500/50 shadow-sm'
               }`}
             />
@@ -197,7 +197,7 @@ const InvoiceList: React.FC<Props> = ({ bookings, clients, isDarkMode }) => {
               <select 
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
-                className={`w-full sm:w-auto pl-10 pr-8 py-3.5 rounded-2xl border-2 outline-none text-[10px] font-black uppercase tracking-widest transition-all appearance-none cursor-pointer ${
+                className={`w-full sm:w-auto pl-10 pr-8 py-3.5 rounded-2xl border-2 outline-none text-base sm:text-[10px] font-black uppercase tracking-widest transition-all appearance-none cursor-pointer ${
                   isDarkMode ? 'bg-slate-900 border-slate-800 text-slate-300 focus:border-violet-500/50' : 'bg-white border-slate-100 text-slate-600 shadow-sm focus:border-violet-500/50'
                 }`}
               >
@@ -214,7 +214,7 @@ const InvoiceList: React.FC<Props> = ({ bookings, clients, isDarkMode }) => {
               <select 
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as SortOption)}
-                className={`w-full sm:w-auto pl-10 pr-8 py-3.5 rounded-2xl border-2 outline-none text-[10px] font-black uppercase tracking-widest transition-all appearance-none cursor-pointer ${
+                className={`w-full sm:w-auto pl-10 pr-8 py-3.5 rounded-2xl border-2 outline-none text-base sm:text-[10px] font-black uppercase tracking-widest transition-all appearance-none cursor-pointer ${
                   isDarkMode ? 'bg-slate-900 border-slate-800 text-slate-300 focus:border-violet-500/50' : 'bg-white border-slate-100 text-slate-600 shadow-sm focus:border-violet-500/50'
                 }`}
               >

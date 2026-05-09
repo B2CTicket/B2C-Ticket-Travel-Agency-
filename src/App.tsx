@@ -221,6 +221,14 @@ const App: React.FC = () => {
               label={item.label} 
               active={activeTab === item.id} 
               onClick={() => {
+                if (item.id === 'install') {
+                  if (deferredPrompt) {
+                    handleInstallClick();
+                  } else {
+                    alert("To install the app, use your browser's 'Add to Home Screen' option.");
+                  }
+                  return;
+                }
                 setActiveTab(item.id as any);
                 if (isMobile) setSidebarOpen(false);
               }} 
@@ -230,21 +238,25 @@ const App: React.FC = () => {
           ))}
         </nav>
 
-        <div className={`border-t ${isDarkMode ? 'border-slate-800' : 'border-slate-50'} shrink-0 transition-all duration-500 ${!isSidebarOpen && !isMobile ? 'p-3' : 'p-6'} space-y-3`}>
-             <button 
-              onClick={() => {
-                if (deferredPrompt) {
-                  handleInstallClick();
-                } else {
-                  alert("To install the app, use your browser's 'Add to Home Screen' option.");
-                }
-              }} 
-              title="Install App"
-              className={`w-full flex items-center bg-indigo-600 text-white hover:vibrant-gradient shadow-lg transition-all rounded-2xl ${!isSidebarOpen && !isMobile ? 'justify-center p-3' : 'gap-3 px-4 py-3'}`}
-            >
-              <DownloadCloud size={20} className="shrink-0" />
-              {(isSidebarOpen || isMobile) && <span className="font-bold text-xs uppercase tracking-widest truncate">Install App</span>}
-            </button>
+        <div className={`border-t ${isDarkMode ? 'border-slate-800' : 'border-slate-50'} shrink-0 transition-all duration-500 ${!isSidebarOpen && !isMobile ? 'p-3' : 'p-6'} space-y-4`}>
+           {/* Install App Button */}
+           <button 
+             onClick={handleInstallClick}
+             className={`w-full flex items-center gap-3 transition-all duration-300 rounded-2xl ${
+               !isSidebarOpen && !isMobile ? 'justify-center p-2' : 'p-3'
+             } ${isDarkMode ? 'bg-indigo-600/10 text-indigo-400 border border-indigo-500/20' : 'bg-indigo-50 text-indigo-700 border border-indigo-100'} hover:scale-[1.02] active:scale-95`}
+           >
+             <div className="shrink-0 p-1 bg-indigo-600 text-white rounded-lg shadow-lg">
+               <DownloadCloud size={16} />
+             </div>
+             {(isSidebarOpen || isMobile) && (
+               <div className="text-left animate-in fade-in slide-in-from-left-2 duration-300">
+                 <p className="text-[10px] font-black uppercase tracking-widest leading-none">Download</p>
+                 <p className="text-[8px] font-bold opacity-60 uppercase tracking-tighter mt-0.5">Desktop & Mobile</p>
+               </div>
+             )}
+           </button>
+
            <div className={`flex items-center rounded-2xl transition-all duration-500 ${isDarkMode ? 'bg-slate-800/60' : 'bg-slate-50'} ${!isSidebarOpen && !isMobile ? 'justify-center p-1.5' : 'gap-3 px-3 py-2.5'}`}>
              <button 
               onClick={() => setIsDarkMode(!isDarkMode)} 
@@ -267,17 +279,17 @@ const App: React.FC = () => {
              <button onClick={() => setSidebarOpen(!isSidebarOpen)} className={`p-2 rounded-xl transition-colors ${isDarkMode ? 'text-slate-400 hover:bg-slate-800' : 'text-slate-500 hover:bg-slate-50'}`}>
                <Menu size={22} />
              </button>
-             <div className="relative w-80 hidden lg:block">
+             <div className="relative w-full max-w-md hidden md:block">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
-              <input type="text" placeholder="Search itinerary, PNR..." className={`w-full pl-12 pr-4 py-2.5 ${isDarkMode ? 'bg-slate-900 text-slate-100 border-slate-800' : 'bg-slate-100/50 text-slate-900 border-transparent'} rounded-2xl text-xs font-medium outline-none focus:ring-2 focus:ring-violet-500/20 transition-all`} />
+              <input type="text" placeholder="Search itinerary, PNR..." className={`w-full pl-12 pr-4 py-2.5 ${isDarkMode ? 'bg-slate-900 text-slate-100 border-slate-800' : 'bg-slate-100/50 text-slate-900 border-transparent'} rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-violet-500/20 transition-all`} />
             </div>
           </div>
           
-          <div className="flex items-center gap-3 md:gap-6">
+          <div className="flex items-center gap-2 md:gap-6">
             <button onClick={() => {
               setActiveTab('bookings');
               if (isMobile) setSidebarOpen(false);
-            }} className="vibrant-gradient text-white px-4 md:px-6 py-2.5 rounded-2xl flex items-center gap-2 hover:scale-[1.02] active:scale-95 transition-all text-[10px] md:text-xs font-bold shadow-lg shadow-violet-500/20">
+            }} className="vibrant-gradient text-white px-3 md:px-6 py-2.5 rounded-2xl flex items-center gap-2 hover:scale-[1.02] active:scale-95 transition-all text-[10px] md:text-xs font-bold shadow-lg shadow-violet-500/20 shrink-0">
               <Plus size={18} className="shrink-0" />
               <span className="hidden xs:block">NEW RESERVATION</span>
               <span className="xs:hidden">NEW</span>
@@ -334,7 +346,7 @@ const NavItem = ({ icon, label, active, onClick, collapsed, isDarkMode }: any) =
     `}>
       {React.cloneElement(icon, { size: collapsed ? 24 : 22 })}
     </div>
-    {!collapsed && <span className="font-bold text-xs uppercase tracking-widest truncate">{label}</span>}
+    {!collapsed && <span className="font-bold text-[10px] sm:text-xs uppercase tracking-widest truncate">{label}</span>}
     {active && collapsed && <div className="absolute right-0 w-1.5 h-6 bg-white rounded-l-full"></div>}
   </button>
 );

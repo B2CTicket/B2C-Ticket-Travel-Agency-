@@ -158,60 +158,60 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, isDarkMode }) 
                 </div>
              </div>
 
-             <div className="flex-1 p-10 md:p-14 space-y-8 relative z-10">
-                <div className="flex items-center gap-4">
-                  <div className="px-5 py-2 rounded-2xl bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
-                    <Zap size={14} className="fill-current" /> Priority Mission
+              <div className="flex-1 p-6 md:p-14 space-y-6 md:space-y-8 relative z-10">
+                <div className="flex items-center gap-3 md:gap-4">
+                  <div className="px-3 md:px-5 py-1.5 md:py-2 rounded-xl md:rounded-2xl bg-indigo-600 text-white text-[9px] md:text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                    <Zap size={12} className="fill-current" /> Priority Mission
                   </div>
-                  <div className={`px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest border ${isDarkMode ? 'bg-slate-800 border-slate-700 text-slate-400' : 'bg-slate-50 border-slate-200 text-slate-500'}`}>
+                  <div className={`px-3 md:px-4 py-1.5 md:py-2 rounded-xl md:rounded-2xl text-[9px] md:text-[10px] font-black uppercase tracking-widest border ${isDarkMode ? 'bg-slate-800 border-slate-700 text-slate-400' : 'bg-slate-50 border-slate-200 text-slate-500'}`}>
                     T-Minus: {Math.ceil((new Date(upcomingTravel.flyingDate || upcomingTravel.checkIn || '').getTime() - new Date().getTime()) / (1000 * 3600 * 24))} Days
                   </div>
                 </div>
 
-                <div className="space-y-4">
-                  <h3 className={`text-5xl md:text-6xl font-black tracking-tighter uppercase leading-[0.9] ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                <div className="space-y-3 md:space-y-4">
+                  <h3 className={`text-3xl sm:text-4xl md:text-6xl font-black tracking-tighter uppercase leading-[0.9] ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
                     {upcomingTravel.type === 'Hotel' 
                       ? <><span className="text-indigo-600">STAY @</span> <br/> {upcomingTravel.hotelName}</>
-                      : <>{upcomingTravel.from} <span className="text-indigo-600">➔</span> {upcomingTravel.to}</>
+                      : <>{upcomingTravel.from} <span className="text-indigo-600 font-sans">➔</span> {upcomingTravel.to}</>
                     }
                   </h3>
-                  <div className="flex flex-wrap items-center gap-8">
-                    <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 rounded-[24px] overflow-hidden border-4 border-indigo-500/20 bg-white">
+                  <div className="flex flex-wrap items-center gap-4 md:gap-8">
+                    <div className="flex items-center gap-3 md:gap-4">
+                      <div className="w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-[24px] overflow-hidden border-2 md:border-4 border-indigo-500/20 bg-white shadow-lg">
                         <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${upcomingTravel.clientName}`} className="w-full h-full" />
                       </div>
                       <div>
-                        <p className="text-lg font-black leading-none mb-1">{upcomingTravel.clientName}</p>
-                        <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest font-mono">{upcomingTravel.pnr || 'UNSPECIFIED-ID'}</p>
+                        <p className="text-sm md:text-lg font-black leading-none mb-1">{upcomingTravel.clientName}</p>
+                        <p className="text-[9px] md:text-[11px] font-bold text-slate-500 uppercase tracking-widest font-mono">{upcomingTravel.pnr || 'UNSPECIFIED-ID'}</p>
                       </div>
                     </div>
-                    <div className="h-12 w-px bg-slate-200 dark:bg-slate-800 hidden lg:block"></div>
-                    <div className="space-y-1">
-                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Operation Pulse</p>
-                      <div className="flex items-center gap-3">
-                         <span className={`text-2xl font-black ${isDarkMode ? 'text-indigo-400' : 'text-indigo-600'}`}>৳{upcomingTravel.amount.toLocaleString()}</span>
-                         <span className="px-2 py-0.5 rounded-lg bg-emerald-500/10 text-emerald-500 text-[10px] font-black tracking-widest">+ Settlement Clear</span>
+                    <div className="h-10 w-px bg-slate-200 dark:bg-slate-800 hidden lg:block"></div>
+                    <div className="space-y-0.5 md:space-y-1">
+                      <p className="text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest">Operation Pulse</p>
+                      <div className="flex items-center gap-2 md:gap-3">
+                         <span className={`text-lg md:text-2xl font-black ${isDarkMode ? 'text-indigo-400' : 'text-indigo-600'}`}>৳{upcomingTravel.amount.toLocaleString()}</span>
+                         <span className="hidden xs:inline-block px-2 py-0.5 rounded-lg bg-emerald-500/10 text-emerald-500 text-[10px] font-black tracking-widest">+ Settlement Clear</span>
                       </div>
                     </div>
                   </div>
                 </div>
              </div>
 
-             <div className={`md:w-96 flex flex-col justify-between p-10 md:p-14 relative z-10 ${isDarkMode ? 'bg-indigo-600/10' : 'bg-slate-50'}`}>
-                <div className="space-y-8">
-                   <div className="space-y-4">
-                      <div className="flex items-center justify-between text-[11px] font-black uppercase tracking-widest text-slate-400">
-                         <span>Departure Date</span>
-                         <Calendar size={14} />
+             <div className={`md:w-96 flex flex-col justify-between p-8 md:p-14 relative z-10 ${isDarkMode ? 'bg-indigo-600/10' : 'bg-slate-50'}`}>
+                <div className="space-y-6 md:space-y-8 flex md:flex-col items-center md:items-start justify-between md:justify-start w-full">
+                   <div className="space-y-1 md:space-y-4">
+                      <div className="flex items-center justify-between gap-10 md:gap-0 font-black uppercase tracking-widest text-slate-400">
+                         <span className="text-[8px] md:text-[11px]">Departure Date</span>
+                         <Calendar size={12} className="hidden md:block" />
                       </div>
-                      <p className="text-2xl font-black font-mono tracking-tighter">{upcomingTravel.flyingDate || upcomingTravel.checkIn}</p>
+                      <p className="text-sm md:text-2xl font-black font-mono tracking-tighter">{upcomingTravel.flyingDate || upcomingTravel.checkIn}</p>
                    </div>
-                   <div className="space-y-4">
-                      <div className="flex items-center justify-between text-[11px] font-black uppercase tracking-widest text-slate-400">
-                         <span>Pax Configuration</span>
-                         <Users size={14} />
+                   <div className="space-y-1 md:space-y-4">
+                      <div className="flex items-center justify-between gap-10 md:gap-0 font-black uppercase tracking-widest text-slate-400">
+                         <span className="text-[8px] md:text-[11px]">Pax Config</span>
+                         <Users size={12} className="hidden md:block" />
                       </div>
-                      <p className="text-2xl font-black font-mono tracking-tighter">0{upcomingTravel.pax || 1} UNIT(S)</p>
+                      <p className="text-sm md:text-2xl font-black font-mono tracking-tighter">0{upcomingTravel.pax || 1} UNIT(S)</p>
                    </div>
                 </div>
                 
