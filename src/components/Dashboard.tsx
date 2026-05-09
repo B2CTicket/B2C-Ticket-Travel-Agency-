@@ -43,6 +43,12 @@ const Dashboard: React.FC<Props> = ({ stats, bookings, isDarkMode }) => {
       .sort((a, b) => a.fDate.getTime() - b.fDate.getTime());
   }, [bookings]);
 
+  const totalCostVolume = useMemo(() => {
+    return bookings
+      .filter(b => b.type === 'Air Ticket')
+      .reduce((sum, b) => sum + (b.cost || 0), 0);
+  }, [bookings]);
+
   const todayFlights = useMemo(() => {
     const todayStr = new Date().toISOString().split('T')[0];
     return bookings.filter(b => b.type.toLowerCase() === 'air ticket' && (b.flyingDate === todayStr || b.date === todayStr));
@@ -165,7 +171,7 @@ const Dashboard: React.FC<Props> = ({ stats, bookings, isDarkMode }) => {
       )}
 
       {/* Modern KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 md:gap-6">
         <StatCard 
           label="Total Revenue" 
           value={`৳${stats.totalSales.toLocaleString()}`} 
@@ -188,6 +194,14 @@ const Dashboard: React.FC<Props> = ({ stats, bookings, isDarkMode }) => {
           icon={<Activity />} 
           trend="ACTIVE" 
           gradient="from-amber-500 to-orange-500"
+          isDarkMode={isDarkMode}
+        />
+        <StatCard 
+          label="Total Ticket Cost" 
+          value={`৳${totalCostVolume.toLocaleString()}`} 
+          icon={<Banknote />} 
+          trend="COST" 
+          gradient="from-rose-500 to-pink-500"
           isDarkMode={isDarkMode}
         />
         <StatCard 

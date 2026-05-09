@@ -734,7 +734,8 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
                     </div>
                  </section>
 
-                  {/* Status Selection */}
+                {/* Status Selection (Removed as requested) */}
+                <div className="hidden">
                   <section className="space-y-3">
                     <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Booking Status</label>
                     <div className="flex p-1 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
@@ -754,6 +755,7 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
                       ))}
                     </div>
                   </section>
+                </div>
 
                  {/* Information Grid */}
                  <section className="space-y-6">

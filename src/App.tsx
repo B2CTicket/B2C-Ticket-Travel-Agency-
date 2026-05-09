@@ -190,11 +190,12 @@ const App: React.FC = () => {
       .reduce((sum, t) => sum + t.amount, 0);
     
     const totalExpense = transactions
-      .filter(t => t.type === TransactionType.EXPENSE)
+      .filter(t => t.type === TransactionType.EXPENSE && !t.category.toLowerCase().includes('cost'))
       .reduce((sum, t) => sum + t.amount, 0);
 
     const netProfit = totalIncome - totalExpense;
-    const pendingCount = bookings.filter(b => b.status === BookingStatus.PENDING).length;
+    const pendingCount = bookings.filter(b => b.status && b.status.toString().toUpperCase() === BookingStatus.PENDING).length;
+    console.log("App - pendingCount:", pendingCount, "bookings:", bookings.length);
 
     return { 
       totalSales: totalIncome, 
