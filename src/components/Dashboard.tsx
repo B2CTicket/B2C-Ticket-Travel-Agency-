@@ -45,7 +45,7 @@ const Dashboard: React.FC<Props> = ({ stats, bookings, isDarkMode }) => {
 
   const todayFlights = useMemo(() => {
     const todayStr = new Date().toISOString().split('T')[0];
-    return bookings.filter(b => b.type.toLowerCase() === 'air ticket' && b.flyingDate === todayStr);
+    return bookings.filter(b => b.type.toLowerCase() === 'air ticket' && (b.flyingDate === todayStr || b.date === todayStr));
   }, [bookings]);
 
   const handleExportAudit = () => {

@@ -194,7 +194,7 @@ const App: React.FC = () => {
       .reduce((sum, t) => sum + t.amount, 0);
 
     const netProfit = totalIncome - totalExpense;
-    const pendingCount = bookings.filter(b => b.status.toUpperCase() === BookingStatus.PENDING).length;
+    const pendingCount = bookings.filter(b => b.status === BookingStatus.PENDING).length;
 
     return { 
       totalSales: totalIncome, 
@@ -212,7 +212,7 @@ const App: React.FC = () => {
       await addDoc(collection(db, 'transactions'), {
         date: new Date().toISOString().split('T')[0],
         category: `${newBooking.type} Sale`,
-        amount: newBooking.amount - newBooking.cost,
+        amount: newBooking.amount,
         type: TransactionType.INCOME,
         bookingId: bookingRef.id,
         reference: `BOOKING-${bookingRef.id}`,
@@ -245,7 +245,7 @@ const App: React.FC = () => {
       const linkedIncome = transactions.find(t => t.bookingId === id && t.type === TransactionType.INCOME);
       if (linkedIncome) {
         await updateDoc(doc(db, 'transactions', linkedIncome.id), {
-          amount: updatedBooking.amount - updatedBooking.cost,
+          amount: updatedBooking.amount,
           category: `${updatedBooking.type} Sale`
         });
       }
