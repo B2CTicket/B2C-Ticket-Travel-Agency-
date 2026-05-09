@@ -56,6 +56,17 @@ const App: React.FC = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: any) => {
+      console.log('Capture beforeinstallprompt event');
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+  }, []);
+
   // Firebase Auth State
   const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
   const [isAuthReady, setIsAuthReady] = useState(false);
@@ -417,8 +428,13 @@ const App: React.FC = () => {
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
       if (outcome === 'accepted') {
+        console.log('User accepted the A2HS prompt');
         setDeferredPrompt(null);
+      } else {
+        console.log('User dismissed the A2HS prompt');
       }
+    } else {
+      alert("To download this app:\n\n1. On Android/Chrome: Use the 'Install' option in your browser menu.\n2. On iOS/Safari: Tap 'Share' then 'Add to Home Screen'.");
     }
   };
 
@@ -638,7 +654,7 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className={`flex h-screen overflow-hidden font-sans transition-all duration-500 ${isDarkMode ? 'bg-slate-950 text-slate-100' : 'bg-[#f8faff] text-slate-900'}`}>
+    <div className={`flex h-screen overflow-hidden font-sans transition-all duration-500 pb-safe ${isDarkMode ? 'bg-slate-950 text-slate-100' : 'bg-[#f8faff] text-slate-900'}`}>
       
       {/* Sidebar Overlay for Mobile */}
       {isMobile && isSidebarOpen && (
@@ -746,8 +762,7 @@ const App: React.FC = () => {
       <main className="flex-1 flex flex-col overflow-hidden relative">
         {/* Subtle Background Accent */}
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/5 blur-[120px] rounded-full pointer-events-none -z-10"></div>
-        
-        <header className={`h-20 ${isDarkMode ? 'bg-slate-950/80 border-slate-800' : 'bg-white/90 border-slate-100'} backdrop-blur-xl border-b flex items-center justify-between px-4 md:px-8 shrink-0 z-30 transition-all sticky top-0`}>
+        <header className={`h-20 pt-safe ${isDarkMode ? 'bg-slate-950/80 border-slate-800' : 'bg-white/90 border-slate-100'} backdrop-blur-xl border-b flex items-center justify-between px-4 md:px-8 shrink-0 z-30 transition-all sticky top-0`}>
           <div className="flex items-center gap-2 md:gap-4 flex-1">
              <button 
                 onClick={() => setSidebarOpen(!isSidebarOpen)} 
@@ -800,7 +815,7 @@ const App: React.FC = () => {
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto p-4 md:p-8 no-scrollbar scroll-smooth">
+        <div className={`flex-1 overflow-y-auto p-4 md:p-8 no-scrollbar scroll-smooth ${isMobile ? 'pb-28' : ''}`}>
           <div className="max-w-7xl mx-auto">
             {dbError && (
               <div className="mb-6 p-4 bg-rose-500/10 border border-rose-500/20 rounded-2xl text-rose-500 text-xs font-bold animate-in slide-in-from-top-4 duration-300">
@@ -911,6 +926,44 @@ const App: React.FC = () => {
           </div>
         </div>
       </main>
+
+      {/* Mobile Bottom Navigation */}
+      {isMobile && (
+        <nav className={`fixed bottom-0 left-0 right-0 z-[100] px-4 pb-safe pt-2 ${isDarkMode ? 'bg-slate-900/80' : 'bg-white/90'} backdrop-blur-xl border-t ${isDarkMode ? 'border-slate-800' : 'border-slate-100'} flex items-center justify-around animate-in slide-in-from-bottom-full duration-500`}>
+          {menuItems.slice(0, 5).map(item => (
+            <button
+              key={item.id}
+              onClick={() => setActiveTab(item.id as any)}
+              className={`flex flex-col items-center gap-1.5 py-2 px-3 rounded-2xl transition-all ${
+                activeTab === item.id 
+                  ? isDarkMode ? 'text-indigo-400' : 'text-indigo-600'
+                  : 'text-slate-400'
+              }`}
+            >
+              <div className={`transition-transform duration-300 ${activeTab === item.id ? 'scale-110' : ''}`}>
+                {React.cloneElement(item.icon as React.ReactElement, { size: 20 })}
+              </div>
+              <span className={`text-[8px] font-black uppercase tracking-widest ${activeTab === item.id ? 'opacity-100' : 'opacity-60'}`}>
+                {item.label.split(' ')[0]}
+              </span>
+              {activeTab === item.id && (
+                <div className="absolute -bottom-1 w-1 h-1 rounded-full vibrant-gradient"></div>
+              )}
+            </button>
+          ))}
+          <button
+            onClick={() => setActiveTab('settings')}
+            className={`flex flex-col items-center gap-1.5 py-2 px-3 rounded-2xl transition-all ${
+              activeTab === 'settings' 
+                ? isDarkMode ? 'text-indigo-400' : 'text-indigo-600'
+                : 'text-slate-400'
+            }`}
+          >
+            <Settings size={20} />
+            <span className="text-[8px] font-black uppercase tracking-widest opacity-60">System</span>
+          </button>
+        </nav>
+      )}
     </div>
   );
 };

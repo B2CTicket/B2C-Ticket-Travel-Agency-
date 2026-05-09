@@ -29,10 +29,10 @@ console.log("main.tsx: Starting render process");
 
 // PWA Service Worker Registration
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.getRegistrations().then(function(registrations) {
-    for(let registration of registrations) {
-      registration.unregister();
-    }
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then(reg => console.log('SW Registered:', reg))
+      .catch(err => console.log('SW Registration Failed:', err));
   });
 }
 

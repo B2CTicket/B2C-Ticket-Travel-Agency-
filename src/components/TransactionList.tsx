@@ -160,6 +160,34 @@ const TransactionList: React.FC<Props> = ({ transactions, stats, onAddTransactio
     setFilterType('ALL');
   };
 
+  const handleExportCSV = () => {
+    if (filteredTransactions.length === 0) return;
+    
+    const headers = ["Date", "Category", "Reference", "Type", "Amount (BDT)"];
+    const rows = filteredTransactions.map(t => [
+      t.date,
+      t.category.replace(/,/g, ' '),
+      (t.reference || "N/A").replace(/,/g, ' '),
+      t.type,
+      t.amount
+    ]);
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map(row => row.join(","))
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `ledger_export_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const handlePrintLedger = () => {
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
@@ -299,6 +327,13 @@ const TransactionList: React.FC<Props> = ({ transactions, stats, onAddTransactio
               title="Print Financial Report"
             >
               <Printer size={18} />
+            </button>
+            <button 
+              onClick={handleExportCSV}
+              className={`flex-1 md:flex-initial p-2.5 flex justify-center rounded-2xl transition-all ${isDarkMode ? 'bg-slate-800 text-slate-400 hover:text-white' : 'bg-slate-50 text-slate-400 hover:text-emerald-600 shadow-sm'}`}
+              title="Download CSV Ledger"
+            >
+              <FileSpreadsheet size={18} />
             </button>
             <button 
               onClick={resetFilters}
