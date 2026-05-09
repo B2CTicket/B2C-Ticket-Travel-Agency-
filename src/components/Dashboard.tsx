@@ -48,6 +48,37 @@ const Dashboard: React.FC<Props> = ({ stats, bookings, isDarkMode }) => {
     return bookings.filter(b => b.type === 'Air Ticket' && b.flyingDate === todayStr);
   }, [bookings]);
 
+  const handleExportAudit = () => {
+    if (bookings.length === 0) return;
+    
+    const headers = ["Reference", "Date", "Client", "Type", "Status", "Amount (BDT)", "Cost (BDT)", "Profit (BDT)"];
+    const rows = bookings.map(b => [
+      b.id.toUpperCase(),
+      b.date,
+      b.clientName,
+      b.type,
+      b.status,
+      b.amount,
+      b.cost,
+      b.amount - b.cost
+    ]);
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map(row => row.join(","))
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `audit_report_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="space-y-6 md:space-y-10 animate-in fade-in slide-in-from-bottom-6 duration-700 pb-10">
       {/* Flight Board Style Announcements */}
@@ -237,10 +268,12 @@ const Dashboard: React.FC<Props> = ({ stats, bookings, isDarkMode }) => {
               </div>
             )}
           </div>
-          <button className={`w-full mt-8 py-4 text-[10px] tracking-widest font-black uppercase rounded-2xl transition-all ${
+          <button 
+            onClick={handleExportAudit}
+            className={`w-full mt-8 py-4 text-[10px] tracking-widest font-black uppercase rounded-2xl transition-all ${
             isDarkMode ? 'bg-slate-800 text-slate-300 hover:bg-slate-700' : 'bg-violet-50 text-violet-700 hover:bg-violet-100'
           }`}>
-            GENERATE FULL AUDIT
+            EXPORT AUDIT REPORT
           </button>
         </div>
       </div>

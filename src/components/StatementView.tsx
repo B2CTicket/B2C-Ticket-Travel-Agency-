@@ -98,16 +98,21 @@ const StatementView: React.FC<Props> = ({ clients, bookings, transactions, defau
   const handlePrint = () => {
     if (!selectedClient) return;
     const printWindow = window.open('', '_blank');
-    if (!printWindow) return;
+    if (!printWindow) {
+      alert("The report viewer was blocked. Please allow popups for this site to view/print statements.");
+      return;
+    }
 
     const html = `
       <!DOCTYPE html>
       <html>
       <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Account Statement - ${selectedClient.name}</title>
         <style>
           @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
-          body { font-family: 'Plus Jakarta Sans', sans-serif; padding: 40px; color: #0f172a; }
+          body { font-family: 'Plus Jakarta Sans', sans-serif; padding: 40px; color: #0f172a; line-height: 1.5; background: #fff; }
           .header { display: flex; justify-content: space-between; border-bottom: 3px solid #7c3aed; padding-bottom: 20px; margin-bottom: 40px; }
           .logo { font-size: 24px; font-weight: 800; color: #7c3aed; }
           .logo span { color: #2563eb; }
@@ -123,7 +128,7 @@ const StatementView: React.FC<Props> = ({ clients, bookings, transactions, defau
           .total-table { width: 320px; border: 2px solid #7c3aed; border-radius: 12px; padding: 20px; }
           .total-row { display: flex; justify-content: space-between; padding: 5px 0; font-size: 13px; font-weight: 600; }
           .grand-total { font-size: 18px; font-weight: 800; color: #7c3aed; margin-top: 10px; border-top: 1px solid #e2e8f0; padding-top: 10px; }
-          @media print { .no-print { display: none; } }
+          @media print { .no-print { display: none; } body { padding: 20px; } }
         </style>
       </head>
       <body>
@@ -142,7 +147,7 @@ const StatementView: React.FC<Props> = ({ clients, bookings, transactions, defau
             <h4>Client Information</h4>
             <p><strong>${selectedClient.name}</strong></p>
             <p>${selectedClient.phone}</p>
-            <p>${selectedClient.email}</p>
+            <p>${selectedClient.email || 'N/A'}</p>
             <p>${selectedClient.address || ''}</p>
           </div>
           <div style="text-align: right">
@@ -193,7 +198,16 @@ const StatementView: React.FC<Props> = ({ clients, bookings, transactions, defau
             <div class="total-row grand-total"><span>Closing Balance</span><span>৳${(openingBalance + periodTotals.debit - periodTotals.credit).toLocaleString()}</span></div>
           </div>
         </div>
-        <script>window.print();</script>
+        <script>
+          window.onload = function() {
+            window.print();
+            setTimeout(function() { 
+              if (window.matchMedia('(pointer: fine)').matches) {
+                window.close(); 
+              }
+            }, 1000);
+          };
+        </script>
       </body>
       </html>
     `;

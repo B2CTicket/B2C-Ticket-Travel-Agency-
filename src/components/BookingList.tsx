@@ -91,6 +91,129 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
     });
   };
 
+  const handleExportData = () => {
+    if (!selectedBooking) return;
+    
+    const b = selectedBooking;
+    const client = clients.find(c => c.id === b.clientId);
+    
+    // Creating a more reliable print implementation for both mobile and desktop
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      alert("Please allow popups to export the invoice.");
+      return;
+    }
+
+    const invoiceHTML = `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Invoice - ${b.id.toUpperCase()}</title>
+        <style>
+          @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+          body { font-family: 'Plus Jakarta Sans', sans-serif; padding: 20px; color: #1e293b; line-height: 1.5; background: #fff; }
+          .container { max-width: 800px; margin: 0 auto; border: 1px solid #e2e8f0; padding: 40px; border-radius: 16px; }
+          .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; border-bottom: 2px solid #6366f1; padding-bottom: 20px; }
+          .logo { font-size: 24px; font-weight: 800; color: #6366f1; }
+          .logo span { color: #3b82f6; }
+          .inv-details { text-align: right; }
+          .inv-details h2 { font-size: 28px; margin: 0; font-weight: 800; color: #0f172a; }
+          .inv-meta { font-size: 12px; color: #64748b; margin-top: 5px; font-weight: 600; }
+          .billing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px; }
+          .section-title { font-size: 9px; text-transform: uppercase; font-weight: 800; color: #94a3b8; letter-spacing: 0.15em; margin-bottom: 10px; border-bottom: 1px solid #f1f5f9; padding-bottom: 4px; }
+          .info-box h4 { font-size: 15px; margin: 0 0 4px 0; font-weight: 700; }
+          .info-box p { font-size: 12px; margin: 1px 0; color: #475569; }
+          table { width: 100%; border-collapse: collapse; margin-bottom: 25px; }
+          th { text-align: left; background: #f8fafc; padding: 12px; border-bottom: 2px solid #e2e8f0; font-size: 10px; text-transform: uppercase; color: #64748b; font-weight: 800; }
+          td { padding: 12px; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+          .item-desc { font-weight: 700; color: #1e293b; }
+          .totals-container { display: flex; justify-content: flex-end; }
+          .totals-table { width: 220px; }
+          .total-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 13px; font-weight: 600; }
+          .grand-total { border-top: 2px solid #e2e8f0; margin-top: 8px; padding-top: 12px; font-weight: 800; font-size: 18px; color: #6366f1; }
+          .footer { margin-top: 40px; text-align: center; border-top: 1px solid #f1f5f9; padding-top: 20px; font-size: 10px; color: #94a3b8; }
+          @media print { 
+            body { padding: 0; }
+            .container { border: none; padding: 20px; }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <div class="logo">B2C <span>TRAVEL</span></div>
+            <div class="inv-details">
+              <h2>INVOICE</h2>
+              <div class="inv-meta">
+                Ref: ${b.id.split('-')[0].toUpperCase()}<br>
+                Booking Date: ${new Date(b.date).toLocaleDateString()}<br>
+                Status: ${b.status}
+              </div>
+            </div>
+          </div>
+
+          <div class="billing-grid">
+            <div class="info-box">
+              <div class="section-title">Billing To</div>
+              <h4>${b.clientName}</h4>
+              <p>Phone: ${b.clientPhone || 'N/A'}</p>
+              <p>Service Date: ${b.flyingDate || b.checkIn || 'N/A'}</p>
+            </div>
+            <div class="info-box">
+              <div class="section-title">Reservation Details</div>
+              <p><strong>Category:</strong> ${b.type}</p>
+              <p><strong>Pax:</strong> ${b.pax || 1} Person(s)</p>
+              <p><strong>Reference:</strong> ${b.pnr?.toUpperCase() || 'UNSPECIFIED'}</p>
+              ${b.type === 'Hotel' ? `<p><strong>Hotel:</strong> ${b.hotelName || 'N/A'}</p>` : `<p><strong>Route:</strong> ${b.from || '--'} TO ${b.to || '--'}</p>`}
+            </div>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 75%">Description</th>
+                <th style="text-align: right; width: 25%">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <div class="item-desc">${b.description || b.type + ' Reservation'}</div>
+                  <div style="font-size: 10px; color: #64748b; margin-top: 4px;">Date: ${b.flyingDate || b.checkIn || b.date} | Pax: ${b.pax || 1}</div>
+                </td>
+                <td style="text-align: right; font-weight: 700;">৳${b.amount.toLocaleString()}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="totals-container">
+            <div class="totals-table">
+              <div class="total-row"><span>Subtotal</span><span>৳${b.amount.toLocaleString()}</span></div>
+              <div class="total-row grand-total"><span>Grand Total</span><span>৳${b.amount.toLocaleString()}</span></div>
+            </div>
+          </div>
+
+          <div class="footer">
+            <p>This is a computer-generated document. No signature required.</p>
+            <p style="margin-top: 5px;">B2C Ticket Accountings - Logistics Management Terminal</p>
+          </div>
+        </div>
+        <script>
+          window.onload = function() {
+            window.print();
+            setTimeout(function() { window.close(); }, 500);
+          };
+        </script>
+      </body>
+      </html>
+    `;
+
+    printWindow.document.write(invoiceHTML);
+    printWindow.document.close();
+  };
+
   const handleEdit = (booking: Booking) => {
     setFormData({
       clientId: booking.clientId || '',
@@ -540,6 +663,7 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
                     Edit Reservation
                   </button>
                   <button 
+                    onClick={handleExportData}
                     className="flex-1 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold uppercase tracking-widest shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2 transition-all active:scale-95"
                   >
                     <Download size={18} />

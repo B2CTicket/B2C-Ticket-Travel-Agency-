@@ -66,6 +66,35 @@ const ClientList: React.FC<Props> = ({ clients, bookings, onAdd, onUpdate, onNav
     window.location.href = `mailto:${email}`;
   };
 
+  const handleDownloadDirectory = () => {
+    if (clients.length === 0) return;
+    
+    const headers = ["Name", "Email", "Phone", "Passport", "Address", "Total Billed"];
+    const rows = clients.map(c => [
+      c.name.replace(/,/g, ' '),
+      c.email,
+      c.phone,
+      (c.passportNumber || "").replace(/,/g, ' '),
+      (c.address || "").replace(/,/g, ' '),
+      getClientTotalBilled(c.id)
+    ]);
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map(row => row.join(","))
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `clients_directory_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="animate-in fade-in slide-in-from-right-4 duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
@@ -73,13 +102,24 @@ const ClientList: React.FC<Props> = ({ clients, bookings, onAdd, onUpdate, onNav
           <h2 className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>Client Directory</h2>
           <p className={`${isDarkMode ? 'text-slate-400' : 'text-slate-500'} text-sm`}>Manage your customer database and profiles</p>
         </div>
-        <button 
-          onClick={openAddModal}
-          className="vibrant-gradient text-white px-6 py-2.5 rounded-2xl flex items-center gap-2 hover:scale-[1.02] active:scale-95 transition-all text-sm font-bold shadow-lg shadow-violet-500/20"
-        >
-          <Plus size={18} />
-          Register New Client
-        </button>
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={handleDownloadDirectory}
+            className={`px-6 py-2.5 rounded-2xl flex items-center gap-2 hover:scale-[1.02] active:scale-95 transition-all text-sm font-bold border transition-all ${
+              isDarkMode ? 'bg-slate-800 border-slate-700 text-slate-300 hover:text-emerald-400' : 'bg-slate-50 border-slate-100 text-slate-700 hover:text-emerald-700'
+            }`}
+          >
+            <Download size={18} />
+            Export Directory
+          </button>
+          <button 
+            onClick={openAddModal}
+            className="vibrant-gradient text-white px-6 py-2.5 rounded-2xl flex items-center gap-2 hover:scale-[1.02] active:scale-95 transition-all text-sm font-bold shadow-lg shadow-violet-500/20"
+          >
+            <Plus size={18} />
+            Register New Client
+          </button>
+        </div>
       </div>
 
       <div className={`rounded-[32px] border-2 shadow-2xl overflow-hidden transition-all ${

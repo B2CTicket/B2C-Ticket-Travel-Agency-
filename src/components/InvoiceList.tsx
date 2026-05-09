@@ -46,17 +46,21 @@ const InvoiceList: React.FC<Props> = ({ bookings, clients, isDarkMode }) => {
   const handlePrint = (booking: Booking) => {
     const client = clients.find(c => c.id === booking.clientId);
     const printWindow = window.open('', '_blank');
-    if (!printWindow) return;
+    if (!printWindow) {
+      alert("The invoice viewer was blocked. Please allow popups for this site to download/print invoices.");
+      return;
+    }
 
     const invoiceHTML = `
       <!DOCTYPE html>
       <html lang="en">
       <head>
         <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Invoice - ${booking.id.toUpperCase()}</title>
         <style>
           @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
-          body { font-family: 'Plus Jakarta Sans', sans-serif; padding: 40px; color: #0f172a; line-height: 1.6; background: #fff; }
+          body { font-family: 'Plus Jakarta Sans', sans-serif; padding: 30px; color: #0f172a; line-height: 1.6; background: #fff; }
           .container { max-width: 800px; margin: 0 auto; border: 1px solid #e2e8f0; padding: 40px; border-radius: 12px; }
           .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px; border-bottom: 2px solid #7c3aed; padding-bottom: 20px; }
           .logo { font-size: 28px; font-weight: 800; color: #7c3aed; letter-spacing: -1px; }
@@ -77,7 +81,7 @@ const InvoiceList: React.FC<Props> = ({ bookings, clients, isDarkMode }) => {
           .total-row { display: flex; justify-content: space-between; padding: 10px 0; font-size: 14px; font-weight: 600; }
           .grand-total { border-top: 2px solid #e2e8f0; margin-top: 10px; padding-top: 15px; font-weight: 800; font-size: 20px; color: #7c3aed; }
           .footer { margin-top: 50px; text-align: center; border-top: 1px solid #f1f5f9; padding-top: 20px; font-size: 11px; color: #94a3b8; }
-          @media print { .no-print { display: none; } }
+          @media print { .no-print { display: none; } body { padding: 0; } .container { border: none; } }
         </style>
       </head>
       <body>
@@ -151,13 +155,55 @@ const InvoiceList: React.FC<Props> = ({ bookings, clients, isDarkMode }) => {
             <p style="margin-top: 10px; font-weight: 700;">Authorized Electronic Signature</p>
           </div>
         </div>
-        <script>window.print();</script>
+        <script>
+          window.onload = function() {
+            window.print();
+            // On mobile, window.close might not work as expected or might be annoying
+            // but for desktop it helps clean up. We add a small delay.
+            setTimeout(function() { 
+              if (window.matchMedia('(pointer: fine)').matches) {
+                window.close(); 
+              }
+            }, 1000);
+          };
+        </script>
       </body>
       </html>
     `;
 
     printWindow.document.write(invoiceHTML);
     printWindow.document.close();
+  };
+
+  const handleDownloadAll = () => {
+    if (filteredInvoices.length === 0) return;
+    
+    // Create a simple CSV for "Download All" as it's more portable for multiple records
+    const headers = ["Invoice ID", "Date", "Client", "Service", "Pax", "Status", "Amount (BDT)"];
+    const rows = filteredInvoices.map(inv => [
+      `INV-${inv.id.toUpperCase()}`,
+      inv.date,
+      inv.clientName,
+      inv.type,
+      inv.pax || 1,
+      inv.status,
+      inv.amount
+    ]);
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map(row => row.join(","))
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `invoices_export_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -191,6 +237,16 @@ const InvoiceList: React.FC<Props> = ({ bookings, clients, isDarkMode }) => {
           </div>
           
           <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+            <button 
+              onClick={handleDownloadAll}
+              className={`w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all ${
+                isDarkMode ? 'bg-emerald-600/10 text-emerald-400 hover:bg-emerald-600/20' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+              }`}
+            >
+              <Download size={14} />
+              Export All
+            </button>
+
             {/* Status Filter Dropdown */}
             <div className="relative group w-full sm:w-auto">
               <Filter className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
