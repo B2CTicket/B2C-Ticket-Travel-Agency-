@@ -499,7 +499,7 @@ const App: React.FC = () => {
 
   if (!isAuthReady) {
     return (
-      <div className={`min-h-screen flex items-center justify-center transition-colors ${isDarkMode ? 'bg-slate-950' : 'bg-slate-50'}`}>
+      <div className={`min-h-[100dvh] flex items-center justify-center transition-colors ${isDarkMode ? 'bg-slate-950' : 'bg-slate-50'}`}>
         <div className="flex flex-col items-center gap-6 max-w-xs text-center">
           <Plane className="text-indigo-600 animate-bounce w-12 h-12" />
         </div>
@@ -509,7 +509,7 @@ const App: React.FC = () => {
 
   if (!isAuthenticated) {
     return (
-      <div className={`min-h-screen flex items-center justify-center p-4 transition-colors ${isDarkMode ? 'bg-slate-950 text-white' : 'bg-slate-50 text-slate-900'}`}>
+      <div className={`min-h-[100dvh] flex items-center justify-center p-4 transition-colors ${isDarkMode ? 'bg-slate-950 text-white' : 'bg-slate-50 text-slate-900'}`}>
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/5 blur-[120px] rounded-full pointer-events-none -z-10"></div>
         <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-violet-600/5 blur-[120px] rounded-full pointer-events-none -z-10"></div>
         
@@ -695,7 +695,7 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className={`flex h-screen overflow-hidden font-sans transition-all duration-500 pb-safe ${isDarkMode ? 'bg-slate-950 text-slate-100' : 'bg-[#f8faff] text-slate-900'}`}>
+    <div className={`flex h-[100dvh] overflow-hidden font-sans transition-all duration-500 pb-safe ${isDarkMode ? 'bg-slate-950 text-slate-100' : 'bg-[#f8faff] text-slate-900'}`}>
       
       {/* Sidebar Overlay for Mobile */}
       {isMobile && isSidebarOpen && (
@@ -739,7 +739,7 @@ const App: React.FC = () => {
           )}
         </div>
 
-        <nav className="flex-1 px-4 space-y-1 mt-4 overflow-y-auto no-scrollbar">
+        <nav className="flex-1 px-4 mt-4 overflow-y-auto no-scrollbar min-h-0">
           <div className="space-y-1">
             {menuItems.map(item => (
               <NavItem 
@@ -756,7 +756,7 @@ const App: React.FC = () => {
               />
             ))}
           </div>
-          <div className="pt-4 mt-4 border-t border-slate-100 dark:border-slate-800">
+          <div className="pt-4 mt-4 pb-4 border-t border-slate-100 dark:border-slate-800">
             <NavItem 
               icon={<History className="rotate-180" />} 
               label="SIGN OUT" 
