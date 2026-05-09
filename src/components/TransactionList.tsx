@@ -446,67 +446,110 @@ const TransactionList: React.FC<Props> = ({ transactions, stats, onAddTransactio
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Category</label>
-                  <div className="relative">
-                    <Tag className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-                    <select 
-                      required
-                      value={isCustom ? 'CUSTOM' : formData.category}
-                      onChange={e => {
-                        if (e.target.value === 'CUSTOM') {
-                          setIsCustom(true);
-                          setFormData({...formData, category: ''});
-                        } else {
-                          setIsCustom(false);
-                          setFormData({...formData, category: e.target.value});
-                        }
-                      }}
-                      className={`w-full pl-12 pr-10 py-4 border-2 rounded-2xl outline-none text-sm font-bold appearance-none transition-all ${isDarkMode ? 'bg-slate-800 border-slate-700 focus:border-violet-500/50' : 'bg-slate-50 border-slate-100 focus:border-violet-500/50'}`}
-                    >
-                      <option value="">Select Category</option>
-                      {categories[formData.type].map(cat => <option key={cat} value={cat}>{cat}</option>)}
-                      <option value="CUSTOM">Other (Manual Type...)</option>
-                    </select>
-                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={16} />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div className="md:col-span-2">
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Category Selection</label>
+                    <div className="relative group">
+                      <Tag className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${isDarkMode ? 'text-slate-500 group-focus-within:text-violet-400' : 'text-slate-400 group-focus-within:text-violet-600'}`} size={18} />
+                      <select 
+                        required
+                        value={isCustom ? 'CUSTOM' : formData.category}
+                        onChange={e => {
+                          const val = e.target.value;
+                          if (val === 'CUSTOM') {
+                            setIsCustom(true);
+                            setFormData({...formData, category: 'Other'});
+                          } else {
+                            setIsCustom(false);
+                            setFormData({...formData, category: val});
+                          }
+                        }}
+                        className={`w-full pl-12 pr-10 py-4 border-2 rounded-2xl outline-none text-base md:text-sm font-bold appearance-none transition-all cursor-pointer ${
+                          isDarkMode 
+                            ? 'bg-slate-800 border-slate-700 text-white focus:border-violet-500/50 hover:border-slate-600' 
+                            : 'bg-slate-50 border-slate-100 text-slate-900 focus:border-violet-500/50 hover:border-slate-200'
+                        }`}
+                      >
+                        <option value="" disabled>Select a Category...</option>
+                        <optgroup label="Standard Categories">
+                          {categories[formData.type].map(cat => (
+                            <option key={cat} value={cat}>{cat}</option>
+                          ))}
+                        </optgroup>
+                        <optgroup label="Manual Entry">
+                          <option value="CUSTOM">✎ Custom (Type Manually...)</option>
+                        </optgroup>
+                      </select>
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                        <ChevronDown size={18} className="text-slate-400" />
+                      </div>
+                    </div>
                   </div>
-                </div>
 
-                {isCustom && (
-                  <div className="animate-in slide-in-from-top-2 duration-300">
-                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Custom Category Name</label>
-                    <input 
-                      required
-                      type="text"
-                      placeholder="Type custom category name..."
-                      value={customCategory}
-                      onChange={e => setCustomCategory(e.target.value)}
-                      className={`w-full px-6 py-4 border-2 rounded-2xl outline-none text-sm font-bold transition-all ${isDarkMode ? 'bg-slate-800 border-slate-700 focus:border-violet-500/50' : 'bg-slate-50 border-slate-100 focus:border-violet-500/50'}`}
-                    />
+                  {/* Progressive Disclosure for Custom Category */}
+                  {(isCustom || formData.category.includes('Other')) && (
+                    <div className="md:col-span-2 animate-in slide-in-from-top-4 fade-in duration-500">
+                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">
+                        {isCustom ? 'Custom Category Name' : 'Specify Other Category'}
+                      </label>
+                      <div className="relative group">
+                        <BookOpen className={`absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors ${isDarkMode ? 'group-focus-within:text-violet-400' : 'group-focus-within:text-violet-600'}`} size={16} />
+                        <input 
+                          required
+                          type="text"
+                          placeholder="e.g. Domain Renewal, Client Dinner, etc."
+                          value={isCustom ? customCategory : (formData.category.includes('Other') && !formData.category.startsWith('Other') ? formData.category : '')}
+                          onChange={e => {
+                            if (isCustom) {
+                              setCustomCategory(e.target.value);
+                            } else {
+                              setFormData({...formData, category: e.target.value});
+                            }
+                          }}
+                          className={`w-full pl-12 pr-6 py-4 border-2 rounded-2xl outline-none text-base font-bold transition-all ${
+                            isDarkMode 
+                              ? 'bg-slate-800 border-slate-700 text-white focus:border-violet-500/50' 
+                              : 'bg-violet-50/20 border-slate-100 text-slate-900 focus:border-violet-500/50'
+                          }`}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="md:col-span-1">
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Amount (৳)</label>
+                    <div className="relative">
+                      <Banknote className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                      <input 
+                        required
+                        type="number"
+                        placeholder="0.00"
+                        value={formData.amount || ''}
+                        onChange={e => setFormData({...formData, amount: Number(e.target.value)})}
+                        className={`w-full pl-12 pr-6 py-4 border-2 rounded-2xl outline-none text-xl font-black transition-all ${
+                          isDarkMode 
+                            ? 'bg-slate-800 border-slate-700 text-violet-400 focus:border-violet-500/50' 
+                            : 'bg-slate-50 border-slate-100 text-violet-700 focus:border-violet-500/50 shadow-inner'
+                        }`}
+                      />
+                    </div>
                   </div>
-                )}
 
-                <div>
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Amount (৳)</label>
-                  <input 
-                    required
-                    type="number"
-                    placeholder="0.00"
-                    value={formData.amount || ''}
-                    onChange={e => setFormData({...formData, amount: Number(e.target.value)})}
-                    className={`w-full px-6 py-4 border-2 rounded-2xl outline-none text-lg font-black transition-all ${isDarkMode ? 'bg-slate-800 border-slate-700 text-violet-400 focus:border-violet-500/50' : 'bg-slate-50 border-slate-100 text-violet-700 focus:border-violet-500/50'}`}
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Ref / Note</label>
-                  <input 
-                    type="text"
-                    placeholder="Reference ID"
-                    value={formData.reference}
-                    onChange={e => setFormData({...formData, reference: e.target.value})}
-                    className={`w-full px-6 py-4 border-2 rounded-2xl outline-none text-sm font-bold transition-all ${isDarkMode ? 'bg-slate-800 border-slate-700 focus:border-violet-500/50' : 'bg-slate-50 border-slate-100 focus:border-violet-500/50'}`}
-                  />
+                  <div className="md:col-span-1">
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Ref / Tracking ID</label>
+                    <div className="relative">
+                       <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                        <input 
+                          type="text"
+                          placeholder="Voucher or PN#"
+                          value={formData.reference}
+                          onChange={e => setFormData({...formData, reference: e.target.value})}
+                          className={`w-full pl-12 pr-6 py-4 border-2 rounded-2xl outline-none text-base md:text-sm font-bold transition-all ${
+                            isDarkMode ? 'bg-slate-800 border-slate-700 focus:border-violet-500/50' : 'bg-slate-50 border-slate-100 focus:border-violet-500/50'
+                          }`}
+                        />
+                    </div>
+                  </div>
                 </div>
               </div>
 
