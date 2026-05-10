@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { Client, Booking } from '@/types';
+import { formatToDDMMYYYY } from '../lib/dateUtils';
 import { 
   Search, Plus, Mail, Phone, User, MoreVertical, 
   Edit2, Trash2, ExternalLink, FileText, X, History, Download 
@@ -150,7 +151,7 @@ const ClientList: React.FC<Props> = ({ clients, bookings, onAdd, onUpdate, onNav
                       </div>
                       <div className="min-w-0">
                         <p className={`font-black text-sm truncate tracking-tight ${isDarkMode ? 'text-slate-100' : 'text-slate-900'}`}>{client.name}</p>
-                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Added {new Date(client.createdAt).toLocaleDateString()}</p>
+                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Added {formatToDDMMYYYY(new Date(client.createdAt))}</p>
                       </div>
                     </div>
                   </td>

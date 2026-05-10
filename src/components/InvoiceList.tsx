@@ -1,6 +1,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { Booking, Client, BookingStatus } from '@/types';
+import { formatToDDMMYYYY } from '../lib/dateUtils';
 import { 
   FileText, Search, Printer, Download, Filter, 
   ChevronRight, Calendar, Banknote, User, Plane,
@@ -92,7 +93,7 @@ const InvoiceList: React.FC<Props> = ({ bookings, clients, isDarkMode }) => {
               <h2>INVOICE</h2>
               <div class="inv-meta">
                 #INV-${booking.id.toUpperCase()}<br>
-                Date: ${new Date(booking.date).toLocaleDateString()}<br>
+                Date: ${formatToDDMMYYYY(new Date(booking.date))}<br>
                 Status: ${booking.status}
               </div>
             </div>

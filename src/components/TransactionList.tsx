@@ -2,6 +2,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Transaction, TransactionType, AgencyStats } from '@/types';
+import { formatToDDMMYYYY } from '../lib/dateUtils';
 import { 
   ArrowUpCircle, ArrowDownCircle, Download, FileSpreadsheet, 
   Plus, X, Calendar, Tag, Banknote, Filter, Printer, RefreshCw,
@@ -231,7 +232,7 @@ const TransactionList: React.FC<Props> = ({ transactions, stats, onAddTransactio
           </div>
           <div class="report-meta">
             Period: ${startDate} to ${endDate}<br>
-            Generated: ${new Date().toLocaleString()}
+            Generated: ${formatToDDMMYYYY(new Date())}
           </div>
         </div>
 

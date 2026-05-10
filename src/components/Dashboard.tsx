@@ -2,6 +2,7 @@
 import React, { useMemo } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { AgencyStats, Booking, BookingStatus } from '@/types';
+import { formatDate } from '../lib/dateUtils';
 import { 
   Banknote, UserCheck, Clock, TrendingUp, ArrowUpRight, 
   Ticket, Bell, PlaneTakeoff, AlertCircle, ChevronRight,
@@ -268,7 +269,7 @@ const Dashboard: React.FC<Props> = ({ stats, bookings, isDarkMode }) => {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className={`text-sm font-black truncate ${isDarkMode ? 'text-slate-200' : 'text-slate-800'}`}>{booking.clientName}</p>
-                  <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{booking.type} • {booking.date}</p>
+                  <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{booking.type} • {formatDate(booking.date)}</p>
                 </div>
                 <div className="text-right shrink-0">
                   <p className={`text-sm font-black ${isDarkMode ? 'text-slate-100' : 'text-slate-800'}`}>৳{booking.amount.toLocaleString()}</p>

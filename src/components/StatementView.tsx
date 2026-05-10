@@ -1,6 +1,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { Client, Booking, Transaction, TransactionType } from '@/types';
+import { formatToDDMMYYYY } from '../lib/dateUtils';
 import { 
   History, Search, Printer, User, ArrowUpRight, 
   ArrowDownRight, Wallet, Download, Calendar, 
@@ -139,7 +140,7 @@ const StatementView: React.FC<Props> = ({ clients, bookings, transactions, defau
           </div>
           <div style="text-align: right">
             <h2 style="margin:0">ACCOUNT STATEMENT</h2>
-            <p style="margin:5px 0; color:#64748b; font-size:12px">Generated: ${new Date().toLocaleDateString()}</p>
+            <p style="margin:5px 0; color:#64748b; font-size:12px">Generated: ${formatToDDMMYYYY(new Date())}</p>
           </div>
         </div>
         <div class="info">

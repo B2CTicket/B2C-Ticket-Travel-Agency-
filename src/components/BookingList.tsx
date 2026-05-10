@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Booking, BookingStatus, Client } from '@/types';
+import { formatDate, formatToDDMMYYYY } from '../lib/dateUtils';
 import { 
   Search, Plus, X, Download, Plane, 
   Calendar, Users, Globe, ArrowRight, 
@@ -155,7 +156,7 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
               <h2>INVOICE</h2>
               <div class="inv-meta">
                 Ref: ${b.id.split('-')[0].toUpperCase()}<br>
-                Booking Date: ${new Date(b.date).toLocaleDateString()}<br>
+                Booking Date: ${formatToDDMMYYYY(new Date(b.date))}<br>
                 Status: ${b.status}
               </div>
             </div>
@@ -435,12 +436,12 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
                      <>
                         <div className="text-left">
                           <p className="text-[9px] font-bold text-slate-400 uppercase mb-1">In</p>
-                          <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">{booking.checkIn?.split('-').reverse().slice(0,2).join('/') || '--'}</p>
+                          <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">{formatDate(booking.checkIn)}</p>
                         </div>
                         <ArrowRight size={14} className="text-slate-300" />
                         <div className="text-right">
                           <p className="text-[9px] font-bold text-slate-400 uppercase mb-1">Out</p>
-                          <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">{booking.checkOut?.split('-').reverse().slice(0,2).join('/') || '--'}</p>
+                          <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">{formatDate(booking.checkOut)}</p>
                         </div>
                      </>
                    ) : booking.type === 'Air Ticket' ? (
@@ -471,7 +472,7 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
                 <div className="flex items-center gap-2">
                    <Calendar size={12} className="text-slate-400" />
                    <p className="text-[10px] font-medium text-slate-500 uppercase tracking-widest">
-                     {booking.flyingDate || booking.checkIn || 'No Date'}
+                     {formatDate(booking.flyingDate || booking.checkIn || '')}
                    </p>
                 </div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase">{booking.pax || 1} PAX</p>
@@ -827,6 +828,10 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
                        <div className="space-y-1.5">
                           <label className="text-[11px] font-bold text-slate-500 block uppercase tracking-wide">Reference Code (PNR)</label>
                           <input required placeholder="ABC12D" value={formData.pnr} onChange={e => setFormData({...formData, pnr: e.target.value.toUpperCase()})} className={`w-full px-4 py-3 border rounded-xl font-bold text-sm uppercase transition-all tracking-wider ${isDarkMode ? 'bg-slate-950 border-slate-800 focus:border-indigo-500' : 'bg-white border-slate-200 focus:border-indigo-500 text-indigo-600'}`} />
+                       </div>
+                       <div className="space-y-1.5">
+                          <label className="text-[11px] font-bold text-slate-500 block uppercase tracking-wide">Booking Source</label>
+                          <input placeholder="Ex: OTA" value={formData.bookingSource} onChange={e => setFormData({...formData, bookingSource: e.target.value})} className={`w-full px-4 py-3 border rounded-xl font-medium text-sm transition-all ${isDarkMode ? 'bg-slate-950 border-slate-800 focus:border-indigo-500' : 'bg-white border-slate-200 focus:border-indigo-500'}`} />
                        </div>
                     </div>
                  </section>
