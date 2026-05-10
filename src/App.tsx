@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useMemo, FC } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   LayoutDashboard, 
   Ticket, 
@@ -48,7 +48,7 @@ import Forecast from '@/components/Forecast';
 import InvoiceList from '@/components/InvoiceList';
 import StatementView from '@/components/StatementView';
 
-const App: FC = () => {
+const App: React.FC = () => {
   console.log("App component initializing...");
   const [activeTab, setActiveTab] = useState<'dashboard' | 'bookings' | 'accounts' | 'ai' | 'clients' | 'forecast' | 'invoices' | 'statements'>('dashboard');
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
@@ -197,10 +197,11 @@ const App: FC = () => {
       
     const bookingRevenue = bookings.reduce((sum, b) => sum + Number(b.amount || 0), 0);
     const bookingCost = bookings.reduce((sum, b) => sum + Number(b.cost || 0), 0);
+    const bookingNet = bookings.reduce((sum, b) => sum + Number((b.amount - b.cost) || 0), 0);
 
-    const totalIncome = bookingRevenue + manualIncome;
+    const totalIncome = bookingNet + manualIncome;
     const totalExpense = bookingCost + manualExpense;
-    const netProfit = totalIncome - totalExpense;
+    const netProfit = bookingNet + (manualIncome - manualExpense);
 
     const pendingCount = bookings.filter(b => b.status && b.status.toString().toUpperCase() === BookingStatus.PENDING).length;
     console.log("App - pendingCount:", pendingCount, "bookings:", bookings.length);
