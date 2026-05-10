@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { Client, Booking, Transaction, TransactionType } from '@/types';
-import { formatToDDMMYYYY } from '../lib/dateUtils';
+import { formatDate, formatToDDMMYYYY } from '../lib/dateUtils';
 import { 
   History, Search, Printer, User, ArrowUpRight, 
   ArrowDownRight, Wallet, Download, Calendar, 
@@ -353,7 +353,7 @@ const StatementView: React.FC<Props> = ({ clients, bookings, transactions, defau
                   {/* Opening Balance Row */}
                   <tr className={`${isDarkMode ? 'bg-violet-900/5' : 'bg-violet-50/30'} italic`}>
                     <td className="px-8 py-6">
-                      <span className="text-[10px] font-black text-violet-500 uppercase tracking-widest">{startDate}</span>
+                      <span className="text-[10px] font-black text-violet-500 uppercase tracking-widest">{formatDate(startDate)}</span>
                     </td>
                     <td className="px-8 py-6">
                       <div className="flex items-center gap-2">
@@ -371,7 +371,7 @@ const StatementView: React.FC<Props> = ({ clients, bookings, transactions, defau
                   {filteredData.map((row, idx) => (
                     <tr key={idx} className={`group transition-all ${isDarkMode ? 'hover:bg-violet-600/5' : 'hover:bg-violet-50/50'}`}>
                       <td className="px-8 py-6">
-                        <span className={`text-[10px] font-black uppercase ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>{row.date}</span>
+                        <span className={`text-[10px] font-black uppercase ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>{formatDate(row.date)}</span>
                       </td>
                       <td className="px-8 py-6">
                         <div>
@@ -404,7 +404,7 @@ const StatementView: React.FC<Props> = ({ clients, bookings, transactions, defau
                 {/* Opening Balance Card */}
                 <div className="p-6 bg-violet-50/30 dark:bg-violet-900/5">
                   <div className="flex justify-between items-center mb-1">
-                    <span className="text-[10px] font-black text-violet-500 uppercase tracking-widest">{startDate}</span>
+                    <span className="text-[10px] font-black text-violet-500 uppercase tracking-widest">{formatDate(startDate)}</span>
                     <span className={`text-sm font-black tracking-tighter ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>৳{openingBalance.toLocaleString()}</span>
                   </div>
                   <p className={`text-[10px] font-black uppercase tracking-tight ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>Opening Balance Forward</p>
@@ -415,7 +415,7 @@ const StatementView: React.FC<Props> = ({ clients, bookings, transactions, defau
                     <div className="flex justify-between items-start">
                       <div className="space-y-1 pr-4">
                         <p className={`text-sm font-black leading-tight tracking-tight ${isDarkMode ? 'text-slate-100' : 'text-slate-800'}`}>{row.description}</p>
-                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{row.date} • {row.ref}</p>
+                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{formatDate(row.date)} • {row.ref}</p>
                       </div>
                       <div className="text-right shrink-0">
                         <p className={`text-sm font-black tracking-tighter ${isDarkMode ? 'text-violet-400' : 'text-violet-700'}`}>৳{row.balance.toLocaleString()}</p>

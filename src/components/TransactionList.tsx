@@ -2,7 +2,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Transaction, TransactionType, AgencyStats } from '@/types';
-import { formatToDDMMYYYY } from '../lib/dateUtils';
+import { formatDate, formatToDDMMYYYY } from '../lib/dateUtils';
 import { 
   ArrowUpCircle, ArrowDownCircle, Download, FileSpreadsheet, 
   Plus, X, Calendar, Tag, Banknote, Filter, Printer, RefreshCw,
@@ -432,7 +432,7 @@ const TransactionList: React.FC<Props> = ({ transactions, stats, onAddTransactio
               {filteredTransactions.map((t) => (
                 <tr key={t.id} className={`group transition-all ${isDarkMode ? 'hover:bg-violet-600/5' : 'hover:bg-violet-50/50'}`}>
                   <td className="px-6 md:px-10 py-6">
-                    <span className={`text-[10px] font-black uppercase ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>{t.date}</span>
+                    <span className={`text-[10px] font-black uppercase ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>{formatDate(t.date)}</span>
                   </td>
                   <td className="px-6 md:px-10 py-6">
                     <div className="flex items-center gap-3">
@@ -495,7 +495,7 @@ const TransactionList: React.FC<Props> = ({ transactions, stats, onAddTransactio
                   </div>
                   <div>
                     <p className={`text-sm font-black tracking-tight ${isDarkMode ? 'text-slate-200' : 'text-slate-800'}`}>{t.category}</p>
-                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{t.date} • {t.reference || 'NO REF'}</p>
+                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{formatDate(t.date)} • {t.reference || 'NO REF'}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
