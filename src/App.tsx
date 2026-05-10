@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, FC } from 'react';
 import { 
   LayoutDashboard, 
   Ticket, 
@@ -48,7 +48,7 @@ import Forecast from '@/components/Forecast';
 import InvoiceList from '@/components/InvoiceList';
 import StatementView from '@/components/StatementView';
 
-const App: React.FC = () => {
+const App: FC = () => {
   console.log("App component initializing...");
   const [activeTab, setActiveTab] = useState<'dashboard' | 'bookings' | 'accounts' | 'ai' | 'clients' | 'forecast' | 'invoices' | 'statements'>('dashboard');
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
@@ -187,15 +187,21 @@ const App: React.FC = () => {
   }, []);
 
   const stats = useMemo(() => {
-    const totalIncome = transactions
-      .filter(t => t.type === TransactionType.INCOME)
-      .reduce((sum, t) => sum + t.amount, 0);
+    const manualIncome = transactions
+      .filter(t => t.type === TransactionType.INCOME && !t.bookingId)
+      .reduce((sum, t) => sum + Number(t.amount || 0), 0);
     
-    const totalExpense = transactions
+    const manualExpense = transactions
       .filter(t => t.type === TransactionType.EXPENSE)
-      .reduce((sum, t) => sum + t.amount, 0);
+      .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+      
+    const bookingRevenue = bookings.reduce((sum, b) => sum + Number(b.amount || 0), 0);
+    const bookingCost = bookings.reduce((sum, b) => sum + Number(b.cost || 0), 0);
 
+    const totalIncome = bookingRevenue + manualIncome;
+    const totalExpense = bookingCost + manualExpense;
     const netProfit = totalIncome - totalExpense;
+
     const pendingCount = bookings.filter(b => b.status && b.status.toString().toUpperCase() === BookingStatus.PENDING).length;
     console.log("App - pendingCount:", pendingCount, "bookings:", bookings.length);
 
@@ -707,7 +713,7 @@ const App: React.FC = () => {
 
       {/* Unique Sidebar with Gradient & Blur */}
       <aside className={`
-        fixed inset-y-0 left-0 z-[70]
+        fixed top-0 left-0 h-[100dvh] pb-safe z-[70]
         ${isMobile 
           ? isSidebarOpen ? 'w-80 translate-x-0 shadow-2xl' : 'w-80 -translate-x-full'
           : isSidebarOpen ? 'w-72 translate-x-0' : 'w-24 translate-x-0'
@@ -739,7 +745,7 @@ const App: React.FC = () => {
           )}
         </div>
 
-        <nav className="flex-1 px-4 mt-4 overflow-y-auto no-scrollbar min-h-0">
+        <nav className="flex-1 px-4 mt-4 overflow-y-auto no-scrollbar min-h-0 pb-16">
           <div className="space-y-1">
             {menuItems.map(item => (
               <NavItem 
@@ -817,7 +823,7 @@ const App: React.FC = () => {
              {/* Dark mode toggle for mobile */}
              <button 
                onClick={() => setIsDarkMode(!isDarkMode)} 
-               className={`md:hidden p-2.5 rounded-xl transition-all duration-300 ${isDarkMode ? 'bg-amber-500/10 text-amber-500 hover:bg-amber-500/20' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 shadow-sm'}`}
+               className={`shrink-0 md:hidden p-2.5 rounded-xl transition-all duration-300 ${isDarkMode ? 'bg-amber-500/10 text-amber-500 hover:bg-amber-500/20' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 shadow-sm'}`}
                title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
              >
                {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}

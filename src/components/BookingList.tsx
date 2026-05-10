@@ -443,7 +443,7 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
                           <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">{booking.checkOut?.split('-').reverse().slice(0,2).join('/') || '--'}</p>
                         </div>
                      </>
-                   ) : (
+                   ) : booking.type === 'Air Ticket' ? (
                      <>
                         <div className="text-left">
                           <p className="text-sm font-bold text-indigo-600 uppercase">{booking.from || '--'}</p>
@@ -455,6 +455,13 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
                           <p className="text-[8px] font-bold text-slate-400 uppercase mt-0.5">Dest</p>
                         </div>
                      </>
+                   ) : (
+                     <div className="w-full text-center">
+                        <p className="text-sm font-bold text-indigo-600 uppercase">{booking.to || '--'}</p>
+                        <p className="text-[8px] font-bold text-slate-400 uppercase mt-0.5">
+                          {booking.type === 'Visa' ? 'Country' : 'Destination'}
+                        </p>
+                     </div>
                    )}
                 </div>
               </div>
@@ -582,7 +589,7 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
                                     </div>
                                  </div>
                                </>
-                             ) : (
+                             ) : selectedBooking.type === 'Air Ticket' ? (
                                <>
                                  <div className={`p-4 rounded-xl border text-center ${isDarkMode ? 'border-slate-800 bg-slate-900/40' : 'border-slate-100 bg-white'}`}>
                                     <p className="text-[9px] font-bold text-slate-400 uppercase mb-1 tracking-widest">Origin</p>
@@ -598,6 +605,29 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
                                        <div className="min-w-0">
                                           <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Travel Date</p>
                                           <p className="text-xs font-bold font-mono truncate">{selectedBooking.flyingDate || 'N/A'}</p>
+                                       </div>
+                                    </div>
+                                    <div className="flex items-center gap-3 border-l border-slate-200 dark:border-slate-700 pl-4">
+                                       <Activity size={16} className="text-emerald-500 shrink-0" />
+                                       <div className="min-w-0">
+                                          <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Status</p>
+                                          <p className="text-[10px] font-bold text-indigo-600 uppercase">{selectedBooking.status}</p>
+                                       </div>
+                                    </div>
+                                 </div>
+                               </>
+                             ) : (
+                               <>
+                                  <div className={`col-span-2 p-4 rounded-xl border text-center ${isDarkMode ? 'border-slate-800 bg-slate-900/40' : 'border-slate-100 bg-white'}`}>
+                                    <p className="text-[9px] font-bold text-slate-400 uppercase mb-1 tracking-widest">{selectedBooking.type === 'Visa' ? 'Country' : 'Destination'}</p>
+                                    <p className="text-xl font-bold text-indigo-600 uppercase">{selectedBooking.to || '--'}</p>
+                                 </div>
+                                  <div className={`col-span-2 p-4 rounded-xl border grid grid-cols-2 gap-4 ${isDarkMode ? 'bg-slate-800/40 border-slate-800' : 'bg-slate-50 border-slate-100'}`}>
+                                    <div className="flex items-center gap-3">
+                                       <Calendar size={16} className="text-indigo-500 shrink-0" />
+                                       <div className="min-w-0">
+                                          <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">{selectedBooking.type === 'Visa' ? 'Application Date' : 'Travel Date'}</p>
+                                          <p className="text-xs font-bold font-mono truncate">{selectedBooking.issueDate || selectedBooking.flyingDate || 'N/A'}</p>
                                        </div>
                                     </div>
                                     <div className="flex items-center gap-3 border-l border-slate-200 dark:border-slate-700 pl-4">
@@ -818,6 +848,36 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
                             <div className="space-y-1.5">
                               <label className="text-[11px] font-bold text-slate-500 uppercase">Check-out Date</label>
                               <input required type="date" value={formData.checkOut} onChange={e => setFormData({...formData, checkOut: e.target.value})} className={`w-full px-4 py-3 border rounded-xl font-medium text-sm ${isDarkMode ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-200'}`} />
+                            </div>
+                         </div>
+                       ) : formData.type === 'Visa' ? (
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div className="col-span-1 md:col-span-2 space-y-1.5">
+                              <label className="text-[11px] font-bold text-slate-500 uppercase">Country</label>
+                              <input required placeholder="Enter country name" value={formData.to} onChange={e => setFormData({...formData, to: e.target.value})} className={`w-full px-4 py-3 border rounded-xl font-medium text-sm ${isDarkMode ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-200'}`} />
+                            </div>
+                            <div className="space-y-1.5">
+                              <label className="text-[11px] font-bold text-slate-500 uppercase">Application/Issue Date</label>
+                              <input required type="date" value={formData.issueDate} onChange={e => setFormData({...formData, issueDate: e.target.value})} className={`w-full px-4 py-3 border rounded-xl font-medium text-sm ${isDarkMode ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-200'}`} />
+                            </div>
+                            <div className="space-y-1.5">
+                              <label className="text-[11px] font-bold text-slate-500 uppercase">Travel Date</label>
+                              <input required type="date" value={formData.flyingDate} onChange={e => setFormData({...formData, flyingDate: e.target.value})} className={`w-full px-4 py-3 border rounded-xl font-medium text-sm ${isDarkMode ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-200'}`} />
+                            </div>
+                         </div>
+                       ) : formData.type === 'Package' ? (
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div className="col-span-1 md:col-span-2 space-y-1.5">
+                              <label className="text-[11px] font-bold text-slate-500 uppercase">Destination</label>
+                              <input required placeholder="Enter destination" value={formData.to} onChange={e => setFormData({...formData, to: e.target.value})} className={`w-full px-4 py-3 border rounded-xl font-medium text-sm ${isDarkMode ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-200'}`} />
+                            </div>
+                            <div className="space-y-1.5">
+                              <label className="text-[11px] font-bold text-slate-500 uppercase">Start Date</label>
+                              <input required type="date" value={formData.flyingDate} onChange={e => setFormData({...formData, flyingDate: e.target.value})} className={`w-full px-4 py-3 border rounded-xl font-medium text-sm ${isDarkMode ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-200'}`} />
+                            </div>
+                            <div className="space-y-1.5">
+                              <label className="text-[11px] font-bold text-slate-500 uppercase">End Date</label>
+                              <input type="date" value={formData.issueDate} onChange={e => setFormData({...formData, issueDate: e.target.value})} className={`w-full px-4 py-3 border rounded-xl font-medium text-sm ${isDarkMode ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-200'}`} />
                             </div>
                          </div>
                        ) : (
