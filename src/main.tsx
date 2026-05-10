@@ -4,8 +4,8 @@ import { createRoot } from 'react-dom/client';
 import App from './App';
 import './index.css';
 
-class ErrorBoundary extends (React.Component as any) {
-  constructor(props: any) {
+class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean; error: any }> {
+  constructor(props: { children: React.ReactNode }) {
     super(props);
     this.state = { hasError: false, error: null };
   }
@@ -13,11 +13,12 @@ class ErrorBoundary extends (React.Component as any) {
     return { hasError: true, error };
   }
   render() {
-    if (this.state.hasError) {
+    const { hasError, error } = this.state as { hasError: boolean; error: any };
+    if (hasError) {
       return (
         <div style={{ padding: 20, color: 'red', background: '#fff', minHeight: '100vh' }}>
           <h1>Something went wrong rendering the App.</h1>
-          <pre>{this.state.error?.toString()}</pre>
+          <pre>{error?.toString()}</pre>
         </div>
       );
     }
@@ -28,6 +29,7 @@ class ErrorBoundary extends (React.Component as any) {
 console.log("main.tsx: Starting render process");
 
 // PWA Service Worker Registration
+/* 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js')
@@ -35,16 +37,15 @@ if ('serviceWorker' in navigator) {
       .catch(err => console.log('SW Registration Failed:', err));
   });
 }
+*/
 
 const rootElement = document.getElementById('root');
 if (rootElement) {
   const root = createRoot(rootElement);
   root.render(
-    <React.StrictMode>
-      <ErrorBoundary>
-        <App />
-      </ErrorBoundary>
-    </React.StrictMode>
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>
   );
   console.log("main.tsx: App rendered");
 } else {

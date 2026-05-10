@@ -2,6 +2,7 @@ import express from "express";
 import { createServer as createViteServer } from "vite";
 import path from "path";
 import { fileURLToPath } from "url";
+import fs from "node:fs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -17,14 +18,41 @@ async function startServer() {
     console.log("Running in development mode with Vite middleware");
     const vite = await createViteServer({
       server: { middlewareMode: true },
-      appType: "spa",
+      appType: "custom", 
     });
+    
     app.use(vite.middlewares);
+
+    app.get("*", async (req, res, next) => {
+      const url = req.originalUrl;
+      
+      // Basic static asset check - let vite.middlewares handle them
+      if (url.includes('.') && !url.endsWith('.html')) {
+        return next();
+      }
+
+      try {
+        // 1. Read index.html
+        let template = fs.readFileSync(
+          path.resolve(__dirname, "index.html"),
+          "utf-8"
+        );
+
+        // 2. Apply Vite HTML transforms.
+        template = await vite.transformIndexHtml(url, template);
+
+        // 3. Send the rendered HTML back.
+        res.status(200).set({ "Content-Type": "text/html" }).end(template);
+      } catch (e) {
+        vite.ssrFixStacktrace(e as Error);
+        next(e);
+      }
+    });
   } else {
     console.log("Running in production mode");
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
-    app.use((req, res) => {
+    app.get('*', (req, res) => {
       res.sendFile(path.join(distPath, 'index.html'));
     });
   }

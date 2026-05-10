@@ -1,6 +1,6 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Transaction, TransactionType, AgencyStats } from '@/types';
 import { formatDate, formatToDDMMYYYY } from '../lib/dateUtils';
 import { 
@@ -611,7 +611,7 @@ const TransactionList: React.FC<Props> = ({ transactions, stats, onAddTransactio
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
                     {/* Date input */}
                     <div className="md:col-span-2">
-                      <label className="block text-[11px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2 px-1">Transaction Schedule</label>
+                      <label className="block text-[11px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2 px-1">Transaction Schedule (DD/MM/YYYY)</label>
                       <div className="relative group">
                         <Calendar className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${isDarkMode ? 'text-slate-500 group-focus-within:text-violet-400' : 'text-slate-400 group-focus-within:text-violet-600'}`} size={18} />
                         <input 

@@ -50,7 +50,7 @@ import StatementView from '@/components/StatementView';
 
 const App: React.FC = () => {
   console.log("App component initializing...");
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'bookings' | 'accounts' | 'ai' | 'clients' | 'forecast' | 'invoices' | 'statements'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'bookings' | 'accounts' | 'ai' | 'clients' | 'forecast' | 'invoices' | 'statements' | 'settings'>('dashboard');
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const [openTransactionModalKey, setOpenTransactionModalKey] = useState(0);
   const [openBookingModalKey, setOpenBookingModalKey] = useState(0);
@@ -1007,13 +1007,13 @@ const App: React.FC = () => {
               key={item.id}
               onClick={() => setActiveTab(item.id as any)}
               className={`flex flex-col items-center gap-1.5 py-2 px-3 rounded-2xl transition-all ${
-                activeTab === item.id 
+                (activeTab as string) === item.id 
                   ? isDarkMode ? 'text-indigo-400' : 'text-indigo-600'
                   : 'text-slate-400'
               }`}
             >
-              <div className={`transition-transform duration-300 ${activeTab === item.id ? 'scale-110' : ''}`}>
-                {React.cloneElement(item.icon as React.ReactElement, { size: 20 })}
+              <div className={`transition-transform duration-300 ${activeTab === (item.id as any) ? 'scale-110' : ''}`}>
+                {React.isValidElement(item.icon) ? React.cloneElement(item.icon as React.ReactElement<any>, { size: 20 }) : item.icon}
               </div>
               <span className={`text-[8px] font-black uppercase tracking-widest ${activeTab === item.id ? 'opacity-100' : 'opacity-60'}`}>
                 {item.label.split(' ')[0]}

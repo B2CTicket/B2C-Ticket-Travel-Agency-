@@ -125,7 +125,7 @@ const Forecast: React.FC<Props> = ({ bookings, isDarkMode }) => {
                   strokeWidth={3} 
                   fillOpacity={1} 
                   fill="url(#colorRevenue)" 
-                  strokeDasharray={(entry: any) => entry.type === 'predicted' ? '5 5' : '0'}
+                  strokeDasharray="0"
                 />
               </AreaChart>
             </ResponsiveContainer>

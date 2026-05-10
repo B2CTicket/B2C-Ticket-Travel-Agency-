@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Booking, BookingStatus, Client } from '@/types';
 import { formatDate, formatToDDMMYYYY } from '../lib/dateUtils';
 import { 
@@ -740,7 +740,7 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
                       <Zap size={20} className="text-white fill-current" />
                    </div>
                    <div>
-                      <h3 className="text-xl font-bold tracking-tight">{editingBookingId ? 'Edit Reservation' : 'New Reservation'}</h3>
+                      <h3 className="text-xl font-bold tracking-tight">{editingBookingId ? 'Modify Reservation' : 'New Reservation'}</h3>
                       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">{editingBookingId ? 'Modifying existing entry in ledger' : 'Registering entry into ledger'}</p>
                    </div>
                 </div>
@@ -800,7 +800,7 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
                     <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Identity & Logistics</label>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
                        <div className="col-span-1 md:col-span-2">
-                          <label className="text-[11px] font-bold text-slate-500 mb-1.5 block uppercase tracking-wide">Connect to EXISTING profile</label>
+                          <label className="text-[11px] font-bold text-slate-500 mb-1.5 block uppercase tracking-wide">Connect to existing profile Test</label>
                           <select 
                             value={formData.clientId}
                             onChange={e => handleClientChange(e.target.value)}

@@ -18,9 +18,10 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
+    dedupe: ['react', 'react-dom'],
   },
   optimizeDeps: {
-    include: ['recharts', 'lucide-react', 'motion/react'],
+    include: ['recharts', 'lucide-react', 'framer-motion'],
   },
   build: {
     outDir: 'dist',
