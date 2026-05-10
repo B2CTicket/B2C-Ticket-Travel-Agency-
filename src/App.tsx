@@ -810,18 +810,20 @@ const App: FC = () => {
         {/* Subtle Background Accent */}
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/5 blur-[120px] rounded-full pointer-events-none -z-10"></div>
         <header className={`h-20 pt-safe ${isDarkMode ? 'bg-slate-950/80 border-slate-800' : 'bg-white/90 border-slate-100'} backdrop-blur-xl border-b flex items-center justify-between px-4 md:px-8 shrink-0 z-40 transition-all sticky top-0`}>
-          <div className="flex items-center gap-2 flex-1">
+          <div className="flex items-center gap-4 flex-1">
              <button 
                 onClick={() => setSidebarOpen(!isSidebarOpen)} 
                 className={`p-2.5 rounded-xl transition-all duration-300 ${isDarkMode ? 'text-slate-400 bg-slate-900/50 hover:bg-slate-800 hover:text-white' : 'text-slate-500 bg-slate-50 hover:bg-indigo-50 hover:text-indigo-600 shadow-sm hover:shadow-md'}`}
                 aria-label="Toggle Sidebar"
              >
-                <Menu size={20} />
+                {isSidebarOpen ? <X size={20} className="lg:block hidden" /> : <Menu size={20} />}
+                {isMobile && <Menu size={20} />}
              </button>
              
+             {/* Dark mode toggle for mobile */}
              <button 
                onClick={() => setIsDarkMode(!isDarkMode)} 
-               className={`shrink-0 p-2.5 rounded-xl transition-all duration-300 ${isDarkMode ? 'bg-amber-500/10 text-amber-500 hover:bg-amber-500/20' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 shadow-sm'}`}
+               className={`shrink-0 md:hidden p-2.5 rounded-xl transition-all duration-300 ${isDarkMode ? 'bg-amber-500/10 text-amber-500 hover:bg-amber-500/20' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 shadow-sm'}`}
                title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
              >
                {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
