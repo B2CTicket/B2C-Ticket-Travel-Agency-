@@ -193,16 +193,15 @@ const App: React.FC = () => {
       .reduce((sum, t) => sum + Number(t.amount || 0), 0);
     
     const manualExpense = transactions
-      .filter(t => t.type === TransactionType.EXPENSE)
+      .filter(t => t.type === TransactionType.EXPENSE && !t.bookingId)
       .reduce((sum, t) => sum + Number(t.amount || 0), 0);
       
     const bookingRevenue = bookings.reduce((sum, b) => sum + Number(b.amount || 0), 0);
     const bookingCost = bookings.reduce((sum, b) => sum + Number(b.cost || 0), 0);
-    const bookingNet = bookings.reduce((sum, b) => sum + Number((b.amount - b.cost) || 0), 0);
 
-    const totalIncome = bookingNet + manualIncome;
+    const totalIncome = bookingRevenue + manualIncome;
     const totalExpense = bookingCost + manualExpense;
-    const netProfit = bookingNet + (manualIncome - manualExpense);
+    const netProfit = totalIncome - totalExpense;
 
     const pendingCount = bookings.filter(b => b.status && b.status.toString().toUpperCase() === BookingStatus.PENDING).length;
     console.log("App - pendingCount:", pendingCount, "bookings:", bookings.length);
@@ -223,7 +222,7 @@ const App: React.FC = () => {
       await addDoc(collection(db, 'transactions'), {
         date: new Date().toISOString().split('T')[0],
         category: `${newBooking.type} Sale`,
-        amount: newBooking.amount - newBooking.cost,
+        amount: newBooking.amount,
         type: TransactionType.INCOME,
         bookingId: bookingRef.id,
         reference: `BOOKING-${bookingRef.id}`,
@@ -236,7 +235,7 @@ const App: React.FC = () => {
           date: new Date().toISOString().split('T')[0],
           category: `${newBooking.type} Cost`,
           amount: newBooking.cost,
-          type: TransactionType.COST_VOLUME,
+          type: TransactionType.EXPENSE,
           bookingId: bookingRef.id,
           reference: `COST-${bookingRef.id}`,
           createdAt: serverTimestamp()
@@ -256,18 +255,19 @@ const App: React.FC = () => {
       const linkedIncome = transactions.find(t => t.bookingId === id && t.type === TransactionType.INCOME);
       if (linkedIncome) {
         await updateDoc(doc(db, 'transactions', linkedIncome.id), {
-          amount: updatedBooking.amount - updatedBooking.cost,
+          amount: updatedBooking.amount,
           category: `${updatedBooking.type} Sale`
         });
       }
 
       // Update linked expense transaction if it exists, or create if needed
-      const linkedExpense = transactions.find(t => t.bookingId === id && t.type === TransactionType.COST_VOLUME);
+      const linkedExpense = transactions.find(t => t.bookingId === id && (t.type === TransactionType.EXPENSE || t.type === TransactionType.COST_VOLUME));
       if (linkedExpense) {
         if (updatedBooking.cost > 0) {
           await updateDoc(doc(db, 'transactions', linkedExpense.id), {
             amount: updatedBooking.cost,
-            category: `${updatedBooking.type} Cost`
+            category: `${updatedBooking.type} Cost`,
+            type: TransactionType.EXPENSE
           });
         } else {
           await deleteDoc(doc(db, 'transactions', linkedExpense.id));
@@ -277,7 +277,7 @@ const App: React.FC = () => {
           date: new Date().toISOString().split('T')[0],
           category: `${updatedBooking.type} Cost`,
           amount: updatedBooking.cost,
-          type: TransactionType.COST_VOLUME,
+          type: TransactionType.EXPENSE,
           bookingId: id,
           reference: `COST-${id}`,
           createdAt: serverTimestamp()
