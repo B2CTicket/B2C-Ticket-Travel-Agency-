@@ -52,6 +52,7 @@ const App: React.FC = () => {
   console.log("App component initializing...");
   const [activeTab, setActiveTab] = useState<'dashboard' | 'bookings' | 'accounts' | 'ai' | 'clients' | 'forecast' | 'invoices' | 'statements' | 'settings'>('dashboard');
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
+  const [preselectedBookingId, setPreselectedBookingId] = useState<string | null>(null);
   const [openTransactionModalKey, setOpenTransactionModalKey] = useState(0);
   const [openBookingModalKey, setOpenBookingModalKey] = useState(0);
   const [isSidebarOpen, setSidebarOpen] = useState(false); // Default to closed on all loads for better mobile start, then useEffect handles desktop
@@ -918,9 +919,32 @@ const App: React.FC = () => {
                 {dbError}
               </div>
             )}
-            {activeTab === 'dashboard' && <Dashboard stats={stats} bookings={bookings} setActiveTab={setActiveTab} isDarkMode={isDarkMode} />}
+            {activeTab === 'dashboard' && (
+              <Dashboard 
+                stats={stats} 
+                bookings={bookings} 
+                setActiveTab={setActiveTab} 
+                onBookingClick={(id) => {
+                  setPreselectedBookingId(id);
+                  setActiveTab('bookings');
+                }}
+                isDarkMode={isDarkMode} 
+              />
+            )}
             {activeTab === 'clients' && <ClientList clients={clients} bookings={bookings} onAdd={addClient} onUpdate={updateClient} onNavigateToStatement={navigateToStatement} isDarkMode={isDarkMode} />}
-            {activeTab === 'bookings' && <BookingList bookings={bookings} clients={clients} onAdd={addBooking} onUpdate={updateBooking} onDelete={deleteBooking} isDarkMode={isDarkMode} triggerAddModalKey={openBookingModalKey} />}
+            {activeTab === 'bookings' && (
+              <BookingList 
+                bookings={bookings} 
+                clients={clients} 
+                onAdd={addBooking} 
+                onUpdate={updateBooking} 
+                onDelete={deleteBooking} 
+                isDarkMode={isDarkMode} 
+                triggerAddModalKey={openBookingModalKey} 
+                initialSelectedBookingId={preselectedBookingId}
+                onSelectionCleared={() => setPreselectedBookingId(null)}
+              />
+            )}
             {activeTab === 'invoices' && <InvoiceList bookings={bookings} clients={clients} isDarkMode={isDarkMode} />}
             {activeTab === 'statements' && <StatementView clients={clients} bookings={bookings} transactions={transactions} defaultClientId={selectedClientId} isDarkMode={isDarkMode} />}
             {activeTab === 'forecast' && <Forecast bookings={bookings} isDarkMode={isDarkMode} />}

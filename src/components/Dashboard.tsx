@@ -13,10 +13,11 @@ interface Props {
   stats: AgencyStats;
   bookings: Booking[];
   setActiveTab: (tab: any) => void;
+  onBookingClick?: (id: string) => void;
   isDarkMode?: boolean;
 }
 
-const Dashboard: React.FC<Props> = ({ stats, bookings, setActiveTab, isDarkMode }) => {
+const Dashboard: React.FC<Props> = ({ stats, bookings, setActiveTab, onBookingClick, isDarkMode }) => {
   const chartData = bookings.length > 0 ? [
     { name: 'Prev', sales: 0, profit: 0 },
     { name: 'Current', sales: stats.totalSales, profit: stats.netProfit },
@@ -125,7 +126,7 @@ const Dashboard: React.FC<Props> = ({ stats, bookings, setActiveTab, isDarkMode 
               return (
                 <div 
                   key={alert.id} 
-                  onClick={() => setActiveTab('bookings')}
+                  onClick={() => onBookingClick ? onBookingClick(alert.id) : setActiveTab('bookings')}
                   className={`p-5 rounded-3xl border-2 transition-all hover:scale-[1.03] group cursor-pointer ${
                     isUrgent 
                       ? isDarkMode ? 'bg-rose-500/5 border-rose-500/30' : 'bg-rose-50 border-rose-100'
@@ -275,7 +276,7 @@ const Dashboard: React.FC<Props> = ({ stats, bookings, setActiveTab, isDarkMode 
             {bookings.length > 0 ? bookings.slice(0, 5).map((booking) => (
               <div 
                 key={booking.id} 
-                onClick={() => setActiveTab('bookings')}
+                onClick={() => onBookingClick ? onBookingClick(booking.id) : setActiveTab('bookings')}
                 className={`flex items-center gap-4 p-4 rounded-3xl transition-all cursor-pointer group ${isDarkMode ? 'hover:bg-slate-800' : 'hover:bg-violet-50'}`}
               >
                 <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${isDarkMode ? 'bg-slate-800 group-hover:bg-violet-600 text-slate-400 group-hover:text-white' : 'bg-slate-50 group-hover:bg-violet-600 text-slate-400 group-hover:text-white'}`}>

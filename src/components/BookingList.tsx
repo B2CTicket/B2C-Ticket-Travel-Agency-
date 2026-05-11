@@ -20,9 +20,11 @@ interface Props {
   onDelete: (id: string) => void;
   isDarkMode?: boolean;
   triggerAddModalKey?: number;
+  initialSelectedBookingId?: string | null;
+  onSelectionCleared?: () => void;
 }
 
-const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDelete, isDarkMode, triggerAddModalKey }) => {
+const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDelete, isDarkMode, triggerAddModalKey, initialSelectedBookingId, onSelectionCleared }) => {
   const [showModal, setShowModal] = useState(false);
   const [editingBookingId, setEditingBookingId] = useState<string | null>(null);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
@@ -33,6 +35,15 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
       setShowModal(true);
     }
   }, [triggerAddModalKey]);
+
+  useEffect(() => {
+    if (initialSelectedBookingId) {
+      const booking = bookings.find(b => b.id === initialSelectedBookingId);
+      if (booking) {
+        setSelectedBooking(booking);
+      }
+    }
+  }, [initialSelectedBookingId, bookings]);
 
   const filteredBookings = useMemo(() => {
     return bookings.filter(b => 
@@ -500,7 +511,10 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[200] bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6"
-            onClick={() => setSelectedBooking(null)}
+            onClick={() => {
+              setSelectedBooking(null);
+              if (onSelectionCleared) onSelectionCleared();
+            }}
           >
             <motion.div 
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -527,7 +541,10 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
                      </div>
                   </div>
                   <button 
-                    onClick={() => setSelectedBooking(null)} 
+                    onClick={() => {
+                      setSelectedBooking(null);
+                      if (onSelectionCleared) onSelectionCleared();
+                    }} 
                     className={`p-2 rounded-lg transition-colors ${isDarkMode ? 'hover:bg-slate-800 text-slate-400 hover:text-white' : 'hover:bg-slate-100 text-slate-400 hover:text-slate-600'}`}
                   >
                     <X size={20} />
