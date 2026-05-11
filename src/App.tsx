@@ -734,7 +734,7 @@ const App: React.FC = () => {
         border-r transition-all duration-500 flex flex-col group
       `}>
         <div className={`flex items-center shrink-0 transition-all duration-500 ${!isSidebarOpen && !isMobile ? 'p-6 justify-center' : 'p-8 justify-between gap-4'}`}>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 cursor-pointer" onClick={() => setActiveTab('dashboard')}>
             <div className={`vibrant-gradient rounded-2xl vibrant-glow shrink-0 transition-all duration-500 ${!isSidebarOpen && !isMobile ? 'p-3' : 'p-2.5'}`}>
               <Plane className="text-white w-6 h-6 rotate-45" />
             </div>
@@ -832,7 +832,7 @@ const App: React.FC = () => {
              </button>
              
 
-             <div className="md:hidden flex-shrink-0 flex items-center gap-2">
+             <div className="md:hidden flex-shrink-0 flex items-center gap-2 cursor-pointer" onClick={() => setActiveTab('dashboard')}>
                 <div className="w-7 h-7 flex items-center justify-center vibrant-gradient rounded-lg shadow-sm shrink-0">
                    <Plane className="text-white w-4 h-4 rotate-45" />
                 </div>
@@ -844,7 +844,7 @@ const App: React.FC = () => {
                 </div>
              </div>
 
-             <div className="hidden md:block lg:hidden">
+             <div className="hidden md:block lg:hidden cursor-pointer" onClick={() => setActiveTab('dashboard')}>
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 flex items-center justify-center vibrant-gradient rounded-xl shadow-md shrink-0">
                      <Plane className="text-white w-5 h-5 rotate-45" />
@@ -918,7 +918,7 @@ const App: React.FC = () => {
                 {dbError}
               </div>
             )}
-            {activeTab === 'dashboard' && <Dashboard stats={stats} bookings={bookings} isDarkMode={isDarkMode} />}
+            {activeTab === 'dashboard' && <Dashboard stats={stats} bookings={bookings} setActiveTab={setActiveTab} isDarkMode={isDarkMode} />}
             {activeTab === 'clients' && <ClientList clients={clients} bookings={bookings} onAdd={addClient} onUpdate={updateClient} onNavigateToStatement={navigateToStatement} isDarkMode={isDarkMode} />}
             {activeTab === 'bookings' && <BookingList bookings={bookings} clients={clients} onAdd={addBooking} onUpdate={updateBooking} onDelete={deleteBooking} isDarkMode={isDarkMode} triggerAddModalKey={openBookingModalKey} />}
             {activeTab === 'invoices' && <InvoiceList bookings={bookings} clients={clients} isDarkMode={isDarkMode} />}

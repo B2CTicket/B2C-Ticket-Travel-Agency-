@@ -12,10 +12,11 @@ import {
 interface Props {
   stats: AgencyStats;
   bookings: Booking[];
+  setActiveTab: (tab: any) => void;
   isDarkMode?: boolean;
 }
 
-const Dashboard: React.FC<Props> = ({ stats, bookings, isDarkMode }) => {
+const Dashboard: React.FC<Props> = ({ stats, bookings, setActiveTab, isDarkMode }) => {
   const chartData = bookings.length > 0 ? [
     { name: 'Prev', sales: 0, profit: 0 },
     { name: 'Current', sales: stats.totalSales, profit: stats.netProfit },
@@ -122,11 +123,15 @@ const Dashboard: React.FC<Props> = ({ stats, bookings, isDarkMode }) => {
               const profit = alert.amount - alert.cost;
               
               return (
-                <div key={alert.id} className={`p-5 rounded-3xl border-2 transition-all hover:scale-[1.03] group ${
-                  isUrgent 
-                    ? isDarkMode ? 'bg-rose-500/5 border-rose-500/30' : 'bg-rose-50 border-rose-100'
-                    : isDarkMode ? 'bg-slate-800/20 border-slate-700/50' : 'bg-white border-slate-100 shadow-sm'
-                }`}>
+                <div 
+                  key={alert.id} 
+                  onClick={() => setActiveTab('bookings')}
+                  className={`p-5 rounded-3xl border-2 transition-all hover:scale-[1.03] group cursor-pointer ${
+                    isUrgent 
+                      ? isDarkMode ? 'bg-rose-500/5 border-rose-500/30' : 'bg-rose-50 border-rose-100'
+                      : isDarkMode ? 'bg-slate-800/20 border-slate-700/50' : 'bg-white border-slate-100 shadow-sm'
+                  }`}
+                >
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex items-center gap-2">
                       <div className={`p-1.5 rounded-lg ${isUrgent ? 'bg-rose-500/20 text-rose-500' : 'bg-violet-500/20 text-violet-500'}`}>
@@ -180,6 +185,7 @@ const Dashboard: React.FC<Props> = ({ stats, bookings, isDarkMode }) => {
           trend="+12%" 
           gradient="from-violet-600 to-indigo-600"
           isDarkMode={isDarkMode}
+          onClick={() => setActiveTab('accounts')}
         />
         <StatCard 
           label="Agency Profit" 
@@ -188,6 +194,7 @@ const Dashboard: React.FC<Props> = ({ stats, bookings, isDarkMode }) => {
           trend="+5.4%" 
           gradient="from-emerald-500 to-teal-500"
           isDarkMode={isDarkMode}
+          onClick={() => setActiveTab('accounts')}
         />
         <StatCard 
           label="Flight Volume" 
@@ -196,6 +203,7 @@ const Dashboard: React.FC<Props> = ({ stats, bookings, isDarkMode }) => {
           trend="ACTIVE" 
           gradient="from-amber-500 to-orange-500"
           isDarkMode={isDarkMode}
+          onClick={() => setActiveTab('bookings')}
         />
         <StatCard 
           label="Total Ticket Cost" 
@@ -204,6 +212,7 @@ const Dashboard: React.FC<Props> = ({ stats, bookings, isDarkMode }) => {
           trend="COST" 
           gradient="from-rose-500 to-pink-500"
           isDarkMode={isDarkMode}
+          onClick={() => setActiveTab('accounts')}
         />
         <StatCard 
           label="Pending Tasks" 
@@ -212,6 +221,7 @@ const Dashboard: React.FC<Props> = ({ stats, bookings, isDarkMode }) => {
           trend="REVIEW" 
           gradient="from-rose-500 to-pink-500"
           isDarkMode={isDarkMode}
+          onClick={() => setActiveTab('bookings')}
         />
       </div>
 
@@ -263,7 +273,11 @@ const Dashboard: React.FC<Props> = ({ stats, bookings, isDarkMode }) => {
           </div>
           <div className="space-y-4">
             {bookings.length > 0 ? bookings.slice(0, 5).map((booking) => (
-              <div key={booking.id} className={`flex items-center gap-4 p-4 rounded-3xl transition-all cursor-pointer group ${isDarkMode ? 'hover:bg-slate-800' : 'hover:bg-violet-50'}`}>
+              <div 
+                key={booking.id} 
+                onClick={() => setActiveTab('bookings')}
+                className={`flex items-center gap-4 p-4 rounded-3xl transition-all cursor-pointer group ${isDarkMode ? 'hover:bg-slate-800' : 'hover:bg-violet-50'}`}
+              >
                 <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${isDarkMode ? 'bg-slate-800 group-hover:bg-violet-600 text-slate-400 group-hover:text-white' : 'bg-slate-50 group-hover:bg-violet-600 text-slate-400 group-hover:text-white'}`}>
                   <Ticket size={20} />
                 </div>
@@ -296,8 +310,11 @@ const Dashboard: React.FC<Props> = ({ stats, bookings, isDarkMode }) => {
   );
 };
 
-const StatCard = ({ label, value, icon, trend, gradient, isDarkMode }: any) => (
-  <div className={`p-4 md:p-8 rounded-2xl md:rounded-[32px] border transition-all hover:scale-[1.02] duration-500 ${isDarkMode ? 'bg-[#0f172a] border-slate-800 text-white' : 'bg-white border-slate-100 text-slate-900 shadow-xl shadow-slate-200/40'} relative overflow-hidden group`}>
+const StatCard = ({ label, value, icon, trend, gradient, isDarkMode, onClick }: any) => (
+  <div 
+    onClick={onClick}
+    className={`p-4 md:p-8 rounded-2xl md:rounded-[32px] border transition-all hover:scale-[1.02] duration-500 ${isDarkMode ? 'bg-[#0f172a] border-slate-800 text-white' : 'bg-white border-slate-100 text-slate-900 shadow-xl shadow-slate-200/40'} relative overflow-hidden group cursor-pointer`}
+  >
     <div className={`absolute top-0 right-0 w-24 md:w-32 h-24 md:h-32 bg-gradient-to-br ${gradient} opacity-[0.03] -mr-12 -mt-12 md:-mr-16 md:-mt-16 rounded-full group-hover:scale-150 transition-all duration-700`}></div>
     
     <div className="flex items-start justify-between mb-3 md:mb-6 relative z-10">
