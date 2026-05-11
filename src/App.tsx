@@ -821,7 +821,7 @@ const App: React.FC = () => {
       <main className={`flex-1 flex flex-col overflow-hidden relative transition-all duration-500 ${!isMobile ? (isSidebarOpen ? 'ml-72' : 'ml-24') : ''}`}>
         {/* Subtle Background Accent */}
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/5 blur-[120px] rounded-full pointer-events-none -z-10"></div>
-        <header className={`h-16 md:h-20 pt-safe ${isDarkMode ? 'bg-slate-950/80 border-slate-800' : 'bg-white/90 border-slate-100'} backdrop-blur-xl border-b flex items-center justify-between px-4 md:px-8 shrink-0 z-40 transition-all sticky top-0`}>
+        <header className={`h-16 md:h-20 pt-safe ${isDarkMode ? 'bg-slate-950/80 border-slate-800' : 'bg-white/90 border-slate-100'} backdrop-blur-xl border-b flex items-center justify-between px-3 md:px-8 shrink-0 z-40 transition-all sticky top-0`}>
           <div className="flex items-center gap-3 md:gap-4 flex-1">
              <button 
                 onClick={() => setSidebarOpen(!isSidebarOpen)} 
@@ -832,17 +832,30 @@ const App: React.FC = () => {
              </button>
              
 
-             <div className="md:hidden flex-shrink-0">
-                <h1 className={`font-black text-[10px] sm:text-xs tracking-tighter leading-none ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
-                  B2C <br className="sm:hidden" />
-                  <span className="text-violet-600">TICKET</span>
-                </h1>
+             <div className="md:hidden flex-shrink-0 flex items-center gap-2">
+                <div className="w-7 h-7 flex items-center justify-center vibrant-gradient rounded-lg shadow-sm shrink-0">
+                   <Plane className="text-white w-4 h-4 rotate-45" />
+                </div>
+                <div className="flex flex-col">
+                  <h1 className={`font-black text-[10px] tracking-tighter leading-none ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                    B2C <span className="text-violet-600">TICKET</span>
+                  </h1>
+                  <p className="text-[6px] font-bold text-slate-500 uppercase tracking-[0.1em] mt-0.5 leading-none">ACCOUNTINGS</p>
+                </div>
              </div>
 
              <div className="hidden md:block lg:hidden">
-                <h1 className={`font-black text-sm tracking-tighter transition-colors ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>
-                  B2C <span className="text-violet-600">TICKET</span>
-                </h1>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 flex items-center justify-center vibrant-gradient rounded-xl shadow-md shrink-0">
+                     <Plane className="text-white w-5 h-5 rotate-45" />
+                  </div>
+                  <div className="flex flex-col">
+                    <h1 className={`font-black text-base tracking-tighter transition-colors ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>
+                      B2C <span className="text-violet-600">TICKET</span>
+                    </h1>
+                    <p className="text-[8px] font-bold text-slate-500 uppercase tracking-[0.2em] mt-0.5 leading-none">ACCOUNTINGS</p>
+                  </div>
+                </div>
              </div>
 
              <div className="relative w-full max-w-xs hidden md:block">
@@ -857,7 +870,7 @@ const App: React.FC = () => {
             </div>
           </div>
           
-          <div className="flex items-center gap-1.5 md:gap-5">
+          <div className="flex items-center gap-2 md:gap-5">
             <button 
               onClick={() => {
                 setActiveTab('accounts');
