@@ -886,14 +886,6 @@ const App: React.FC = () => {
                 <span className="hidden lg:inline">ACTIVE</span> BOOKINGS
               </span>
             </button>
-            <div className={`h-8 w-px ${isDarkMode ? 'bg-slate-800' : 'bg-slate-200'} hidden sm:block mx-1`}></div>
-            <button 
-              onClick={handleLogout}
-              className={`p-2 rounded-xl transition-colors hidden sm:flex ${isDarkMode ? 'text-slate-400 hover:bg-slate-800' : 'text-slate-500 hover:bg-slate-50'}`}
-              title="Logout"
-            >
-              <History className="w-5 h-5 rotate-180" />
-            </button>
             <div className="flex items-center gap-2 md:gap-3 shrink-0 ml-1">
               <div className="text-right hidden xl:block">
                 <p className={`text-[10px] font-black tracking-tight leading-none ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>{firebaseUser?.displayName || 'Admin'}</p>
