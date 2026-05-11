@@ -828,24 +828,24 @@ const App: React.FC = () => {
                 className={`p-2 rounded-lg md:p-2.5 md:rounded-xl transition-all duration-300 ${isDarkMode ? 'text-slate-400 bg-slate-900/50 hover:bg-slate-800 hover:text-white' : 'text-slate-500 bg-slate-50 hover:bg-indigo-50 hover:text-indigo-600 shadow-sm hover:shadow-md'}`}
                 aria-label="Toggle Sidebar"
              >
-                {isSidebarOpen ? <X size={18} className="lg:block hidden" /> : <Menu size={18} />}
-                {isMobile && <Menu size={18} />}
+                {isSidebarOpen ? <X size={18} /> : <Menu size={18} />}
              </button>
              
-             {/* Dark mode toggle for mobile */}
-             <button 
-               onClick={() => setIsDarkMode(!isDarkMode)} 
-               className={`shrink-0 md:hidden p-2 rounded-lg transition-all duration-300 ${isDarkMode ? 'bg-amber-500/10 text-amber-500 hover:bg-amber-500/20' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 shadow-sm'}`}
-               title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-             >
-               {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
-             </button>
 
-             <div className="lg:hidden">
+             <div className="md:hidden flex-shrink-0">
+                <h1 className={`font-black text-[10px] sm:text-xs tracking-tighter leading-none ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                  B2C <br className="sm:hidden" />
+                  <span className="text-violet-600">TICKET</span>
+                </h1>
+             </div>
+
+             <div className="hidden md:block lg:hidden">
                 <h1 className={`font-black text-sm tracking-tighter transition-colors ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>
                   B2C <span className="text-violet-600">TICKET</span>
                 </h1>
              </div>
+
+             <div className="relative w-full max-w-xs hidden md:block">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
               <input 
                 type="text" 
@@ -855,19 +855,22 @@ const App: React.FC = () => {
                 }`} 
               />
             </div>
+          </div>
           
-          <div className="flex items-center gap-2 md:gap-5">
+          <div className="flex items-center gap-1.5 md:gap-5">
             <button 
               onClick={() => {
                 setActiveTab('accounts');
                 setOpenTransactionModalKey(Date.now());
                 if (isMobile) setSidebarOpen(false);
               }} 
-              className="bg-emerald-600 text-white px-3 md:px-6 py-2 rounded-lg md:rounded-xl flex items-center gap-2 hover:shadow-emerald-500/30 active:scale-95 transition-all text-[10px] md:text-sm font-bold shadow-lg shadow-emerald-500/20 shrink-0"
+              className="bg-emerald-600 text-white p-2 md:px-6 md:py-2.5 rounded-lg md:rounded-xl flex items-center gap-2 hover:shadow-emerald-500/30 active:scale-95 transition-all text-[10px] md:text-sm font-bold shadow-lg shadow-emerald-500/20 shrink-0"
+              title="Financial Entry"
             >
               <Banknote size={16} className="md:w-[18px] md:h-[18px] shrink-0" />
-              <span className="hidden sm:block">FINANCIAL ENTRY</span>
-              <span className="sm:hidden">ENTRY</span>
+              <span className="hidden md:block">
+                <span className="hidden lg:inline">FINANCIAL</span> ENTRY
+              </span>
             </button>
             <button 
               onClick={() => {
@@ -875,27 +878,29 @@ const App: React.FC = () => {
                 setOpenBookingModalKey(Date.now());
                 if (isMobile) setSidebarOpen(false);
               }} 
-              className="bg-indigo-600 text-white px-3 md:px-6 py-2 rounded-lg md:rounded-xl flex items-center gap-2 hover:shadow-indigo-500/30 active:scale-95 transition-all text-[10px] md:text-sm font-bold shadow-lg shadow-indigo-500/20 shrink-0"
+              className="bg-indigo-600 text-white p-2 md:px-6 md:py-2.5 rounded-lg md:rounded-xl flex items-center gap-2 hover:shadow-indigo-500/30 active:scale-95 transition-all text-[10px] md:text-sm font-bold shadow-lg shadow-indigo-500/20 shrink-0"
+              title="Active Bookings"
             >
               <Ticket size={16} className="md:w-[18px] md:h-[18px] shrink-0" />
-              <span className="hidden sm:block">ACTIVE BOOKINGS</span>
-              <span className="sm:hidden">BOOK</span>
+              <span className="hidden md:block">
+                <span className="hidden lg:inline">ACTIVE</span> BOOKINGS
+              </span>
             </button>
-            <div className={`h-8 w-px ${isDarkMode ? 'bg-slate-800' : 'bg-slate-200'} hidden sm:block`}></div>
+            <div className={`h-8 w-px ${isDarkMode ? 'bg-slate-800' : 'bg-slate-200'} hidden sm:block mx-1`}></div>
             <button 
               onClick={handleLogout}
-              className={`p-2 rounded-xl transition-colors ${isDarkMode ? 'text-slate-400 hover:bg-slate-800 hover:text-rose-500' : 'text-slate-500 hover:bg-slate-50 hover:text-rose-500'}`}
+              className={`p-2 rounded-xl transition-colors hidden sm:flex ${isDarkMode ? 'text-slate-400 hover:bg-slate-800' : 'text-slate-500 hover:bg-slate-50'}`}
               title="Logout"
             >
               <History className="w-5 h-5 rotate-180" />
             </button>
-            <div className="flex items-center gap-3 shrink-0">
-              <div className="text-right hidden md:block">
-                <p className={`text-xs font-black tracking-tight ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>{firebaseUser?.displayName || 'Admin Terminal'}</p>
-                <p className="text-[10px] text-indigo-500 font-bold uppercase tracking-widest mt-0.5">{firebaseUser?.email}</p>
+            <div className="flex items-center gap-2 md:gap-3 shrink-0 ml-1">
+              <div className="text-right hidden xl:block">
+                <p className={`text-[10px] font-black tracking-tight leading-none ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>{firebaseUser?.displayName || 'Admin'}</p>
+                <p className="text-[8px] text-indigo-500 font-bold uppercase tracking-widest mt-0.5 opacity-60">Manager</p>
               </div>
-              <div className="w-10 h-10 rounded-xl vibrant-gradient p-[1.5px] shadow-lg group cursor-pointer overflow-hidden">
-                <img src={firebaseUser?.photoURL || "https://picsum.photos/80/80?random=1"} alt="Avatar" className="w-full h-full object-cover rounded-[10px] border-2 border-transparent group-hover:scale-110 transition-transform" />
+              <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl vibrant-gradient p-[1.5px] shadow-lg group cursor-pointer overflow-hidden">
+                <img src={firebaseUser?.photoURL || "https://picsum.photos/80/80?random=1"} alt="Avatar" className="w-full h-full object-cover rounded-[7px] md:rounded-[9px] border-2 border-transparent group-hover:scale-110 transition-transform" />
               </div>
             </div>
           </div>

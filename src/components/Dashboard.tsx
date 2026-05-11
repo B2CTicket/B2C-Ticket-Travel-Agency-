@@ -172,7 +172,7 @@ const Dashboard: React.FC<Props> = ({ stats, bookings, isDarkMode }) => {
       )}
 
       {/* Modern KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 md:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 md:gap-6">
         <StatCard 
           label="Total Revenue" 
           value={`৳${stats.totalSales.toLocaleString()}`} 
@@ -304,14 +304,14 @@ const StatCard = ({ label, value, icon, trend, gradient, isDarkMode }: any) => (
       <div className={`p-2.5 md:p-4 rounded-xl md:rounded-2xl bg-gradient-to-br ${gradient} text-white shadow-lg transition-transform group-hover:rotate-6`}>
         {React.cloneElement(icon, { size: isMobileWindow() ? 16 : 24 })}
       </div>
-      <div className={`px-1.5 md:px-3 py-0.5 md:py-1 rounded-full text-[7px] md:text-[10px] font-black uppercase tracking-widest border ${
+      <div className={`px-1.5 md:px-3 py-0.5 md:py-1 rounded-full text-[8px] md:text-[10px] font-black uppercase tracking-widest border ${
         trend === 'ACTIVE' || trend === 'REVIEW' ? 'border-amber-500/30 text-amber-500 bg-amber-500/5' : 'border-emerald-500/30 text-emerald-500 bg-emerald-500/5'
       }`}>
         {trend}
       </div>
     </div>
     <div className="relative z-10">
-        <p className={`${isDarkMode ? 'text-slate-400' : 'text-slate-500'} text-[7px] md:text-[10px] font-black uppercase tracking-[0.2em] mb-0.5 md:mb-1 truncate`}>{label}</p>
+        <p className={`${isDarkMode ? 'text-slate-400' : 'text-slate-500'} text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] mb-0.5 md:mb-1 truncate`}>{label}</p>
         <h4 className="text-base md:text-3xl font-black tracking-tighter truncate">{value}</h4>
     </div>
   </div>
