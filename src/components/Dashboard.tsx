@@ -297,22 +297,22 @@ const Dashboard: React.FC<Props> = ({ stats, bookings, isDarkMode }) => {
 };
 
 const StatCard = ({ label, value, icon, trend, gradient, isDarkMode }: any) => (
-  <div className={`p-4 md:p-8 rounded-2xl md:rounded-[32px] border transition-all hover:scale-[1.05] duration-500 ${isDarkMode ? 'bg-[#0f172a] border-slate-800 text-white' : 'bg-white border-slate-100 text-slate-900 shadow-xl shadow-slate-200/40'} relative overflow-hidden group`}>
+  <div className={`p-4 md:p-8 rounded-2xl md:rounded-[32px] border transition-all hover:scale-[1.02] duration-500 ${isDarkMode ? 'bg-[#0f172a] border-slate-800 text-white' : 'bg-white border-slate-100 text-slate-900 shadow-xl shadow-slate-200/40'} relative overflow-hidden group`}>
     <div className={`absolute top-0 right-0 w-24 md:w-32 h-24 md:h-32 bg-gradient-to-br ${gradient} opacity-[0.03] -mr-12 -mt-12 md:-mr-16 md:-mt-16 rounded-full group-hover:scale-150 transition-all duration-700`}></div>
     
-    <div className="flex items-start justify-between mb-4 md:mb-6 relative z-10">
-      <div className={`p-3 md:p-4 rounded-xl md:rounded-2xl bg-gradient-to-br ${gradient} text-white shadow-lg transition-transform group-hover:rotate-6`}>
-        {React.cloneElement(icon, { size: isMobileWindow() ? 18 : 24 })}
+    <div className="flex items-start justify-between mb-3 md:mb-6 relative z-10">
+      <div className={`p-2.5 md:p-4 rounded-xl md:rounded-2xl bg-gradient-to-br ${gradient} text-white shadow-lg transition-transform group-hover:rotate-6`}>
+        {React.cloneElement(icon, { size: isMobileWindow() ? 16 : 24 })}
       </div>
-      <div className={`px-2 md:px-3 py-1 rounded-full text-[8px] md:text-[10px] font-black uppercase tracking-widest border ${
+      <div className={`px-1.5 md:px-3 py-0.5 md:py-1 rounded-full text-[7px] md:text-[10px] font-black uppercase tracking-widest border ${
         trend === 'ACTIVE' || trend === 'REVIEW' ? 'border-amber-500/30 text-amber-500 bg-amber-500/5' : 'border-emerald-500/30 text-emerald-500 bg-emerald-500/5'
       }`}>
         {trend}
       </div>
     </div>
     <div className="relative z-10">
-        <p className={`${isDarkMode ? 'text-slate-400' : 'text-slate-500'} text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] mb-1`}>{label}</p>
-        <h4 className="text-xl md:text-3xl font-black tracking-tighter">{value}</h4>
+        <p className={`${isDarkMode ? 'text-slate-400' : 'text-slate-500'} text-[7px] md:text-[10px] font-black uppercase tracking-[0.2em] mb-0.5 md:mb-1 truncate`}>{label}</p>
+        <h4 className="text-base md:text-3xl font-black tracking-tighter truncate">{value}</h4>
     </div>
   </div>
 );

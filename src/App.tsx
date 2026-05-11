@@ -54,19 +54,18 @@ const App: React.FC = () => {
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const [openTransactionModalKey, setOpenTransactionModalKey] = useState(0);
   const [openBookingModalKey, setOpenBookingModalKey] = useState(0);
-  const [isSidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 1024);
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isSidebarOpen, setSidebarOpen] = useState(false); // Default to closed on all loads for better mobile start, then useEffect handles desktop
+  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 1024 : true);
   
   useEffect(() => {
-    const handleBeforeInstallPrompt = (e: any) => {
-      console.log('Capture beforeinstallprompt event');
-      e.preventDefault();
-      setDeferredPrompt(e);
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 1024;
+      setIsMobile(mobile);
+      if (!mobile) setSidebarOpen(true);
     };
-
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   // Firebase Auth State
@@ -76,6 +75,7 @@ const App: React.FC = () => {
   const [loginLoading, setLoginLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const [authStage, setAuthStage] = useState<string>('Initializing');
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
 
   const [isDarkMode, setIsDarkMode] = useState(() => {
     try {
@@ -458,7 +458,18 @@ const App: React.FC = () => {
     };
 
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
   }, []);
 
   useEffect(() => {
@@ -714,12 +725,12 @@ const App: React.FC = () => {
 
       {/* Unique Sidebar with Gradient & Blur */}
       <aside className={`
-        fixed top-0 left-0 h-[100dvh] pb-safe z-[70]
+        fixed top-0 left-0 h-[100dvh] pb-safe z-[110]
         ${isMobile 
-          ? isSidebarOpen ? 'w-80 translate-x-0 shadow-2xl' : 'w-80 -translate-x-full'
+          ? isSidebarOpen ? 'w-[280px] translate-x-0 shadow-2xl' : 'w-[280px] -translate-x-full'
           : isSidebarOpen ? 'w-72 translate-x-0' : 'w-24 translate-x-0'
         }
-        ${isDarkMode ? 'bg-slate-900/40 border-slate-800' : 'bg-white border-slate-100'} 
+        ${isDarkMode ? 'bg-slate-900/95 border-slate-800 backdrop-blur-xl' : 'bg-white/95 border-slate-100 backdrop-blur-xl'} 
         border-r transition-all duration-500 flex flex-col group
       `}>
         <div className={`flex items-center shrink-0 transition-all duration-500 ${!isSidebarOpen && !isMobile ? 'p-6 justify-center' : 'p-8 justify-between gap-4'}`}>
@@ -810,27 +821,31 @@ const App: React.FC = () => {
       <main className={`flex-1 flex flex-col overflow-hidden relative transition-all duration-500 ${!isMobile ? (isSidebarOpen ? 'ml-72' : 'ml-24') : ''}`}>
         {/* Subtle Background Accent */}
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/5 blur-[120px] rounded-full pointer-events-none -z-10"></div>
-        <header className={`h-20 pt-safe ${isDarkMode ? 'bg-slate-950/80 border-slate-800' : 'bg-white/90 border-slate-100'} backdrop-blur-xl border-b flex items-center justify-between px-4 md:px-8 shrink-0 z-40 transition-all sticky top-0`}>
-          <div className="flex items-center gap-4 flex-1">
+        <header className={`h-16 md:h-20 pt-safe ${isDarkMode ? 'bg-slate-950/80 border-slate-800' : 'bg-white/90 border-slate-100'} backdrop-blur-xl border-b flex items-center justify-between px-4 md:px-8 shrink-0 z-40 transition-all sticky top-0`}>
+          <div className="flex items-center gap-3 md:gap-4 flex-1">
              <button 
                 onClick={() => setSidebarOpen(!isSidebarOpen)} 
-                className={`p-2.5 rounded-xl transition-all duration-300 ${isDarkMode ? 'text-slate-400 bg-slate-900/50 hover:bg-slate-800 hover:text-white' : 'text-slate-500 bg-slate-50 hover:bg-indigo-50 hover:text-indigo-600 shadow-sm hover:shadow-md'}`}
+                className={`p-2 rounded-lg md:p-2.5 md:rounded-xl transition-all duration-300 ${isDarkMode ? 'text-slate-400 bg-slate-900/50 hover:bg-slate-800 hover:text-white' : 'text-slate-500 bg-slate-50 hover:bg-indigo-50 hover:text-indigo-600 shadow-sm hover:shadow-md'}`}
                 aria-label="Toggle Sidebar"
              >
-                {isSidebarOpen ? <X size={20} className="lg:block hidden" /> : <Menu size={20} />}
-                {isMobile && <Menu size={20} />}
+                {isSidebarOpen ? <X size={18} className="lg:block hidden" /> : <Menu size={18} />}
+                {isMobile && <Menu size={18} />}
              </button>
              
              {/* Dark mode toggle for mobile */}
              <button 
                onClick={() => setIsDarkMode(!isDarkMode)} 
-               className={`shrink-0 md:hidden p-2.5 rounded-xl transition-all duration-300 ${isDarkMode ? 'bg-amber-500/10 text-amber-500 hover:bg-amber-500/20' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 shadow-sm'}`}
+               className={`shrink-0 md:hidden p-2 rounded-lg transition-all duration-300 ${isDarkMode ? 'bg-amber-500/10 text-amber-500 hover:bg-amber-500/20' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 shadow-sm'}`}
                title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
              >
                {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
              </button>
 
-             <div className="relative w-full max-w-xs hidden lg:block ml-2">
+             <div className="lg:hidden">
+                <h1 className={`font-black text-sm tracking-tighter transition-colors ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>
+                  B2C <span className="text-violet-600">TICKET</span>
+                </h1>
+             </div>
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
               <input 
                 type="text" 
@@ -840,20 +855,19 @@ const App: React.FC = () => {
                 }`} 
               />
             </div>
-          </div>
           
-          <div className="flex items-center gap-3 md:gap-5">
+          <div className="flex items-center gap-2 md:gap-5">
             <button 
               onClick={() => {
                 setActiveTab('accounts');
                 setOpenTransactionModalKey(Date.now());
                 if (isMobile) setSidebarOpen(false);
               }} 
-              className="bg-emerald-600 text-white px-4 md:px-6 py-2.5 rounded-xl flex items-center gap-2 hover:shadow-emerald-500/30 active:scale-95 transition-all text-[11px] md:text-sm font-bold shadow-lg shadow-emerald-500/20 shrink-0"
+              className="bg-emerald-600 text-white px-3 md:px-6 py-2 rounded-lg md:rounded-xl flex items-center gap-2 hover:shadow-emerald-500/30 active:scale-95 transition-all text-[10px] md:text-sm font-bold shadow-lg shadow-emerald-500/20 shrink-0"
             >
-              <Banknote size={18} className="shrink-0" />
+              <Banknote size={16} className="md:w-[18px] md:h-[18px] shrink-0" />
               <span className="hidden sm:block">FINANCIAL ENTRY</span>
-              <span className="sm:hidden">FIN</span>
+              <span className="sm:hidden">ENTRY</span>
             </button>
             <button 
               onClick={() => {
@@ -861,9 +875,9 @@ const App: React.FC = () => {
                 setOpenBookingModalKey(Date.now());
                 if (isMobile) setSidebarOpen(false);
               }} 
-              className="bg-indigo-600 text-white px-4 md:px-6 py-2.5 rounded-xl flex items-center gap-2 hover:shadow-indigo-500/30 active:scale-95 transition-all text-[11px] md:text-sm font-bold shadow-lg shadow-indigo-500/20 shrink-0"
+              className="bg-indigo-600 text-white px-3 md:px-6 py-2 rounded-lg md:rounded-xl flex items-center gap-2 hover:shadow-indigo-500/30 active:scale-95 transition-all text-[10px] md:text-sm font-bold shadow-lg shadow-indigo-500/20 shrink-0"
             >
-              <Ticket size={18} className="shrink-0" />
+              <Ticket size={16} className="md:w-[18px] md:h-[18px] shrink-0" />
               <span className="hidden sm:block">ACTIVE BOOKINGS</span>
               <span className="sm:hidden">BOOK</span>
             </button>

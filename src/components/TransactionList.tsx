@@ -371,23 +371,23 @@ const TransactionList: React.FC<Props> = ({ transactions, stats, onAddTransactio
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 animate-in slide-in-from-bottom-4 duration-500">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 animate-in slide-in-from-bottom-4 duration-500">
         <StatSummaryCard 
-          label="Period Income" 
+          label="Income" 
           value={`৳${periodStats.income.toLocaleString()}`} 
           icon={<ArrowUpCircle className="text-emerald-500" />} 
           isDarkMode={isDarkMode}
           colorClass="text-emerald-500"
         />
         <StatSummaryCard 
-          label="Period Expense" 
+          label="Expense" 
           value={`৳${periodStats.expense.toLocaleString()}`} 
           icon={<ArrowDownCircle className="text-rose-500" />} 
           isDarkMode={isDarkMode}
           colorClass="text-rose-500"
         />
         <StatSummaryCard 
-          label="Period Net Profit" 
+          label="Net Yield" 
           value={`৳${periodStats.profit.toLocaleString()}`} 
           icon={<Banknote className="text-violet-500" />} 
           isDarkMode={isDarkMode}
@@ -484,22 +484,22 @@ const TransactionList: React.FC<Props> = ({ transactions, stats, onAddTransactio
           {/* Mobile Card View */}
           <div className="md:hidden divide-y-2 divide-slate-50 dark:divide-slate-800/50">
             {filteredTransactions.map((t) => (
-              <div key={t.id} className="p-6 flex items-center justify-between gap-4 group">
-                <div className="flex items-center gap-4">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+              <div key={t.id} className="p-4 flex items-center justify-between gap-3 group">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
                     t.type === TransactionType.INCOME 
                       ? 'bg-emerald-500/10 text-emerald-500' 
                       : 'bg-rose-500/10 text-rose-500'
                   }`}>
                     {t.type === TransactionType.INCOME ? <ArrowUpCircle size={18} /> : <ArrowDownCircle size={18} />}
                   </div>
-                  <div>
-                    <p className={`text-sm font-black tracking-tight ${isDarkMode ? 'text-slate-200' : 'text-slate-800'}`}>{t.category}</p>
-                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{formatDate(t.date)} • {t.reference || 'NO REF'}</p>
+                  <div className="min-w-0">
+                    <p className={`text-sm font-black tracking-tight truncate ${isDarkMode ? 'text-slate-200' : 'text-slate-800'}`}>{t.category}</p>
+                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest truncate">{formatDate(t.date)} • {t.reference || 'NO REF'}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <p className={`font-black text-sm tracking-tighter shrink-0 ${
+                <div className="flex flex-col items-end gap-1 shrink-0">
+                  <p className={`font-black text-sm tracking-tighter ${
                     t.type === TransactionType.INCOME 
                       ? isDarkMode ? 'text-emerald-400' : 'text-emerald-600' 
                       : isDarkMode ? 'text-rose-400' : 'text-rose-600'
@@ -777,18 +777,18 @@ const TransactionList: React.FC<Props> = ({ transactions, stats, onAddTransactio
 };
 
 const StatSummaryCard = ({ label, value, icon, isDarkMode, highlight, colorClass }: any) => (
-  <div className={`p-6 md:p-8 rounded-[32px] border-2 transition-all ${
+  <div className={`p-5 md:p-8 rounded-[24px] md:rounded-[32px] border-2 transition-all ${
     isDarkMode 
       ? highlight ? 'bg-violet-900/10 border-violet-500/30' : 'bg-slate-900 border-slate-800' 
-      : highlight ? 'bg-violet-50 border-violet-100 shadow-xl shadow-violet-200/20' : 'bg-white border-slate-100 shadow-lg shadow-slate-200/40'
+      : highlight ? 'bg-white border-violet-100 shadow-xl shadow-violet-200/10' : 'bg-white border-slate-100 shadow-lg shadow-slate-200/40'
   }`}>
-    <div className="flex items-center gap-5">
-      <div className={`p-4 rounded-2xl transition-transform hover:rotate-6 ${isDarkMode ? 'bg-slate-800' : 'bg-slate-50'}`}>
-        {icon}
+    <div className="flex items-center gap-3 md:gap-5">
+      <div className={`p-3 md:p-4 rounded-xl md:rounded-2xl shrink-0 transition-transform hover:rotate-6 ${isDarkMode ? 'bg-slate-800' : 'bg-slate-50'}`}>
+        {React.cloneElement(icon, { size: 20, className: icon.props.className })}
       </div>
-      <div>
-        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-0.5">{label}</p>
-        <p className={`text-2xl font-black tracking-tighter ${colorClass}`}>{value}</p>
+      <div className="min-w-0">
+        <p className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-400 mb-0.5 truncate">{label}</p>
+        <p className={`text-base md:text-2xl font-black tracking-tighter truncate ${colorClass}`}>{value}</p>
       </div>
     </div>
   </div>

@@ -214,54 +214,54 @@ const ClientList: React.FC<Props> = ({ clients, bookings, onAdd, onUpdate, onNav
           {/* Mobile Cards */}
           <div className="md:hidden divide-y divide-slate-100 dark:divide-slate-800">
             {clients.map((client) => (
-              <div key={client.id} className="p-6 space-y-6">
+              <div key={client.id} className="p-5 space-y-5">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black ${
+                  <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black ${
                       isDarkMode ? 'bg-slate-800 text-violet-400' : 'bg-violet-50 text-violet-600'
                     }`}>
                       {client.name.charAt(0)}
                     </div>
-                    <div>
-                      <p className={`font-black text-sm tracking-tight ${isDarkMode ? 'text-slate-100' : 'text-slate-900'}`}>{client.name}</p>
-                      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{client.phone}</p>
+                    <div className="min-w-0">
+                      <p className={`font-black text-sm tracking-tight truncate ${isDarkMode ? 'text-slate-100' : 'text-slate-900'}`}>{client.name}</p>
+                      <p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest">{client.phone}</p>
                     </div>
                   </div>
                   <button 
                     onClick={() => openEditModal(client)}
-                    className={`p-2.5 rounded-xl ${isDarkMode ? 'bg-slate-800 text-slate-400' : 'bg-slate-100 text-slate-500'}`}
+                    className={`p-2 rounded-xl ${isDarkMode ? 'bg-slate-800 text-slate-400' : 'bg-slate-100 text-slate-500'}`}
                   >
                     <Edit2 size={16} />
                   </button>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className={`p-4 rounded-2xl ${isDarkMode ? 'bg-slate-800/50' : 'bg-slate-50'}`}>
-                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Passport</p>
-                    <p className={`text-xs font-black ${isDarkMode ? 'text-slate-200' : 'text-slate-700'}`}>{client.passportNumber || 'N/A'}</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className={`p-3 rounded-xl ${isDarkMode ? 'bg-slate-800/50' : 'bg-slate-50'}`}>
+                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Passport</p>
+                    <p className={`text-[11px] font-black truncate ${isDarkMode ? 'text-slate-200' : 'text-slate-700'}`}>{client.passportNumber || 'N/A'}</p>
                   </div>
-                  <div className={`p-4 rounded-2xl ${isDarkMode ? 'bg-slate-800/50' : 'bg-slate-50'}`}>
-                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Sales</p>
-                    <p className={`text-xs font-black text-violet-600`}>৳{getClientTotalBilled(client.id).toLocaleString()}</p>
+                  <div className={`p-3 rounded-xl ${isDarkMode ? 'bg-slate-800/50' : 'bg-slate-50'}`}>
+                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Yield</p>
+                    <p className={`text-[11px] font-black text-violet-600`}>৳{getClientTotalBilled(client.id).toLocaleString()}</p>
                   </div>
                 </div>
 
-                <div className="flex gap-3">
+                <div className="flex gap-2">
                   <button 
                     onClick={() => handleSendEmail(client.email)}
-                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border ${
+                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest border ${
                       isDarkMode ? 'bg-slate-800 border-slate-700 text-slate-300' : 'bg-slate-50 border-slate-100 text-slate-700'
                     }`}
                   >
-                    <Mail size={14} />
+                    <Mail size={12} />
                     Email
                   </button>
                   <button 
                     onClick={() => onNavigateToStatement?.(client.id)}
-                    className="flex-1 flex items-center justify-center gap-2 py-3 vibrant-gradient text-white text-[10px] font-black uppercase tracking-widest rounded-2xl shadow-lg shadow-violet-500/20"
+                    className="flex-[1.5] flex items-center justify-center gap-2 py-2.5 vibrant-gradient text-white text-[9px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-violet-500/20"
                   >
-                    <History size={14} />
-                    Statement
+                    <History size={12} />
+                    Ledger
                   </button>
                 </div>
               </div>
@@ -278,84 +278,84 @@ const ClientList: React.FC<Props> = ({ clients, bookings, onAdd, onUpdate, onNav
       </div>
 
       {showModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-          <div className={`rounded-[40px] w-full max-w-lg shadow-2xl animate-in zoom-in-95 duration-200 overflow-hidden ${
-            isDarkMode ? 'bg-slate-900 text-white' : 'bg-white text-slate-900'
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className={`rounded-3xl md:rounded-[40px] w-full max-w-lg shadow-2xl animate-in zoom-in-95 duration-200 max-h-[95dvh] flex flex-col overflow-hidden ${
+            isDarkMode ? 'bg-slate-900 text-white border border-slate-800' : 'bg-white text-slate-900'
           }`}>
-            <div className={`px-10 py-8 border-b-2 flex items-center justify-between ${
+            <div className={`px-6 py-5 md:px-10 md:py-8 border-b-2 flex items-center justify-between shrink-0 ${
               isDarkMode ? 'bg-slate-800/50 border-slate-800' : 'bg-slate-50/50 border-slate-100'
             }`}>
               <div>
-                <h3 className="font-black text-xl uppercase tracking-tighter">{editingClient ? 'Update Profile' : 'New Passenger Registration'}</h3>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Enter mandatory traveler details</p>
+                <h3 className="font-black text-base md:text-xl uppercase tracking-tighter">{editingClient ? 'Finalize Profile' : 'New Client'}</h3>
+                <p className="text-[8px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest">Client database update</p>
               </div>
-              <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-rose-500 transition-colors">
-                <X size={24} />
+              <button onClick={() => setShowModal(false)} className="p-2 text-slate-400 hover:text-rose-500 transition-colors">
+                <X size={20} />
               </button>
             </div>
-            <form onSubmit={handleSubmit} className="p-10 space-y-6">
-              <div className="space-y-6">
+            <form onSubmit={handleSubmit} className="p-6 md:p-10 space-y-4 md:space-y-6 overflow-y-auto no-scrollbar">
+              <div className="space-y-4 md:space-y-6">
                 <div>
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Full Legal Name</label>
+                  <label className="block text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1.5 md:mb-2">Full Legal Name</label>
                   <input 
                     required
                     value={formData.name}
                     onChange={e => setFormData({...formData, name: e.target.value})}
                     type="text" 
                     placeholder="As per Passport"
-                    className={`w-full px-6 py-4 border-2 rounded-2xl outline-none text-sm font-bold transition-all ${
+                    className={`w-full px-4 py-3 md:px-6 md:py-4 border-2 rounded-xl md:rounded-2xl outline-none text-xs md:text-sm font-bold transition-all ${
                       isDarkMode ? 'bg-slate-800 border-slate-700 text-white focus:border-violet-500/50' : 'bg-slate-50 border-slate-100 text-slate-900 focus:border-violet-500/50'
                     }`} />
                 </div>
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                   <div>
-                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Email Address</label>
+                    <label className="block text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1.5 md:mb-2">Email Address</label>
                     <input 
                       required
                       type="email"
                       value={formData.email}
                       onChange={e => setFormData({...formData, email: e.target.value})}
-                      className={`w-full px-6 py-4 border-2 rounded-2xl outline-none text-sm font-bold ${
+                      className={`w-full px-4 py-3 md:px-6 md:py-4 border-2 rounded-xl md:rounded-2xl outline-none text-xs md:text-sm font-bold ${
                         isDarkMode ? 'bg-slate-800 border-slate-700 text-white focus:border-violet-500/50' : 'bg-slate-50 border-slate-100 text-slate-900 focus:border-violet-500/50'
                       }`} />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Phone Number</label>
+                    <label className="block text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1.5 md:mb-2">Phone Number</label>
                     <input 
                       required
                       type="tel"
                       value={formData.phone}
                       onChange={e => setFormData({...formData, phone: e.target.value})}
-                      className={`w-full px-6 py-4 border-2 rounded-2xl outline-none text-sm font-bold ${
+                      className={`w-full px-4 py-3 md:px-6 md:py-4 border-2 rounded-xl md:rounded-2xl outline-none text-xs md:text-sm font-bold ${
                         isDarkMode ? 'bg-slate-800 border-slate-700 text-white focus:border-violet-500/50' : 'bg-slate-50 border-slate-100 text-slate-900 focus:border-violet-500/50'
                       }`} />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Passport ID (Optional)</label>
+                  <label className="block text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1.5 md:mb-2">Passport ID (Optional)</label>
                   <input 
                     value={formData.passportNumber}
                     onChange={e => setFormData({...formData, passportNumber: e.target.value})}
-                    type="text" className={`w-full px-6 py-4 border-2 rounded-2xl outline-none text-sm font-bold ${
+                    type="text" className={`w-full px-4 py-3 md:px-6 md:py-4 border-2 rounded-xl md:rounded-2xl outline-none text-xs md:text-sm font-bold ${
                       isDarkMode ? 'bg-slate-800 border-slate-700 text-white focus:border-violet-500/50' : 'bg-slate-50 border-slate-100 text-slate-900 focus:border-violet-500/50'
                     }`} />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Home Address</label>
+                  <label className="block text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1.5 md:mb-2">Home Address</label>
                   <textarea 
                     value={formData.address}
                     onChange={e => setFormData({...formData, address: e.target.value})}
-                    className={`w-full px-6 py-4 border-2 rounded-2xl outline-none text-sm font-bold h-24 resize-none ${
+                    className={`w-full px-4 py-3 md:px-6 md:py-4 border-2 rounded-xl md:rounded-2xl outline-none text-xs md:text-sm font-bold h-20 md:h-24 resize-none ${
                       isDarkMode ? 'bg-slate-800 border-slate-700 text-white focus:border-violet-500/50' : 'bg-slate-50 border-slate-100 text-slate-900 focus:border-violet-500/50'
                     }`} />
                 </div>
               </div>
-              <div className="flex gap-4 pt-6">
-                <button type="button" onClick={() => setShowModal(false)} className={`flex-1 py-4 text-[10px] font-black uppercase tracking-widest rounded-2xl transition-all ${
+              <div className="flex gap-4 pt-4 md:pt-6">
+                <button type="button" onClick={() => setShowModal(false)} className={`flex-1 py-3 md:py-4 text-[9px] md:text-[10px] font-black uppercase tracking-widest rounded-xl md:rounded-2xl transition-all ${
                   isDarkMode ? 'text-slate-400 hover:bg-slate-800' : 'text-slate-500 hover:bg-slate-50 border-2 border-slate-100'
                 }`}>Discard</button>
-                <button type="submit" className="flex-1 py-4 vibrant-gradient text-white text-[10px] font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-violet-500/30 hover:scale-105 active:scale-95 transition-all">
-                  {editingClient ? 'Finalize Updates' : 'Complete Registration'}
+                <button type="submit" className="flex-1 py-3 md:py-4 vibrant-gradient text-white text-[9px] md:text-[10px] font-black uppercase tracking-widest rounded-xl md:rounded-2xl shadow-xl shadow-violet-500/30 hover:scale-105 active:scale-95 transition-all">
+                  {editingClient ? 'Finalize' : 'Confirm'}
                 </button>
               </div>
             </form>
