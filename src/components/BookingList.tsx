@@ -70,7 +70,7 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
 
   const [formData, setFormData] = useState({
     clientId: '', clientName: '', clientPhone: '', type: 'Air Ticket' as any,
-    date: new Date().toISOString().split('T')[0], issueDate: new Date().toISOString().split('T')[0],
+    date: new Date().toISOString().split('T')[0], issueDate: new Date().toISOString().split('T')[0], travelTime: '',
     flyingDate: '', from: '', to: '', checkIn: '', checkOut: '', hotelName: '',
     amount: 0, cost: 0,
     status: BookingStatus.PENDING, description: '', pax: 1, pnr: '', bookingSource: ''
@@ -241,6 +241,7 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
       type: booking.type,
       date: booking.date,
       issueDate: booking.issueDate || booking.date,
+      travelTime: booking.travelTime || '',
       flyingDate: booking.flyingDate || '',
       from: booking.from || '',
       to: booking.to || '',
@@ -265,7 +266,7 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
     setEditingBookingId(null);
     setFormData({
       clientId: '', clientName: '', clientPhone: '', type: 'Air Ticket',
-      date: new Date().toISOString().split('T')[0], issueDate: new Date().toISOString().split('T')[0],
+      date: new Date().toISOString().split('T')[0], issueDate: new Date().toISOString().split('T')[0], travelTime: '',
       flyingDate: '', from: '', to: '', checkIn: '', checkOut: '', hotelName: '',
       amount: 0, cost: 0,
       status: BookingStatus.PENDING, description: '', pax: 1, pnr: '', bookingSource: ''
@@ -484,6 +485,7 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
                    <Calendar size={12} className="text-slate-400" />
                    <p className="text-[10px] font-medium text-slate-500 uppercase tracking-widest">
                      {formatDate(booking.flyingDate || booking.checkIn || '')}
+                     {booking.travelTime ? ` @ ${booking.travelTime}` : ''}
                    </p>
                 </div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase">{booking.pax || 1} PAX</p>
@@ -616,7 +618,7 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
                                     <p className="text-[9px] font-bold text-slate-400 uppercase mb-1 tracking-widest">Destination</p>
                                     <p className="text-xl font-bold text-indigo-600 uppercase">{selectedBooking.to || '--'}</p>
                                  </div>
-                                 <div className={`col-span-2 p-4 rounded-xl border grid grid-cols-2 gap-4 ${isDarkMode ? 'bg-slate-800/40 border-slate-800' : 'bg-slate-50 border-slate-100'}`}>
+                                 <div className={`col-span-2 p-4 rounded-xl border grid grid-cols-2 md:grid-cols-3 gap-4 ${isDarkMode ? 'bg-slate-800/40 border-slate-800' : 'bg-slate-50 border-slate-100'}`}>
                                     <div className="flex items-center gap-3">
                                        <Calendar size={16} className="text-indigo-500 shrink-0" />
                                        <div className="min-w-0">
@@ -626,6 +628,13 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
                                     </div>
                                     <div className="flex items-center gap-3 border-l border-slate-200 dark:border-slate-700 pl-4">
                                        <Activity size={16} className="text-emerald-500 shrink-0" />
+                                       <div className="min-w-0">
+                                          <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Flight Time</p>
+                                          <p className="text-[10px] font-bold text-indigo-600 uppercase font-mono">{selectedBooking.travelTime || 'N/A'}</p>
+                                       </div>
+                                    </div>
+                                    <div className="flex items-center gap-3 border-t md:border-t-0 md:border-l border-slate-200 dark:border-slate-700 pt-4 md:pt-0 md:pl-4 col-span-2 md:col-span-1">
+                                       <Activity size={16} className="text-indigo-500 shrink-0" />
                                        <div className="min-w-0">
                                           <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Status</p>
                                           <p className="text-[10px] font-bold text-indigo-600 uppercase">{selectedBooking.status}</p>
@@ -916,6 +925,10 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
                             <div className="space-y-1.5">
                                <label className="text-[11px] font-bold text-slate-500 uppercase">Issue Date (DD/MM/YYYY)</label>
                                <input required type="date" value={formData.issueDate} onChange={e => setFormData({...formData, issueDate: e.target.value})} className={`w-full px-4 py-3 border rounded-xl font-medium text-sm ${isDarkMode ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-200'}`} />
+                            </div>
+                            <div className="space-y-1.5">
+                               <label className="text-[11px] font-bold text-slate-500 uppercase">Flight Time</label>
+                               <input type="time" value={formData.travelTime} onChange={e => setFormData({...formData, travelTime: e.target.value})} className={`w-full px-4 py-3 border rounded-xl font-medium text-sm ${isDarkMode ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-200'}`} />
                             </div>
                          </div>
                        )}

@@ -29,6 +29,7 @@ export interface Booking {
   type: 'Air Ticket' | 'Hotel' | 'Visa' | 'Package';
   date: string; // Entry date
   issueDate?: string; // Ticket Issue Date
+  travelTime?: string; // Flight/Travel time
   amount: number;
   cost: number;
   status: BookingStatus;
