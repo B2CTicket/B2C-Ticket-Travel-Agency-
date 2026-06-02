@@ -103,7 +103,7 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
     setEditingBookingId(null);
     setFormData({
       clientId: '', clientName: '', clientPhone: '', type: 'Air Ticket',
-      date: new Date().toISOString().split('T')[0], issueDate: new Date().toISOString().split('T')[0],
+      date: new Date().toISOString().split('T')[0], issueDate: new Date().toISOString().split('T')[0], travelTime: '',
       flyingDate: '', from: '', to: '', checkIn: '', checkOut: '', hotelName: '',
       amount: 0, cost: 0,
       status: BookingStatus.PENDING, description: '', pax: 1, pnr: '', bookingSource: ''
@@ -414,7 +414,7 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
                   </span>
                 </div>
                 <div className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
-                  booking.status === BookingStatus.CONFIRMED ? 'bg-emerald-500/10 text-emerald-500' : 
+                  booking.status === BookingStatus.CONFIRMED || booking.status === BookingStatus.COMPLETED ? 'bg-emerald-500/10 text-emerald-500' : 
                   booking.status === BookingStatus.PENDING ? 'bg-amber-500/10 text-amber-500' : 
                   'bg-rose-500/10 text-rose-500'
                 }`}>
@@ -574,7 +574,7 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
                                 <div className="flex gap-2 mt-2">
                                   <span className="px-1.5 py-0.5 rounded-md bg-indigo-600/10 text-indigo-600 text-[8px] md:text-[10px] font-bold">{selectedBooking.pax || 1} PAX</span>
                                   <span className={`px-1.5 py-0.5 rounded-md text-[8px] md:text-[10px] font-bold uppercase tracking-wider ${
-                                    selectedBooking.status === BookingStatus.CONFIRMED ? 'bg-emerald-500/10 text-emerald-500' : 
+                                    selectedBooking.status === BookingStatus.CONFIRMED || selectedBooking.status === BookingStatus.COMPLETED ? 'bg-emerald-500/10 text-emerald-500' : 
                                     selectedBooking.status === BookingStatus.PENDING ? 'bg-amber-500/10 text-amber-500' : 'bg-rose-500/10 text-rose-500'
                                   }`}>
                                     {selectedBooking.status}
@@ -795,18 +795,18 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
                     </div>
                  </section>
 
-                {/* Status Selection (Removed as requested) */}
-                <div className="hidden">
+                {/* Status Selection */}
+                <div>
                   <section className="space-y-3">
                     <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Booking Status</label>
                     <div className="flex p-1 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
-                      {[BookingStatus.PENDING, BookingStatus.CONFIRMED, BookingStatus.CANCELLED].map(status => (
+                      {[BookingStatus.PENDING, BookingStatus.CONFIRMED, BookingStatus.COMPLETED, BookingStatus.CANCELLED].map(status => (
                         <button 
                           key={status}
                           type="button"
                           onClick={() => setFormData({...formData, status: status})}
-                          className={`flex-1 py-3 rounded-lg text-xs font-bold transition-all ${formData.status === status ? 
-                            status === BookingStatus.CONFIRMED ? 'bg-emerald-500 text-white shadow-sm' :
+                          className={`flex-1 py-3 rounded-lg text-[10px] md:text-xs font-bold transition-all ${formData.status === status ? 
+                            status === BookingStatus.CONFIRMED || status === BookingStatus.COMPLETED ? 'bg-emerald-500 text-white shadow-sm' :
                             status === BookingStatus.CANCELLED ? 'bg-rose-500 text-white shadow-sm' :
                             'bg-amber-500 text-white shadow-sm' : 
                             'text-slate-500 hover:text-slate-700'}`}

@@ -2,7 +2,8 @@
 export enum BookingStatus {
   CONFIRMED = 'CONFIRMED',
   PENDING = 'PENDING',
-  CANCELLED = 'CANCELLED'
+  CANCELLED = 'CANCELLED',
+  COMPLETED = 'COMPLETED'
 }
 
 export enum TransactionType {

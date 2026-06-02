@@ -341,6 +341,7 @@ const isMobileWindow = () => typeof window !== 'undefined' && window.innerWidth 
 const StatusBadge = ({ status, isDarkMode }: { status: BookingStatus, isDarkMode?: boolean }) => {
   const styles = {
     [BookingStatus.CONFIRMED]: isDarkMode ? 'bg-emerald-500/10 text-emerald-500' : 'bg-emerald-50 text-emerald-600',
+    [BookingStatus.COMPLETED]: isDarkMode ? 'bg-emerald-500/10 text-emerald-500' : 'bg-emerald-50 text-emerald-600',
     [BookingStatus.PENDING]: isDarkMode ? 'bg-amber-500/10 text-amber-500' : 'bg-amber-50 text-amber-600',
     [BookingStatus.CANCELLED]: isDarkMode ? 'bg-rose-500/10 text-rose-500' : 'bg-rose-50 text-rose-600',
   };

@@ -259,7 +259,8 @@ const InvoiceList: React.FC<Props> = ({ bookings, clients, isDarkMode }) => {
                 }`}
               >
                 <option value="ALL">Status: All Records</option>
-                <option value={BookingStatus.CONFIRMED}>Confirmed Only</option>
+                <option value={BookingStatus.CONFIRMED}>Confirmed</option>
+                <option value={BookingStatus.COMPLETED}>Completed</option>
                 <option value={BookingStatus.PENDING}>Unpaid/Pending</option>
                 <option value={BookingStatus.CANCELLED}>Cancelled</option>
               </select>
@@ -432,6 +433,7 @@ const InvoiceList: React.FC<Props> = ({ bookings, clients, isDarkMode }) => {
 const StatusBadge = ({ status, isDarkMode }: { status: BookingStatus, isDarkMode?: boolean }) => {
   const configs = {
     [BookingStatus.CONFIRMED]: { icon: <CheckCircle2 size={12} />, styles: isDarkMode ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/30' : 'bg-emerald-50 text-emerald-600 border-emerald-100' },
+    [BookingStatus.COMPLETED]: { icon: <CheckCircle2 size={12} />, styles: isDarkMode ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/30' : 'bg-emerald-50 text-emerald-600 border-emerald-100' },
     [BookingStatus.PENDING]: { icon: <AlertCircle size={12} />, styles: isDarkMode ? 'bg-amber-500/10 text-amber-500 border-amber-500/30' : 'bg-amber-50 text-amber-600 border-amber-100' },
     [BookingStatus.CANCELLED]: { icon: <XCircle size={12} />, styles: isDarkMode ? 'bg-rose-500/10 text-rose-500 border-rose-500/30' : 'bg-rose-50 text-rose-600 border-rose-100' },
   };
