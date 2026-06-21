@@ -376,21 +376,21 @@ const TransactionList: React.FC<Props> = ({ transactions, stats, onAddTransactio
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 animate-in slide-in-from-bottom-4 duration-500">
         <StatSummaryCard 
-          label="Income" 
+          label="Credit / Income" 
           value={`৳${periodStats.income.toLocaleString()}`} 
           icon={<ArrowUpCircle className="text-emerald-500" />} 
           isDarkMode={isDarkMode}
           colorClass="text-emerald-500"
         />
         <StatSummaryCard 
-          label="Expense" 
+          label="Debit / Expense" 
           value={`৳${periodStats.expense.toLocaleString()}`} 
           icon={<ArrowDownCircle className="text-rose-500" />} 
           isDarkMode={isDarkMode}
           colorClass="text-rose-500"
         />
         <StatSummaryCard 
-          label="Net Yield" 
+          label="Remaining Balance" 
           value={`৳${periodStats.profit.toLocaleString()}`} 
           icon={<Banknote className="text-violet-500" />} 
           isDarkMode={isDarkMode}
