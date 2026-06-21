@@ -189,23 +189,24 @@ const App: React.FC = () => {
 
   useEffect(() => {
     // One-time database migration to fix ledger transaction amounts based on actual bookings
-    if (bookings.length > 0 && transactions.length > 0 && !sessionStorage.getItem('fixed_ledger_amounts_v2')) {
-      sessionStorage.setItem('fixed_ledger_amounts_v2', 'true');
+    if (bookings.length > 0 && transactions.length > 0 && !sessionStorage.getItem('fixed_ledger_amounts_v3')) {
+      sessionStorage.setItem('fixed_ledger_amounts_v3', 'true');
       const fixDb = async () => {
         let count = 0;
         for (const b of bookings) {
           const bInc = transactions.find(t => t.bookingId === b.id && t.type === TransactionType.INCOME);
-          if (bInc && bInc.amount !== b.amount) {
-             await updateDoc(doc(db, 'transactions', bInc.id), { amount: Number(b.amount || 0) });
+          const netIncome = Math.max(0, (b.amount || 0) - (b.cost || 0));
+          if (bInc && bInc.amount !== netIncome) {
+             await updateDoc(doc(db, 'transactions', bInc.id), { amount: netIncome, category: `${b.type} Net Income` });
              count++;
           }
-          const bExp = transactions.find(t => t.bookingId === b.id && (t.type === TransactionType.EXPENSE || t.type === TransactionType.COST_VOLUME));
-          if (bExp && (bExp.amount !== b.cost || bExp.type === TransactionType.COST_VOLUME)) {
-             await updateDoc(doc(db, 'transactions', bExp.id), { amount: Number(b.cost || 0), type: TransactionType.EXPENSE });
+          const bExpList = transactions.filter(t => t.bookingId === b.id && (t.type === TransactionType.EXPENSE || t.type === TransactionType.COST_VOLUME));
+          for (const bExp of bExpList) {
+             await deleteDoc(doc(db, 'transactions', bExp.id));
              count++;
           }
         }
-        if(count > 0) console.log(`Migrated ${count} transactions to full amounts.`);
+        if(count > 0) console.log(`Migrated ${count} transactions to net amounts.`);
       };
       fixDb();
     }
@@ -221,13 +222,11 @@ const App: React.FC = () => {
       .filter(t => (t.type === TransactionType.EXPENSE || t.type === TransactionType.COST_VOLUME) && !t.bookingId)
       .reduce((sum, t) => sum + Number(t.amount || 0), 0);
       
-    const bookingRevenue = bookings.reduce((sum, b) => sum + Number(b.amount || 0), 0);
-    const bookingCost = bookings.reduce((sum, b) => sum + Number(b.cost || 0), 0);
     const bookingNet = bookings.reduce((sum, b) => sum + Number((b.amount - b.cost) || 0), 0);
 
-    const totalIncome = bookingRevenue + manualIncome;
-    const totalExpense = bookingCost + manualExpense;
-    const netProfit = bookingNet + (manualIncome - manualExpense);
+    const totalIncome = bookingNet + manualIncome;
+    const totalExpense = manualExpense;
+    const netProfit = totalIncome - totalExpense;
 
     const pendingCount = bookings.filter(b => b.status && b.status.toString().toUpperCase() === BookingStatus.PENDING).length;
     console.log("App - pendingCount:", pendingCount, "bookings:", bookings.length);
@@ -244,29 +243,17 @@ const App: React.FC = () => {
     try {
       const bookingRef = await addDoc(collection(db, 'bookings'), newBooking);
       
-      // Auto-create income transaction (Full Sale Amount)
+      // Auto-create income transaction (Net Income)
+      const netProfit = Math.max(0, (newBooking.amount || 0) - (newBooking.cost || 0));
       await addDoc(collection(db, 'transactions'), {
         date: new Date().toISOString().split('T')[0],
-        category: `${newBooking.type} Sale`,
-        amount: Number(newBooking.amount || 0),
+        category: `${newBooking.type} Net Income`,
+        amount: netProfit,
         type: TransactionType.INCOME,
         bookingId: bookingRef.id,
         reference: `BOOKING-${bookingRef.id}`,
         createdAt: serverTimestamp()
       });
-
-      // Auto-create expense transaction for cost
-      if (newBooking.cost > 0) {
-        await addDoc(collection(db, 'transactions'), {
-          date: new Date().toISOString().split('T')[0],
-          category: `${newBooking.type} Cost`,
-          amount: Number(newBooking.cost || 0),
-          type: TransactionType.EXPENSE,
-          bookingId: bookingRef.id,
-          reference: `COST-${bookingRef.id}`,
-          createdAt: serverTimestamp()
-        });
-      }
     } catch (e) {
       handleFirestoreError(e, 'CREATE', 'bookings');
     }
@@ -279,35 +266,18 @@ const App: React.FC = () => {
       
       // Update linked income transaction if it exists
       const linkedIncome = transactions.find(t => t.bookingId === id && t.type === TransactionType.INCOME);
+      const netProfit = Math.max(0, (updatedBooking.amount || 0) - (updatedBooking.cost || 0));
       if (linkedIncome) {
         await updateDoc(doc(db, 'transactions', linkedIncome.id), {
-          amount: Number(updatedBooking.amount || 0),
-          category: `${updatedBooking.type} Sale`
+          amount: netProfit,
+          category: `${updatedBooking.type} Net Income`
         });
       }
-
-      // Update linked expense transaction if it exists, or create if needed
-      const linkedExpense = transactions.find(t => t.bookingId === id && (t.type === TransactionType.EXPENSE || t.type === TransactionType.COST_VOLUME));
-      if (linkedExpense) {
-        if (updatedBooking.cost > 0) {
-          await updateDoc(doc(db, 'transactions', linkedExpense.id), {
-            amount: Number(updatedBooking.cost || 0),
-            category: `${updatedBooking.type} Cost`,
-            type: TransactionType.EXPENSE
-          });
-        } else {
-          await deleteDoc(doc(db, 'transactions', linkedExpense.id));
-        }
-      } else if (updatedBooking.cost > 0) {
-         await addDoc(collection(db, 'transactions'), {
-          date: new Date().toISOString().split('T')[0],
-          category: `${updatedBooking.type} Cost`,
-          amount: Number(updatedBooking.cost || 0),
-          type: TransactionType.EXPENSE,
-          bookingId: id,
-          reference: `COST-${id}`,
-          createdAt: serverTimestamp()
-        });
+      
+      // Delete old linked expense transactions if they exist (since we don't track ticket cost here anymore)
+      const linkedExpenses = transactions.filter(t => t.bookingId === id && (t.type === TransactionType.EXPENSE || t.type === TransactionType.COST_VOLUME));
+      for (const linkedExpense of linkedExpenses) {
+         await deleteDoc(doc(db, 'transactions', linkedExpense.id));
       }
     } catch (e) {
       handleFirestoreError(e, 'UPDATE', 'bookings');
