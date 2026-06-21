@@ -242,6 +242,8 @@ const App: React.FC = () => {
       
     const bookingNet = currentMonthBookings.reduce((sum, b) => sum + Number((b.amount - b.cost) || 0), 0);
 
+    const bookingGross = currentMonthBookings.reduce((sum, b) => sum + Number(b.amount || 0), 0);
+
     const totalIncome = bookingNet + manualIncome;
     const totalExpense = manualExpense;
     const netProfit = totalIncome - totalExpense;
@@ -249,7 +251,7 @@ const App: React.FC = () => {
     const pendingCount = bookings.filter(b => b.status && b.status.toString().toUpperCase() === BookingStatus.PENDING).length;
 
     return { 
-      totalSales: totalIncome, 
+      totalSales: bookingGross + manualIncome, 
       totalCost: totalExpense, 
       netProfit: netProfit, 
       pendingInvoices: pendingCount 
