@@ -47,8 +47,12 @@ const Dashboard: React.FC<Props> = ({ stats, bookings, setActiveTab, onBookingCl
   }, [bookings]);
 
   const totalCostVolume = useMemo(() => {
+    const today = new Date();
+    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
+    const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0];
+
     return bookings
-      .filter(b => b.type === 'Air Ticket')
+      .filter(b => b.date >= startOfMonth && b.date <= endOfMonth && b.type === 'Air Ticket')
       .reduce((sum, b) => sum + (b.cost || 0), 0);
   }, [bookings]);
 

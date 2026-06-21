@@ -146,13 +146,16 @@ const TransactionList: React.FC<Props> = ({ transactions, stats, onAddTransactio
   // Filter transactions based on date and type
   const { filteredTransactions, periodStats } = useMemo(() => {
     const filtered = transactions.filter(t => {
+      // Exclude ticket cost transactions explicitly if the migration is still processing
+      if (t.bookingId && (t.type === TransactionType.EXPENSE || t.type === TransactionType.COST_VOLUME)) return false;
+
       const matchesType = filterType === 'ALL' || t.type === (filterType as unknown as TransactionType);
       const matchesDate = t.date >= startDate && t.date <= endDate;
       return matchesType && matchesDate;
     }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
     const periodIncome = filtered.filter(t => t.type === TransactionType.INCOME).reduce((sum, t) => sum + t.amount, 0);
-    const periodExpense = filtered.filter(t => t.type === TransactionType.EXPENSE || t.type === TransactionType.COST_VOLUME).reduce((sum, t) => sum + t.amount, 0);
+    const periodExpense = filtered.filter(t => t.type === TransactionType.EXPENSE).reduce((sum, t) => sum + t.amount, 0);
 
     return { 
       filteredTransactions: filtered, 

@@ -189,47 +189,64 @@ const App: React.FC = () => {
 
   useEffect(() => {
     // One-time database migration to fix ledger transaction amounts based on actual bookings
-    if (bookings.length > 0 && transactions.length > 0 && !sessionStorage.getItem('fixed_ledger_amounts_v3')) {
-      sessionStorage.setItem('fixed_ledger_amounts_v3', 'true');
+    if (bookings.length > 0 && transactions.length > 0 && !sessionStorage.getItem('fixed_ledger_amounts_v4')) {
+      sessionStorage.setItem('fixed_ledger_amounts_v4', 'true');
       const fixDb = async () => {
         let count = 0;
+        
+        // 1. Sync active bookings
         for (const b of bookings) {
           const bInc = transactions.find(t => t.bookingId === b.id && t.type === TransactionType.INCOME);
           const netIncome = Math.max(0, (b.amount || 0) - (b.cost || 0));
-          if (bInc && bInc.amount !== netIncome) {
-             await updateDoc(doc(db, 'transactions', bInc.id), { amount: netIncome, category: `${b.type} Net Income` });
-             count++;
-          }
-          const bExpList = transactions.filter(t => t.bookingId === b.id && (t.type === TransactionType.EXPENSE || t.type === TransactionType.COST_VOLUME));
-          for (const bExp of bExpList) {
-             await deleteDoc(doc(db, 'transactions', bExp.id));
+          if (bInc && (bInc.amount !== netIncome || bInc.date !== b.date)) {
+             await updateDoc(doc(db, 'transactions', bInc.id), { amount: netIncome, date: b.date || bInc.date, category: `${b.type} Net Income` });
              count++;
           }
         }
-        if(count > 0) console.log(`Migrated ${count} transactions to net amounts.`);
+        
+        // 2. Delete ALL expenses tied to bookings (including orphans)
+        const allBookingExpenses = transactions.filter(t => (t.type === TransactionType.EXPENSE || t.type === TransactionType.COST_VOLUME) && !!t.bookingId);
+        for (const exp of allBookingExpenses) {
+           await deleteDoc(doc(db, 'transactions', exp.id));
+           count++;
+        }
+
+        // 3. Convert any manual COST_VOLUME to EXPENSE
+        const manualCostVolumes = transactions.filter(t => t.type === TransactionType.COST_VOLUME && !t.bookingId);
+        for (const mcv of manualCostVolumes) {
+           await updateDoc(doc(db, 'transactions', mcv.id), { type: TransactionType.EXPENSE });
+           count++;
+        }
+        
+        if(count > 0) console.log(`Migrated ${count} transactions.`);
       };
       fixDb();
     }
   }, [bookings, transactions]);
 
   const stats = useMemo(() => {
-    const manualIncome = transactions
-      .filter(t => t.type === TransactionType.INCOME && !t.bookingId)
+    const today = new Date();
+    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
+    const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0];
+
+    const currentMonthManualTransactions = transactions.filter(t => t.date >= startOfMonth && t.date <= endOfMonth && !t.bookingId);
+    const currentMonthBookings = bookings.filter(b => b.date >= startOfMonth && b.date <= endOfMonth);
+
+    const manualIncome = currentMonthManualTransactions
+      .filter(t => t.type === TransactionType.INCOME)
       .reduce((sum, t) => sum + Number(t.amount || 0), 0);
     
-    // Support COST_VOLUME fallback while migrating
-    const manualExpense = transactions
-      .filter(t => (t.type === TransactionType.EXPENSE || t.type === TransactionType.COST_VOLUME) && !t.bookingId)
+    const manualExpense = currentMonthManualTransactions
+      .filter(t => t.type === TransactionType.EXPENSE)
       .reduce((sum, t) => sum + Number(t.amount || 0), 0);
       
-    const bookingNet = bookings.reduce((sum, b) => sum + Number((b.amount - b.cost) || 0), 0);
+    const bookingNet = currentMonthBookings.reduce((sum, b) => sum + Number((b.amount - b.cost) || 0), 0);
 
     const totalIncome = bookingNet + manualIncome;
     const totalExpense = manualExpense;
     const netProfit = totalIncome - totalExpense;
 
     const pendingCount = bookings.filter(b => b.status && b.status.toString().toUpperCase() === BookingStatus.PENDING).length;
-    console.log("App - pendingCount:", pendingCount, "bookings:", bookings.length);
 
     return { 
       totalSales: totalIncome, 
@@ -246,7 +263,7 @@ const App: React.FC = () => {
       // Auto-create income transaction (Net Income)
       const netProfit = Math.max(0, (newBooking.amount || 0) - (newBooking.cost || 0));
       await addDoc(collection(db, 'transactions'), {
-        date: new Date().toISOString().split('T')[0],
+        date: newBooking.date || new Date().toISOString().split('T')[0],
         category: `${newBooking.type} Net Income`,
         amount: netProfit,
         type: TransactionType.INCOME,
@@ -270,6 +287,7 @@ const App: React.FC = () => {
       if (linkedIncome) {
         await updateDoc(doc(db, 'transactions', linkedIncome.id), {
           amount: netProfit,
+          date: updatedBooking.date || linkedIncome.date,
           category: `${updatedBooking.type} Net Income`
         });
       }
