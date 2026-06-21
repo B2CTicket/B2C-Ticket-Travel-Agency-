@@ -189,8 +189,8 @@ const App: React.FC = () => {
 
   useEffect(() => {
     // One-time database migration to fix ledger transaction amounts based on actual bookings
-    if (bookings.length > 0 && transactions.length > 0 && !sessionStorage.getItem('fixed_ledger_amounts_v5')) {
-      sessionStorage.setItem('fixed_ledger_amounts_v5', 'true');
+    if (bookings.length > 0 && transactions.length > 0 && !sessionStorage.getItem('fixed_ledger_amounts_v6')) {
+      sessionStorage.setItem('fixed_ledger_amounts_v6', 'true');
       const fixDb = async () => {
         let count = 0;
         
@@ -206,23 +206,26 @@ const App: React.FC = () => {
               count++;
             }
           } else {
-            // Update or create net profit transaction
-            const netIncome = (b.amount || 0) - (b.cost || 0);
+            // Hybrid model: Air Ticket profit vs Others Gross
+            const targetAmount = b.type === 'Air Ticket' 
+              ? (Number(b.amount || 0) - Number(b.cost || 0))
+              : Number(b.amount || 0);
+
             if (bInc) {
-               if (bInc.amount !== netIncome || bInc.date !== b.date) {
+               if (bInc.amount !== targetAmount || bInc.date !== b.date) {
                  await updateDoc(doc(db, 'transactions', bInc.id), { 
-                   amount: netIncome, 
+                   amount: targetAmount, 
                    date: b.date || bInc.date, 
-                   category: `${b.type} Net Income` 
+                   category: `${b.type} ${b.type === 'Air Ticket' ? 'Profit' : 'Income'}` 
                  });
                  count++;
                }
             } else {
-               // Create missing income transaction for existing non-cancelled booking
+               // Create missing income transaction
                await addDoc(collection(db, 'transactions'), {
                  date: b.date || new Date().toISOString().split('T')[0],
-                 category: `${b.type} Net Income`,
-                 amount: netIncome,
+                 category: `${b.type} ${b.type === 'Air Ticket' ? 'Profit' : 'Income'}`,
+                 amount: targetAmount,
                  type: TransactionType.INCOME,
                  bookingId: b.id,
                  reference: `BOOKING-${b.id}`,
@@ -233,17 +236,10 @@ const App: React.FC = () => {
           }
         }
         
-        // 2. Delete ALL expenses tied to bookings (including orphans)
-        const allBookingExpenses = transactions.filter(t => (t.type === TransactionType.EXPENSE || t.type === TransactionType.COST_VOLUME) && !!t.bookingId);
-        for (const exp of allBookingExpenses) {
+        // 2. Clear ALL automated booking expenses (user prefers manual ledger entry for non-air costs)
+        const bookingExpenses = transactions.filter(t => t.bookingId && (t.type === TransactionType.EXPENSE || t.type === TransactionType.COST_VOLUME));
+        for (const exp of bookingExpenses) {
            await deleteDoc(doc(db, 'transactions', exp.id));
-           count++;
-        }
-
-        // 3. Convert any manual COST_VOLUME to EXPENSE
-        const manualCostVolumes = transactions.filter(t => t.type === TransactionType.COST_VOLUME && !t.bookingId);
-        for (const mcv of manualCostVolumes) {
-           await updateDoc(doc(db, 'transactions', mcv.id), { type: TransactionType.EXPENSE });
            count++;
         }
         
@@ -259,33 +255,25 @@ const App: React.FC = () => {
     const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0];
 
     const currentMonthManualTransactions = transactions.filter(t => t.date >= startOfMonth && t.date <= endOfMonth && !t.bookingId);
-    const currentMonthBookings = bookings.filter(b => 
-      b.date >= startOfMonth && 
-      b.date <= endOfMonth && 
-      b.status?.toString().toUpperCase() !== BookingStatus.CANCELLED
-    );
-
-    const manualIncome = currentMonthManualTransactions
+    const currentMonthTransactions = transactions.filter(t => t.date >= startOfMonth && t.date <= endOfMonth);
+    
+    // Revenue (Credit) as requested: Air Profit + Others Gross + Manual Income
+    const totalCredit = currentMonthTransactions
       .filter(t => t.type === TransactionType.INCOME)
       .reduce((sum, t) => sum + Number(t.amount || 0), 0);
-    
-    const manualExpense = currentMonthManualTransactions
+
+    // Business Debit as requested: Manual Expenses (including user-entered booking costs)
+    const totalDebit = currentMonthTransactions
       .filter(t => t.type === TransactionType.EXPENSE)
       .reduce((sum, t) => sum + Number(t.amount || 0), 0);
-      
-    const bookingNet = currentMonthBookings.reduce((sum, b) => sum + Number((b.amount - b.cost) || 0), 0);
 
-    const bookingGross = currentMonthBookings.reduce((sum, b) => sum + Number(b.amount || 0), 0);
-
-    const totalIncome = bookingNet + manualIncome; // This matches user's "Credit/Income"
-    const totalExpense = manualExpense; // This matches user's "Debit/Expense"
-    const netProfit = totalIncome - totalExpense; // This matches user's "Remaining Balance"
+    const netProfit = totalCredit - totalDebit;
 
     const pendingCount = bookings.filter(b => b.status && b.status.toString().toUpperCase() === BookingStatus.PENDING).length;
 
     return { 
-      totalSales: totalIncome, // User requested "Total Revenue হবে 108667"
-      totalCost: totalExpense, 
+      totalSales: totalCredit, 
+      totalCost: totalDebit, 
       netProfit: netProfit, 
       pendingInvoices: pendingCount 
     };
@@ -295,14 +283,17 @@ const App: React.FC = () => {
     try {
       const bookingRef = await addDoc(collection(db, 'bookings'), newBooking);
       
-      // Auto-create income transaction (Net Income)
+      // Auto-create income transaction
       const isCancelled = newBooking.status?.toString().toUpperCase() === BookingStatus.CANCELLED;
       if (!isCancelled) {
-        const netProfit = (newBooking.amount || 0) - (newBooking.cost || 0);
+        const targetAmount = newBooking.type === 'Air Ticket' 
+          ? (Number(newBooking.amount || 0) - Number(newBooking.cost || 0))
+          : Number(newBooking.amount || 0);
+
         await addDoc(collection(db, 'transactions'), {
           date: newBooking.date || new Date().toISOString().split('T')[0],
-          category: `${newBooking.type} Net Income`,
-          amount: netProfit,
+          category: `${newBooking.type} ${newBooking.type === 'Air Ticket' ? 'Profit' : 'Income'}`,
+          amount: targetAmount,
           type: TransactionType.INCOME,
           bookingId: bookingRef.id,
           reference: `BOOKING-${bookingRef.id}`,
@@ -328,19 +319,22 @@ const App: React.FC = () => {
           await deleteDoc(doc(db, 'transactions', linkedIncome.id));
         }
       } else {
-        const netProfit = (updatedBooking.amount || 0) - (updatedBooking.cost || 0);
+        const targetAmount = updatedBooking.type === 'Air Ticket' 
+          ? (Number(updatedBooking.amount || 0) - Number(updatedBooking.cost || 0))
+          : Number(updatedBooking.amount || 0);
+
         if (linkedIncome) {
           await updateDoc(doc(db, 'transactions', linkedIncome.id), {
-            amount: netProfit,
+            amount: targetAmount,
             date: updatedBooking.date || linkedIncome.date,
-            category: `${updatedBooking.type} Net Income`
+            category: `${updatedBooking.type} ${updatedBooking.type === 'Air Ticket' ? 'Profit' : 'Income'}`
           });
         } else {
-          // If transaction was previously deleted because it was cancelled, recreate it now that it's active
+          // Re-create transaction
           await addDoc(collection(db, 'transactions'), {
             date: updatedBooking.date || new Date().toISOString().split('T')[0],
-            category: `${updatedBooking.type} Net Income`,
-            amount: netProfit,
+            category: `${updatedBooking.type} ${updatedBooking.type === 'Air Ticket' ? 'Profit' : 'Income'}`,
+            amount: targetAmount,
             type: TransactionType.INCOME,
             bookingId: id,
             reference: `BOOKING-${id}`,
@@ -349,7 +343,7 @@ const App: React.FC = () => {
         }
       }
       
-      // Delete old linked expense transactions if they exist (since we don't track ticket cost here anymore)
+      // Delete any accidental booking expenses (user tracks manually)
       const linkedExpenses = transactions.filter(t => t.bookingId === id && (t.type === TransactionType.EXPENSE || t.type === TransactionType.COST_VOLUME));
       for (const linkedExpense of linkedExpenses) {
          await deleteDoc(doc(db, 'transactions', linkedExpense.id));
