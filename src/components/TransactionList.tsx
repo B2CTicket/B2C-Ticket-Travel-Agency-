@@ -152,7 +152,7 @@ const TransactionList: React.FC<Props> = ({ transactions, stats, onAddTransactio
     }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
     const periodIncome = filtered.filter(t => t.type === TransactionType.INCOME).reduce((sum, t) => sum + t.amount, 0);
-    const periodExpense = filtered.filter(t => t.type === TransactionType.EXPENSE || t.type === TransactionType.COST_VOLUME).reduce((sum, t) => sum + t.amount, 0);
+    const periodExpense = filtered.filter(t => t.type === TransactionType.EXPENSE).reduce((sum, t) => sum + t.amount, 0);
 
     return { 
       filteredTransactions: filtered, 
