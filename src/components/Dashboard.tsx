@@ -37,7 +37,10 @@ const Dashboard: React.FC<Props> = ({ stats, bookings, setActiveTab, onBookingCl
     sevenDaysLater.setDate(today.getDate() + 7);
 
     return bookings
-      .filter(b => b.type === 'Air Ticket' && b.flyingDate && b.status?.toString().toUpperCase() !== BookingStatus.CANCELLED)
+      .filter(b => {
+        const isAirTicket = b.type?.toLowerCase().includes('air') && b.type?.toLowerCase().includes('ticket');
+        return isAirTicket && b.flyingDate && b.status?.toString().toUpperCase() !== BookingStatus.CANCELLED;
+      })
       .map(b => ({
         ...b,
         fDate: new Date(b.flyingDate!)
@@ -52,12 +55,13 @@ const Dashboard: React.FC<Props> = ({ stats, bookings, setActiveTab, onBookingCl
     const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0];
 
     return bookings
-      .filter(b => 
-        b.date >= startOfMonth && 
-        b.date <= endOfMonth && 
-        b.type === 'Air Ticket' && 
-        b.status?.toString().toUpperCase() !== BookingStatus.CANCELLED
-      )
+      .filter(b => {
+        const isAirTicket = b.type?.toLowerCase().includes('air') && b.type?.toLowerCase().includes('ticket');
+        return b.date >= startOfMonth && 
+               b.date <= endOfMonth && 
+               isAirTicket && 
+               b.status?.toString().toUpperCase() !== BookingStatus.CANCELLED;
+      })
       .reduce((sum, b) => sum + (b.cost || 0), 0);
   }, [bookings]);
 
