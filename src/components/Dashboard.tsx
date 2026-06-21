@@ -167,7 +167,10 @@ const Dashboard: React.FC<Props> = ({ stats, bookings, setActiveTab, onBookingCl
                     </div>
                     <div className="text-right">
                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Flight Date</p>
-                       <p className={`text-xs font-black ${isDarkMode ? 'text-slate-200' : 'text-slate-700'}`}>{alert.flyingDate}</p>
+                       <p className={`text-xs font-black ${isDarkMode ? 'text-slate-200' : 'text-slate-700'}`}>
+                          {alert.flyingDate}
+                          {alert.returnDate ? ` - ${alert.returnDate}` : ''}
+                       </p>
                        {alert.travelTime && <p className={`text-[10px] font-bold ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>{alert.travelTime}</p>}
                     </div>
                   </div>

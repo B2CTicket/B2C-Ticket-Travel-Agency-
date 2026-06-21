@@ -41,6 +41,7 @@ export interface Booking {
   from?: string;
   to?: string;
   flyingDate?: string;
+  returnDate?: string;
   checkIn?: string;
   checkOut?: string;
   hotelName?: string;

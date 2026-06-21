@@ -68,10 +68,16 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
       .sort((a, b) => a.sortDate.getTime() - b.sortDate.getTime())[0];
   }, [bookings]);
 
+  const uniqueClientNames = useMemo(() => Array.from(new Set(bookings.map(b => b.clientName))).filter(Boolean), [bookings]);
+  const uniqueClientPhones = useMemo(() => Array.from(new Set(bookings.map(b => b.clientPhone))).filter(Boolean), [bookings]);
+  const uniquePnrs = useMemo(() => Array.from(new Set(bookings.map(b => b.pnr))).filter(Boolean), [bookings]);
+  const uniqueBookingSources = useMemo(() => Array.from(new Set(bookings.map(b => b.bookingSource))).filter(Boolean), [bookings]);
+  const uniqueLogs = useMemo(() => Array.from(new Set(bookings.map(b => b.description))).filter(Boolean), [bookings]);
+
   const [formData, setFormData] = useState({
     clientId: '', clientName: '', clientPhone: '', type: 'Air Ticket' as any,
     date: new Date().toISOString().split('T')[0], issueDate: new Date().toISOString().split('T')[0], travelTime: '',
-    flyingDate: '', from: '', to: '', checkIn: '', checkOut: '', hotelName: '',
+    flyingDate: '', returnDate: '', from: '', to: '', checkIn: '', checkOut: '', hotelName: '',
     amount: 0, cost: 0,
     status: BookingStatus.PENDING, description: '', pax: 1, pnr: '', bookingSource: ''
   });
@@ -104,7 +110,7 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
     setFormData({
       clientId: '', clientName: '', clientPhone: '', type: 'Air Ticket',
       date: new Date().toISOString().split('T')[0], issueDate: new Date().toISOString().split('T')[0], travelTime: '',
-      flyingDate: '', from: '', to: '', checkIn: '', checkOut: '', hotelName: '',
+      flyingDate: '', returnDate: '', from: '', to: '', checkIn: '', checkOut: '', hotelName: '',
       amount: 0, cost: 0,
       status: BookingStatus.PENDING, description: '', pax: 1, pnr: '', bookingSource: ''
     });
@@ -178,7 +184,7 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
               <div class="section-title">Billing To</div>
               <h4>${b.clientName}</h4>
               <p>Phone: ${b.clientPhone || 'N/A'}</p>
-              <p>Service Date: ${b.flyingDate || b.checkIn || 'N/A'}</p>
+              <p>Service Date: ${b.flyingDate || b.checkIn || 'N/A'} ${b.returnDate ? `to ${b.returnDate}` : ''}</p>
             </div>
             <div class="info-box">
               <div class="section-title">Reservation Details</div>
@@ -243,6 +249,7 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
       issueDate: booking.issueDate || booking.date,
       travelTime: booking.travelTime || '',
       flyingDate: booking.flyingDate || '',
+      returnDate: booking.returnDate || '',
       from: booking.from || '',
       to: booking.to || '',
       checkIn: booking.checkIn || '',
@@ -267,7 +274,7 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
     setFormData({
       clientId: '', clientName: '', clientPhone: '', type: 'Air Ticket',
       date: new Date().toISOString().split('T')[0], issueDate: new Date().toISOString().split('T')[0], travelTime: '',
-      flyingDate: '', from: '', to: '', checkIn: '', checkOut: '', hotelName: '',
+      flyingDate: '', returnDate: '', from: '', to: '', checkIn: '', checkOut: '', hotelName: '',
       amount: 0, cost: 0,
       status: BookingStatus.PENDING, description: '', pax: 1, pnr: '', bookingSource: ''
     });
@@ -363,7 +370,10 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
                       <div className="flex items-center justify-between gap-4 font-bold uppercase tracking-widest text-slate-400">
                          <span className="text-[8px] md:text-[10px]">Date</span>
                       </div>
-                      <p className="text-base md:text-xl font-bold font-mono text-slate-800 dark:text-slate-200">{upcomingTravel.flyingDate || upcomingTravel.checkIn}</p>
+                      <p className="text-base md:text-xl font-bold font-mono text-slate-800 dark:text-slate-200">
+                         {upcomingTravel.flyingDate || upcomingTravel.checkIn}
+                         {upcomingTravel.returnDate ? ` - ${upcomingTravel.returnDate}` : ''}
+                      </p>
                    </div>
                    <div className="space-y-0.5 md:space-y-1 text-right lg:text-left">
                       <div className="flex items-center justify-between gap-4 font-bold uppercase tracking-widest text-slate-400">
@@ -485,6 +495,7 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
                    <Calendar size={12} className="text-slate-400" />
                    <p className="text-[10px] font-medium text-slate-500 uppercase tracking-widest">
                      {formatDate(booking.flyingDate || booking.checkIn || '')}
+                     {booking.returnDate ? ` - ${formatDate(booking.returnDate)}` : ''}
                      {booking.travelTime ? ` @ ${booking.travelTime}` : ''}
                    </p>
                 </div>
@@ -618,7 +629,7 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
                                     <p className="text-[9px] font-bold text-slate-400 uppercase mb-1 tracking-widest">Destination</p>
                                     <p className="text-xl font-bold text-indigo-600 uppercase">{selectedBooking.to || '--'}</p>
                                  </div>
-                                 <div className={`col-span-2 p-4 rounded-xl border grid grid-cols-2 md:grid-cols-3 gap-4 ${isDarkMode ? 'bg-slate-800/40 border-slate-800' : 'bg-slate-50 border-slate-100'}`}>
+                                 <div className={`col-span-2 p-4 rounded-xl border grid grid-cols-2 lg:grid-cols-4 gap-4 ${isDarkMode ? 'bg-slate-800/40 border-slate-800' : 'bg-slate-50 border-slate-100'}`}>
                                     <div className="flex items-center gap-3">
                                        <Calendar size={16} className="text-indigo-500 shrink-0" />
                                        <div className="min-w-0">
@@ -626,14 +637,23 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
                                           <p className="text-xs font-bold font-mono truncate">{selectedBooking.flyingDate || 'N/A'}</p>
                                        </div>
                                     </div>
-                                    <div className="flex items-center gap-3 border-l border-slate-200 dark:border-slate-700 pl-4">
+                                    {selectedBooking.returnDate && (
+                                       <div className="flex items-center gap-3 border-l border-slate-200 dark:border-slate-700 pl-4">
+                                          <Calendar size={16} className="text-rose-500 shrink-0" />
+                                          <div className="min-w-0">
+                                             <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Return</p>
+                                             <p className="text-xs font-bold font-mono truncate">{selectedBooking.returnDate}</p>
+                                          </div>
+                                       </div>
+                                    )}
+                                    <div className="flex items-center gap-3 border-t md:border-t-0 md:border-l border-slate-200 dark:border-slate-700 pt-4 md:pt-0 pl-0 md:pl-4">
                                        <Activity size={16} className="text-emerald-500 shrink-0" />
                                        <div className="min-w-0">
                                           <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Flight Time</p>
                                           <p className="text-[10px] font-bold text-indigo-600 uppercase font-mono">{selectedBooking.travelTime || 'N/A'}</p>
                                        </div>
                                     </div>
-                                    <div className="flex items-center gap-3 border-t md:border-t-0 md:border-l border-slate-200 dark:border-slate-700 pt-4 md:pt-0 md:pl-4 col-span-2 md:col-span-1">
+                                    <div className="flex items-center gap-3 border-t lg:border-t-0 border-l border-slate-200 dark:border-slate-700 pt-4 lg:pt-0 pl-4 col-span-2 lg:col-span-1">
                                        <Activity size={16} className="text-indigo-500 shrink-0" />
                                        <div className="min-w-0">
                                           <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Status</p>
@@ -758,6 +778,22 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
                 isDarkMode ? 'bg-slate-900 border border-slate-800 text-white' : 'bg-white text-slate-900'
               }`}
             >
+               <datalist id="suggest-clientName">
+                 {uniqueClientNames.map((val, i) => <option key={`cn-${i}`} value={val} />)}
+               </datalist>
+               <datalist id="suggest-clientPhone">
+                 {uniqueClientPhones.map((val, i) => <option key={`cp-${i}`} value={val} />)}
+               </datalist>
+               <datalist id="suggest-pnr">
+                 {uniquePnrs.map((val, i) => <option key={`pnr-${i}`} value={val} />)}
+               </datalist>
+               <datalist id="suggest-bookingSource">
+                 {uniqueBookingSources.map((val, i) => <option key={`bs-${i}`} value={val} />)}
+               </datalist>
+               <datalist id="suggest-log">
+                 {uniqueLogs.map((val, i) => <option key={`log-${i}`} value={val} />)}
+               </datalist>
+
               {/* Header */}
               <div className={`px-8 py-5 border-b flex items-center justify-between shrink-0 ${isDarkMode ? 'border-slate-800 bg-slate-900' : 'bg-white border-slate-50'}`}>
                 <div className="flex items-center gap-3">
@@ -835,12 +871,12 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
                        
                        <div className="space-y-1.5">
                           <label className="text-[11px] font-bold text-slate-500 block uppercase tracking-wide">Traveller Name</label>
-                          <input required placeholder="As shown on document" value={formData.clientName} onChange={e => setFormData({...formData, clientName: e.target.value})} className={`w-full px-4 py-3 border rounded-xl font-medium text-sm transition-all ${isDarkMode ? 'bg-slate-950 border-slate-800 focus:border-indigo-500' : 'bg-white border-slate-200 focus:border-indigo-500'}`} />
+                          <input required list="suggest-clientName" placeholder="As shown on document" value={formData.clientName} onChange={e => setFormData({...formData, clientName: e.target.value})} className={`w-full px-4 py-3 border rounded-xl font-medium text-sm transition-all ${isDarkMode ? 'bg-slate-950 border-slate-800 focus:border-indigo-500' : 'bg-white border-slate-200 focus:border-indigo-500'}`} />
                        </div>
                        
                        <div className="space-y-1.5">
                           <label className="text-[11px] font-bold text-slate-500 block uppercase tracking-wide">Contact Access</label>
-                          <input required placeholder="+880..." value={formData.clientPhone} onChange={e => setFormData({...formData, clientPhone: e.target.value})} className={`w-full px-4 py-3 border rounded-xl font-medium text-sm transition-all ${isDarkMode ? 'bg-slate-950 border-slate-800 focus:border-indigo-500' : 'bg-white border-slate-200 focus:border-indigo-500'}`} />
+                          <input required list="suggest-clientPhone" placeholder="+880..." value={formData.clientPhone} onChange={e => setFormData({...formData, clientPhone: e.target.value})} className={`w-full px-4 py-3 border rounded-xl font-medium text-sm transition-all ${isDarkMode ? 'bg-slate-950 border-slate-800 focus:border-indigo-500' : 'bg-white border-slate-200 focus:border-indigo-500'}`} />
                        </div>
 
                        <div className="space-y-1.5">
@@ -850,11 +886,11 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
 
                        <div className="space-y-1.5">
                           <label className="text-[11px] font-bold text-slate-500 block uppercase tracking-wide">Reference Code (PNR)</label>
-                          <input required placeholder="ABC12D" value={formData.pnr} onChange={e => setFormData({...formData, pnr: e.target.value.toUpperCase()})} className={`w-full px-4 py-3 border rounded-xl font-bold text-sm uppercase transition-all tracking-wider ${isDarkMode ? 'bg-slate-950 border-slate-800 focus:border-indigo-500' : 'bg-white border-slate-200 focus:border-indigo-500 text-indigo-600'}`} />
+                          <input required list="suggest-pnr" placeholder="ABC12D" value={formData.pnr} onChange={e => setFormData({...formData, pnr: e.target.value.toUpperCase()})} className={`w-full px-4 py-3 border rounded-xl font-bold text-sm uppercase transition-all tracking-wider ${isDarkMode ? 'bg-slate-950 border-slate-800 focus:border-indigo-500' : 'bg-white border-slate-200 focus:border-indigo-500 text-indigo-600'}`} />
                        </div>
                        <div className="space-y-1.5">
                           <label className="text-[11px] font-bold text-slate-500 block uppercase tracking-wide">Booking Source</label>
-                          <input placeholder="Ex: OTA" value={formData.bookingSource} onChange={e => setFormData({...formData, bookingSource: e.target.value})} className={`w-full px-4 py-3 border rounded-xl font-medium text-sm transition-all ${isDarkMode ? 'bg-slate-950 border-slate-800 focus:border-indigo-500' : 'bg-white border-slate-200 focus:border-indigo-500'}`} />
+                          <input list="suggest-bookingSource" placeholder="Ex: OTA" value={formData.bookingSource} onChange={e => setFormData({...formData, bookingSource: e.target.value})} className={`w-full px-4 py-3 border rounded-xl font-medium text-sm transition-all ${isDarkMode ? 'bg-slate-950 border-slate-800 focus:border-indigo-500' : 'bg-white border-slate-200 focus:border-indigo-500'}`} />
                        </div>
                     </div>
                  </section>
@@ -923,6 +959,10 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
                                <input required type="date" value={formData.flyingDate} onChange={e => setFormData({...formData, flyingDate: e.target.value})} className={`w-full px-4 py-3 border rounded-xl font-medium text-sm ${isDarkMode ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-200'}`} />
                             </div>
                             <div className="space-y-1.5">
+                               <label className="text-[11px] font-bold text-slate-500 uppercase">Return Date (Optional)</label>
+                               <input type="date" value={formData.returnDate} onChange={e => setFormData({...formData, returnDate: e.target.value})} className={`w-full px-4 py-3 border rounded-xl font-medium text-sm ${isDarkMode ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-200'}`} />
+                            </div>
+                            <div className="space-y-1.5">
                                <label className="text-[11px] font-bold text-slate-500 uppercase">Issue Date (DD/MM/YYYY)</label>
                                <input required type="date" value={formData.issueDate} onChange={e => setFormData({...formData, issueDate: e.target.value})} className={`w-full px-4 py-3 border rounded-xl font-medium text-sm ${isDarkMode ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-200'}`} />
                             </div>
@@ -947,12 +987,13 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
                           <input required type="number" placeholder="0" value={formData.cost || ''} onChange={e => setFormData({...formData, cost: Number(e.target.value)})} className={`w-full px-4 py-3 border rounded-xl font-bold text-lg text-rose-500 focus:ring-2 focus:ring-rose-500/10 ${isDarkMode ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`} />
                        </div>
                        <div className="col-span-1 md:col-span-2 space-y-1.5">
-                          <label className="text-[11px] font-bold text-slate-500 uppercase">Internal Ledger Notes</label>
-                          <textarea 
+                          <label className="text-[11px] font-bold text-slate-500 uppercase">New Entry Log</label>
+                          <input 
+                            list="suggest-log"
                             placeholder="Specify baggage, inclusions, or variations..."
                             value={formData.description}
                             onChange={e => setFormData({...formData, description: e.target.value})}
-                            className={`w-full px-4 py-3 border rounded-xl font-medium text-sm h-28 resize-none outline-none transition-all focus:ring-2 focus:ring-indigo-500/10 ${isDarkMode ? 'bg-slate-950 border-slate-800 focus:border-indigo-500' : 'bg-white border-slate-200 focus:border-indigo-500'}`}
+                            className={`w-full px-4 py-3 border rounded-xl font-medium text-sm transition-all focus:ring-2 focus:ring-indigo-500/10 ${isDarkMode ? 'bg-slate-950 border-slate-800 focus:border-indigo-500' : 'bg-white border-slate-200 focus:border-indigo-500'}`}
                           />
                        </div>
                     </div>

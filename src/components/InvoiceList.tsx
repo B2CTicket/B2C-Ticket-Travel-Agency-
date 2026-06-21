@@ -114,6 +114,7 @@ const InvoiceList: React.FC<Props> = ({ bookings, clients, isDarkMode }) => {
               ${booking.type === 'Air Ticket' ? `
                 <p><strong>Route:</strong> ${booking.from} ➔ ${booking.to}</p>
                 <p><strong>Flying Date:</strong> ${booking.flyingDate || 'N/A'}</p>
+                ${booking.returnDate ? `<p><strong>Return Date:</strong> ${booking.returnDate}</p>` : ''}
                 <p><strong>PNR:</strong> ${booking.pnr?.toUpperCase() || 'N/A'}</p>
               ` : booking.type === 'Hotel' ? `
                 <p><strong>Hotel:</strong> ${booking.hotelName || 'N/A'}</p>
