@@ -123,6 +123,7 @@ const InvoiceList: React.FC<Props> = ({ bookings, clients, isDarkMode }) => {
                 <p><strong>Booking ID:</strong> ${booking.pnr?.toUpperCase() || 'N/A'}</p>
               ` : ''}
               <p><strong>Source:</strong> ${booking.bookingSource || 'Direct'}</p>
+              ${booking.allocationCategory ? `<p><strong>Allocation:</strong> ${booking.allocationCategory}</p>` : ''}
             </div>
           </div>
 

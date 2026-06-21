@@ -46,6 +46,7 @@ export interface Booking {
   checkOut?: string;
   hotelName?: string;
   bookingSource?: string;
+  allocationCategory?: string;
 }
 
 export interface Transaction {

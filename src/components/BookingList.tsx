@@ -72,6 +72,7 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
   const uniqueClientPhones = useMemo(() => Array.from(new Set(bookings.map(b => b.clientPhone))).filter(Boolean), [bookings]);
   const uniquePnrs = useMemo(() => Array.from(new Set(bookings.map(b => b.pnr))).filter(Boolean), [bookings]);
   const uniqueBookingSources = useMemo(() => Array.from(new Set(bookings.map(b => b.bookingSource))).filter(Boolean), [bookings]);
+  const uniqueAllocationCategories = useMemo(() => Array.from(new Set(bookings.map(b => b.allocationCategory))).filter(Boolean), [bookings]);
   const uniqueLogs = useMemo(() => Array.from(new Set(bookings.map(b => b.description))).filter(Boolean), [bookings]);
 
   const [formData, setFormData] = useState({
@@ -79,7 +80,7 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
     date: new Date().toISOString().split('T')[0], issueDate: new Date().toISOString().split('T')[0], travelTime: '',
     flyingDate: '', returnDate: '', from: '', to: '', checkIn: '', checkOut: '', hotelName: '',
     amount: 0, cost: 0,
-    status: BookingStatus.PENDING, description: '', pax: 1, pnr: '', bookingSource: ''
+    status: BookingStatus.PENDING, description: '', pax: 1, pnr: '', bookingSource: '', allocationCategory: ''
   });
 
   const handleClientChange = (clientId: string) => {
@@ -112,7 +113,7 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
       date: new Date().toISOString().split('T')[0], issueDate: new Date().toISOString().split('T')[0], travelTime: '',
       flyingDate: '', returnDate: '', from: '', to: '', checkIn: '', checkOut: '', hotelName: '',
       amount: 0, cost: 0,
-      status: BookingStatus.PENDING, description: '', pax: 1, pnr: '', bookingSource: ''
+      status: BookingStatus.PENDING, description: '', pax: 1, pnr: '', bookingSource: '', allocationCategory: ''
     });
   };
 
@@ -189,6 +190,8 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
             <div class="info-box">
               <div class="section-title">Reservation Details</div>
               <p><strong>Category:</strong> ${b.type}</p>
+              ${b.allocationCategory ? `<p><strong>Allocation:</strong> ${b.allocationCategory}</p>` : ''}
+              ${b.bookingSource ? `<p><strong>Source:</strong> ${b.bookingSource}</p>` : ''}
               <p><strong>Pax:</strong> ${b.pax || 1} Person(s)</p>
               <p><strong>Reference:</strong> ${b.pnr?.toUpperCase() || 'UNSPECIFIED'}</p>
               ${b.type === 'Hotel' ? `<p><strong>Hotel:</strong> ${b.hotelName || 'N/A'}</p>` : `<p><strong>Route:</strong> ${b.from || '--'} TO ${b.to || '--'}</p>`}
@@ -261,7 +264,8 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
       description: booking.description || '',
       pax: booking.pax || 1,
       pnr: booking.pnr || '',
-      bookingSource: booking.bookingSource || ''
+      bookingSource: booking.bookingSource || '',
+      allocationCategory: booking.allocationCategory || ''
     });
     setEditingBookingId(booking.id);
     setSelectedBooking(null);
@@ -276,7 +280,7 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
       date: new Date().toISOString().split('T')[0], issueDate: new Date().toISOString().split('T')[0], travelTime: '',
       flyingDate: '', returnDate: '', from: '', to: '', checkIn: '', checkOut: '', hotelName: '',
       amount: 0, cost: 0,
-      status: BookingStatus.PENDING, description: '', pax: 1, pnr: '', bookingSource: ''
+      status: BookingStatus.PENDING, description: '', pax: 1, pnr: '', bookingSource: '', allocationCategory: ''
     });
   };
 
@@ -790,6 +794,9 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
                <datalist id="suggest-bookingSource">
                  {uniqueBookingSources.map((val, i) => <option key={`bs-${i}`} value={val} />)}
                </datalist>
+               <datalist id="suggest-allocationCategory">
+                 {uniqueAllocationCategories.map((val, i) => <option key={`ac-${i}`} value={val} />)}
+               </datalist>
                <datalist id="suggest-log">
                  {uniqueLogs.map((val, i) => <option key={`log-${i}`} value={val} />)}
                </datalist>
@@ -891,6 +898,10 @@ const BookingList: React.FC<Props> = ({ bookings, clients, onAdd, onUpdate, onDe
                        <div className="space-y-1.5">
                           <label className="text-[11px] font-bold text-slate-500 block uppercase tracking-wide">Booking Source</label>
                           <input list="suggest-bookingSource" placeholder="Ex: OTA" value={formData.bookingSource} onChange={e => setFormData({...formData, bookingSource: e.target.value})} className={`w-full px-4 py-3 border rounded-xl font-medium text-sm transition-all ${isDarkMode ? 'bg-slate-950 border-slate-800 focus:border-indigo-500' : 'bg-white border-slate-200 focus:border-indigo-500'}`} />
+                       </div>
+                       <div className="space-y-1.5">
+                          <label className="text-[11px] font-bold text-slate-500 block uppercase tracking-wide">Allocation Category</label>
+                          <input list="suggest-allocationCategory" placeholder="Enter custom category..." value={formData.allocationCategory} onChange={e => setFormData({...formData, allocationCategory: e.target.value})} className={`w-full px-4 py-3 border rounded-xl font-medium text-sm transition-all ${isDarkMode ? 'bg-slate-950 border-slate-800 focus:border-indigo-500' : 'bg-white border-slate-200 focus:border-indigo-500'}`} />
                        </div>
                     </div>
                  </section>
