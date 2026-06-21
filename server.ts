@@ -23,7 +23,7 @@ async function startServer() {
     
     app.use(vite.middlewares);
 
-    app.get("*", async (req, res, next) => {
+    app.get("*all", async (req, res, next) => {
       const url = req.originalUrl;
       
       // Basic static asset check - let vite.middlewares handle them
@@ -52,7 +52,7 @@ async function startServer() {
     console.log("Running in production mode");
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
-    app.get('*', (req, res) => {
+    app.get('*all', (req, res) => {
       res.sendFile(path.join(distPath, 'index.html'));
     });
   }
