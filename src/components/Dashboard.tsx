@@ -37,7 +37,7 @@ const Dashboard: React.FC<Props> = ({ stats, bookings, setActiveTab, onBookingCl
     sevenDaysLater.setDate(today.getDate() + 7);
 
     return bookings
-      .filter(b => b.type === 'Air Ticket' && b.flyingDate)
+      .filter(b => b.type === 'Air Ticket' && b.flyingDate && b.status?.toString().toUpperCase() !== BookingStatus.CANCELLED)
       .map(b => ({
         ...b,
         fDate: new Date(b.flyingDate!)
@@ -52,7 +52,12 @@ const Dashboard: React.FC<Props> = ({ stats, bookings, setActiveTab, onBookingCl
     const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0];
 
     return bookings
-      .filter(b => b.date >= startOfMonth && b.date <= endOfMonth && b.type === 'Air Ticket')
+      .filter(b => 
+        b.date >= startOfMonth && 
+        b.date <= endOfMonth && 
+        b.type === 'Air Ticket' && 
+        b.status?.toString().toUpperCase() !== BookingStatus.CANCELLED
+      )
       .reduce((sum, b) => sum + (b.cost || 0), 0);
   }, [bookings]);
 
@@ -191,8 +196,17 @@ const Dashboard: React.FC<Props> = ({ stats, bookings, setActiveTab, onBookingCl
           label="Total Revenue" 
           value={`৳${stats.totalSales.toLocaleString()}`} 
           icon={<Banknote />} 
-          trend="+12%" 
+          trend="CREDIT" 
           gradient="from-violet-600 to-indigo-600"
+          isDarkMode={isDarkMode}
+          onClick={() => setActiveTab('accounts')}
+        />
+        <StatCard 
+          label="Business Expense" 
+          value={`৳${stats.totalCost.toLocaleString()}`} 
+          icon={<TrendingUp className="rotate-180" />} 
+          trend="DEBIT" 
+          gradient="from-rose-500 to-pink-500"
           isDarkMode={isDarkMode}
           onClick={() => setActiveTab('accounts')}
         />
@@ -200,28 +214,19 @@ const Dashboard: React.FC<Props> = ({ stats, bookings, setActiveTab, onBookingCl
           label="Agency Profit" 
           value={`৳${stats.netProfit.toLocaleString()}`} 
           icon={<TrendingUp />} 
-          trend="+5.4%" 
+          trend="NET" 
           gradient="from-emerald-500 to-teal-500"
           isDarkMode={isDarkMode}
           onClick={() => setActiveTab('accounts')}
-        />
-        <StatCard 
-          label="Flight Volume" 
-          value={todayFlights.length.toString()} 
-          icon={<Activity />} 
-          trend="ACTIVE" 
-          gradient="from-amber-500 to-orange-500"
-          isDarkMode={isDarkMode}
-          onClick={() => setActiveTab('bookings')}
         />
         <StatCard 
           label="Total Ticket Cost" 
           value={`৳${totalCostVolume.toLocaleString()}`} 
           icon={<Banknote />} 
           trend="COST" 
-          gradient="from-rose-500 to-pink-500"
+          gradient="from-slate-600 to-slate-800"
           isDarkMode={isDarkMode}
-          onClick={() => setActiveTab('accounts')}
+          onClick={() => setActiveTab('bookings')}
         />
         <StatCard 
           label="Pending Tasks" 

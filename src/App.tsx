@@ -189,18 +189,47 @@ const App: React.FC = () => {
 
   useEffect(() => {
     // One-time database migration to fix ledger transaction amounts based on actual bookings
-    if (bookings.length > 0 && transactions.length > 0 && !sessionStorage.getItem('fixed_ledger_amounts_v4')) {
-      sessionStorage.setItem('fixed_ledger_amounts_v4', 'true');
+    if (bookings.length > 0 && transactions.length > 0 && !sessionStorage.getItem('fixed_ledger_amounts_v5')) {
+      sessionStorage.setItem('fixed_ledger_amounts_v5', 'true');
       const fixDb = async () => {
         let count = 0;
         
         // 1. Sync active bookings
         for (const b of bookings) {
           const bInc = transactions.find(t => t.bookingId === b.id && t.type === TransactionType.INCOME);
-          const netIncome = Math.max(0, (b.amount || 0) - (b.cost || 0));
-          if (bInc && (bInc.amount !== netIncome || bInc.date !== b.date)) {
-             await updateDoc(doc(db, 'transactions', bInc.id), { amount: netIncome, date: b.date || bInc.date, category: `${b.type} Net Income` });
-             count++;
+          const isCancelled = b.status?.toString().toUpperCase() === BookingStatus.CANCELLED;
+          
+          if (isCancelled) {
+            // Delete income transaction for cancelled bookings
+            if (bInc) {
+              await deleteDoc(doc(db, 'transactions', bInc.id));
+              count++;
+            }
+          } else {
+            // Update or create net profit transaction
+            const netIncome = (b.amount || 0) - (b.cost || 0);
+            if (bInc) {
+               if (bInc.amount !== netIncome || bInc.date !== b.date) {
+                 await updateDoc(doc(db, 'transactions', bInc.id), { 
+                   amount: netIncome, 
+                   date: b.date || bInc.date, 
+                   category: `${b.type} Net Income` 
+                 });
+                 count++;
+               }
+            } else {
+               // Create missing income transaction for existing non-cancelled booking
+               await addDoc(collection(db, 'transactions'), {
+                 date: b.date || new Date().toISOString().split('T')[0],
+                 category: `${b.type} Net Income`,
+                 amount: netIncome,
+                 type: TransactionType.INCOME,
+                 bookingId: b.id,
+                 reference: `BOOKING-${b.id}`,
+                 createdAt: serverTimestamp()
+               });
+               count++;
+            }
           }
         }
         
@@ -230,7 +259,11 @@ const App: React.FC = () => {
     const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0];
 
     const currentMonthManualTransactions = transactions.filter(t => t.date >= startOfMonth && t.date <= endOfMonth && !t.bookingId);
-    const currentMonthBookings = bookings.filter(b => b.date >= startOfMonth && b.date <= endOfMonth);
+    const currentMonthBookings = bookings.filter(b => 
+      b.date >= startOfMonth && 
+      b.date <= endOfMonth && 
+      b.status?.toString().toUpperCase() !== BookingStatus.CANCELLED
+    );
 
     const manualIncome = currentMonthManualTransactions
       .filter(t => t.type === TransactionType.INCOME)
@@ -244,14 +277,14 @@ const App: React.FC = () => {
 
     const bookingGross = currentMonthBookings.reduce((sum, b) => sum + Number(b.amount || 0), 0);
 
-    const totalIncome = bookingNet + manualIncome;
-    const totalExpense = manualExpense;
-    const netProfit = totalIncome - totalExpense;
+    const totalIncome = bookingNet + manualIncome; // This matches user's "Credit/Income"
+    const totalExpense = manualExpense; // This matches user's "Debit/Expense"
+    const netProfit = totalIncome - totalExpense; // This matches user's "Remaining Balance"
 
     const pendingCount = bookings.filter(b => b.status && b.status.toString().toUpperCase() === BookingStatus.PENDING).length;
 
     return { 
-      totalSales: bookingGross + manualIncome, 
+      totalSales: totalIncome, // User requested "Total Revenue হবে 108667"
       totalCost: totalExpense, 
       netProfit: netProfit, 
       pendingInvoices: pendingCount 
@@ -263,16 +296,19 @@ const App: React.FC = () => {
       const bookingRef = await addDoc(collection(db, 'bookings'), newBooking);
       
       // Auto-create income transaction (Net Income)
-      const netProfit = Math.max(0, (newBooking.amount || 0) - (newBooking.cost || 0));
-      await addDoc(collection(db, 'transactions'), {
-        date: newBooking.date || new Date().toISOString().split('T')[0],
-        category: `${newBooking.type} Net Income`,
-        amount: netProfit,
-        type: TransactionType.INCOME,
-        bookingId: bookingRef.id,
-        reference: `BOOKING-${bookingRef.id}`,
-        createdAt: serverTimestamp()
-      });
+      const isCancelled = newBooking.status?.toString().toUpperCase() === BookingStatus.CANCELLED;
+      if (!isCancelled) {
+        const netProfit = (newBooking.amount || 0) - (newBooking.cost || 0);
+        await addDoc(collection(db, 'transactions'), {
+          date: newBooking.date || new Date().toISOString().split('T')[0],
+          category: `${newBooking.type} Net Income`,
+          amount: netProfit,
+          type: TransactionType.INCOME,
+          bookingId: bookingRef.id,
+          reference: `BOOKING-${bookingRef.id}`,
+          createdAt: serverTimestamp()
+        });
+      }
     } catch (e) {
       handleFirestoreError(e, 'CREATE', 'bookings');
     }
@@ -285,13 +321,32 @@ const App: React.FC = () => {
       
       // Update linked income transaction if it exists
       const linkedIncome = transactions.find(t => t.bookingId === id && t.type === TransactionType.INCOME);
-      const netProfit = Math.max(0, (updatedBooking.amount || 0) - (updatedBooking.cost || 0));
-      if (linkedIncome) {
-        await updateDoc(doc(db, 'transactions', linkedIncome.id), {
-          amount: netProfit,
-          date: updatedBooking.date || linkedIncome.date,
-          category: `${updatedBooking.type} Net Income`
-        });
+      const isCancelled = updatedBooking.status?.toString().toUpperCase() === BookingStatus.CANCELLED;
+      
+      if (isCancelled) {
+        if (linkedIncome) {
+          await deleteDoc(doc(db, 'transactions', linkedIncome.id));
+        }
+      } else {
+        const netProfit = (updatedBooking.amount || 0) - (updatedBooking.cost || 0);
+        if (linkedIncome) {
+          await updateDoc(doc(db, 'transactions', linkedIncome.id), {
+            amount: netProfit,
+            date: updatedBooking.date || linkedIncome.date,
+            category: `${updatedBooking.type} Net Income`
+          });
+        } else {
+          // If transaction was previously deleted because it was cancelled, recreate it now that it's active
+          await addDoc(collection(db, 'transactions'), {
+            date: updatedBooking.date || new Date().toISOString().split('T')[0],
+            category: `${updatedBooking.type} Net Income`,
+            amount: netProfit,
+            type: TransactionType.INCOME,
+            bookingId: id,
+            reference: `BOOKING-${id}`,
+            createdAt: serverTimestamp()
+          });
+        }
       }
       
       // Delete old linked expense transactions if they exist (since we don't track ticket cost here anymore)
